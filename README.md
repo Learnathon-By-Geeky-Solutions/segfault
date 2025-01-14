@@ -25,4 +25,4 @@ Add your project description here.
 ## Resources
 - [Project Documentation](docs/)
 - [Development Setup](docs/setup.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
+- [Contributing Guidelines](https://github.com/Learnathon-By-Geeky-Solutions/segfault/wiki/Contributing)
