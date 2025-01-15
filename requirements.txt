@@ -23,11 +23,14 @@ pre_commit==4.0.1
 Pygments==2.19.1
 PyJWT==2.10.1
 pylint==3.3.3
+python-dotenv==1.0.1
 PyYAML==6.0.2
 radon==6.0.1
 rich==13.9.4
 six==1.17.0
 sqlparse==0.5.3
 stevedore==5.4.0
+tomli==2.2.1
 tomlkit==0.13.2
+typing_extensions==4.12.2
 virtualenv==20.28.1
