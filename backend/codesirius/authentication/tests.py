@@ -18,7 +18,7 @@ class UserSignupTestCase(APITestCase):
         )
         self.signin_url = "/api/v1/signin"
 
-    def test_login(self):
+    def test_signin(self):
         response = self.client.post(
             self.signin_url, {"email": "testuser@gmail.com", "password": "testpassword"}
         )
