@@ -14,3 +14,14 @@ repos:
     hooks:
       - id: black
         args: ["--check"]
+
+  # Use the latest stable version of ESLint to check TypeScript files
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.54.0  # Use the latest stable eslint version
+    hooks:
+      - id: eslint
+        args: [
+          "--ext", ".ts",  # Check TypeScript files
+          "--config", ".eslintrc.json"  # Ensure you have a Google Style ESLint config
+        ]
