@@ -1,5 +1,0 @@
-# Add gts to your configuration
-- repo: https://github.com/google/gts
-  rev: v6.0.0
-  hooks:
-    - id: gts
