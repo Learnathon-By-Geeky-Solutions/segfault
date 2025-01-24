@@ -14,3 +14,7 @@ repos:
     hooks:
       - id: black
         args: ["--check"]
+
+
+# exclude js/ts files from black
+exclude: '\.jsx?$|\.tsx?$'
