@@ -1,30 +1,44 @@
-import type {Metadata} from "next";
-import {Geist, Geist_Mono} from "next/font/google";
+import {AppRouterCacheProvider} from '@mui/material-nextjs/v15-appRouter';
+import {Roboto} from 'next/font/google';
+import ResponsiveAppBar from "@/components/appbar";
+import {Grid} from "@mui/system";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar"
+import * as React from "react";
+import CodesiriusThemeProvider from "@/components/themeProvider";
+import {cookies} from "next/headers";
+import {themeType} from "@/types";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
+const roboto = Roboto({
+    weight: ['300', '400', '500', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-roboto',
 });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
 
-export const metadata: Metadata = {
-    title: "Segfault",
-    description: "Ace your next interview",
-};
+export default async function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
+    // const [darkMode, setDarkMode] = React.useState<boolean>(false);
+    //
+    // useEffect(() => {
+    //     setDarkMode(localStorage.getItem('darkMode') === 'true');
+    // }, [])
 
-export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
-}>) {
+    const cookieStore = await cookies();
+    const theme = cookieStore.get('theme')?.value as themeType || 'light';
+
     return (
         <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <body className={roboto.variable}>
+        <AppRouterCacheProvider options={{key: 'css'}}>
+            <CodesiriusThemeProvider theme={theme}>
+                <Box component="main" sx={{p: 3}}>
+                    <Toolbar/>
+                    {children}
+                </Box>
+            </CodesiriusThemeProvider>
+        </AppRouterCacheProvider>
+
         </body>
         </html>
     );
