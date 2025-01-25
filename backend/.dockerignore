@@ -1,0 +1,13 @@
+.gitignore
+.git/
+.idea/
+
+.docker
+
+codesirius/__pycache__/
+codesirius/*/__pycache__/
+codesirius/*/*/__pycache__/
+codesirius/*/*/*/__pycache__/
+.env
+.venv/
+venv/
