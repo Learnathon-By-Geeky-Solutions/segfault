@@ -11,7 +11,7 @@ COPY public ./public
 EXPOSE 3000
 
 ARG DEV=false
-RUN npm install && \
+RUN npm install --ignore-scripts && \
     if [ "$DEV" = "true" ]; then npm install --only=dev; fi && \
     adduser --disabled-password codesirius
 
