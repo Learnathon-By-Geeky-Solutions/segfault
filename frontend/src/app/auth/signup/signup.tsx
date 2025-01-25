@@ -7,8 +7,10 @@ import AccountInformation from "@/app/auth/signup/accountInformation";
 import Verification from "@/app/auth/signup/verification";
 import Complete from "@/app/auth/signup/complete";
 import Typography from "@mui/material/Typography";
-import Link from "next/link";
+import NextLink from "next/link";
 import Button from "@mui/material/Button";
+import Link from '@mui/material/Link';
+
 
 const Signup = () => {
     const steps = ['Account Information', 'Verification', 'Complete'];
@@ -43,11 +45,14 @@ const Signup = () => {
                             <Divider/>
                             <Typography variant="body2" sx={{textAlign: 'center'}}>
                               Already have an account?
-                              &nbsp;
-                              <Link href="/auth/signin" style={{textDecoration: 'none'}}>
-                                <Button variant="text" color="primary" fullWidth>
-                                  Sign In
-                                </Button>
+                              <br />
+                                {/*<Link href="/auth/signin" style={{textDecoration: 'none'}}>*/}
+                                {/*  <Button variant="text" color="primary" fullWidth>*/}
+                                {/*    Sign In*/}
+                                {/*  </Button>*/}
+                                {/*</Link>*/}
+                              <Link component={NextLink} href="/auth/signin" variant="body2" sx={{textDecoration: 'none'}}>
+                                Sign In
                               </Link>
                             </Typography>
                           </>
