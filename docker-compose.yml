@@ -12,3 +12,17 @@ services:
     working_dir: /app/codesirius
     command: >
         sh -c "python manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+    build:
+        context: frontend
+        dockerfile: Dockerfile
+        args:
+          - DEV=true
+    ports:
+      - "3000:3000"
+    volumes:
+        - ./frontend:/app
+    working_dir: /app
+    command: >
+        sh -c "npm run dev"
