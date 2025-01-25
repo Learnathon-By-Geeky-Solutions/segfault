@@ -3,7 +3,11 @@ LABEL maintainer="segfault"
 
 WORKDIR /app
 
-COPY . .
+COPY package.json ./
+COPY package-lock.json ./
+COPY src ./src
+COPY public ./public
+
 EXPOSE 3000
 
 ARG DEV=false
