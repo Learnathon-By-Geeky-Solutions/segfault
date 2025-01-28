@@ -10,11 +10,12 @@ class ModelTests(TestCase):
 
     def test_create_user_with_email_successful(self):
         """Test creating a new user with an email is successful"""
+        first_name = "Test"
         email = "test@example.com"
-        username = "testusername"
+        username = "testusername1"
         password = "testpassword"
         user = get_user_model().objects.create_user(
-            email=email, username=username, password=password
+            first_name=first_name, email=email, username=username, password=password
         )
 
         self.assertEqual(user.email, email)
@@ -23,6 +24,8 @@ class ModelTests(TestCase):
 
     def test_new_user_email_normalized(self):
         """Test the email for a new user is normalized"""
+        first_name = "Test"
+        password = "testpassword"
         sample_emails = [
             ("test1@EXAMPLE.com", "test1@example.com"),
             ("Test2@Example.com", "Test2@example.com"),
@@ -30,41 +33,52 @@ class ModelTests(TestCase):
             ("test4@example.COM", "test4@example.com"),
         ]
 
-        for email, expected_email in sample_emails:
+        for i, (email, expected_email) in enumerate(sample_emails):
+            username = f"testusername{i}"
             user = get_user_model().objects.create_user(
-                email, "testusername", "testpassword"
+                first_name=first_name, email=email, username=username, password=password
             )
             self.assertEqual(user.email, expected_email)
 
-    def test_new_user_invalid_email(self):
-        """Test creating user with no email raises error"""
-        with self.assertRaises(ValueError):
-            get_user_model().objects.create_user(None, "testusername", "testpassword")
-
     def test_new_user_without_email_raises_error(self):
         """Test creating user without email raises error"""
-        with self.assertRaises(ValueError):
-            get_user_model().objects.create_user("", "testusername", "testpassword")
-
-        with self.assertRaises(ValueError):
-            get_user_model().objects.create_user(None, "testusername", "testpassword")
-
-    def test_new_user_without_username_raises_error(self):
-        """Test creating user without username raises error"""
+        first_name = "Test"
+        username = "testusername3"
+        password = "testpassword"
         with self.assertRaises(ValueError):
             get_user_model().objects.create_user(
-                email="test@example.com", username="", password="testpassword"
+                first_name=first_name, email="", username=username, password=password
             )
 
         with self.assertRaises(ValueError):
             get_user_model().objects.create_user(
-                email="test@example.com", username=None, password="testpassword"
+                first_name=first_name, email=None, username=username, password=password
+            )
+
+    def test_new_user_without_username_raises_error(self):
+        """Test creating user without username raises error"""
+        first_name = "Test"
+        email = "test@emaple5.com"
+        password = "testpassword"
+        with self.assertRaises(ValueError):
+            get_user_model().objects.create_user(
+                first_name=first_name, email=email, username="", password=password
+            )
+
+        with self.assertRaises(ValueError):
+            get_user_model().objects.create_user(
+                first_name=first_name, email=email, username=None, password=password
             )
 
     def test_create_superuser(self):
         """Test creating a new superuser"""
+        first_name = "Test Super"
+        email = "admin@example.com"
+        username = "testsuperuser"
+        password = "testpassword"
+
         user = get_user_model().objects.create_superuser(
-            email="test@example.com", username="testusername", password="testpassword"
+            email=email, username=username, password=password
         )
 
         self.assertTrue(user.is_superuser)  # is_superuser is part of PermissionsMixin
