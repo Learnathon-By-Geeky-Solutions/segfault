@@ -1,3 +1,7 @@
+"""
+Test the user model
+"""
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
@@ -44,3 +48,24 @@ class ModelTests(TestCase):
 
         with self.assertRaises(ValueError):
             get_user_model().objects.create_user(None, "testusername", "testpassword")
+
+    def test_new_user_without_username_raises_error(self):
+        """Test creating user without username raises error"""
+        with self.assertRaises(ValueError):
+            get_user_model().objects.create_user(
+                email="test@example.com", username="", password="testpassword"
+            )
+
+        with self.assertRaises(ValueError):
+            get_user_model().objects.create_user(
+                email="test@example.com", username=None, password="testpassword"
+            )
+
+    def test_create_superuser(self):
+        """Test creating a new superuser"""
+        user = get_user_model().objects.create_superuser(
+            email="test@example.com", username="testusername", password="testpassword"
+        )
+
+        self.assertTrue(user.is_superuser)  # is_superuser is part of PermissionsMixin
+        self.assertTrue(user.is_staff)  # is_staff is part of PermissionsMixin
