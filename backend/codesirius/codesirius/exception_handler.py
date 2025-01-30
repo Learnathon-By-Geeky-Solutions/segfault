@@ -52,7 +52,7 @@ def custom_exception_handler(exc, context):
                 "timestamp": timestamp,
                 "status": response.status_code,
                 "error": HTTPStatus(response.status_code).phrase,
-                "message": exc.detail,
+                "message": exc.default_detail,
                 "path": context["request"].path,
             }
     else:
