@@ -6,11 +6,12 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.validators import UniqueValidator
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import (
     TokenObtainPairSerializer,
     TokenVerifySerializer,
+    TokenRefreshSerializer,
 )
-from rest_framework_simplejwt.exceptions import TokenError
 
 User = get_user_model()
 
@@ -25,6 +26,7 @@ class SignupSerializer(serializers.Serializer):
         max_length=255,
         error_messages={
             "required": "First name is required",
+            "blank": "First name is required",
             "min_length": "First name is too short",
             "max_length": "First name is too long",
         },
@@ -60,6 +62,7 @@ class SignupSerializer(serializers.Serializer):
         min_length=8,
         error_messages={
             "required": "Password is required",
+            "blank": "Password is required",
             "min_length": "Password is too short",
         },
     )
@@ -115,6 +118,19 @@ class SigninSerializer(TokenObtainPairSerializer):
 
 
 class CustomTokenVerifySerializer(TokenVerifySerializer):
+    token = serializers.CharField(
+        required=True, error_messages={"required": "Token is required"}
+    )
+
+    def validate(self, data):
+        try:
+            super().validate(data)
+        except TokenError as e:
+            raise ValidationError(str(e))
+        return data
+
+
+class CustomTokenRefreshSerializer(TokenRefreshSerializer):
     token = serializers.CharField(
         required=True, error_messages={"required": "Token is required"}
     )
