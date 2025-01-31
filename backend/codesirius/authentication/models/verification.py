@@ -1,6 +1,6 @@
 import string
 from django.utils.timezone import now, timedelta
-from random import choices
+from secrets import choice
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -45,7 +45,9 @@ class VerificationCode(BaseModel):
         This is a static method so that it can be used without an instance of the class.
         This is also a private method so that it should NOT be called from outside the class.
         """
-        return "".join(choices(string.ascii_uppercase + string.digits, k=length))
+        return "".join(
+            choice(string.ascii_uppercase + string.digits) for _ in range(length)
+        )
 
     def __str__(self):
         return f"{self.user.username} - {self.code}"
