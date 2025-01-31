@@ -13,7 +13,7 @@ urlpatterns = [
     path(
         "<int:user_id>/verification",
         VerificationCodeAPIView.as_view(),
-        name="verification",
+        name="reset_verification_code",
     ),
     path("signin", TokenObtainPairAPIView.as_view(), name="signin"),
     path("token/verify", TokenVerifyAPIView.as_view(), name="token_verify"),
