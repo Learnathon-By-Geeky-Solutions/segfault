@@ -21,7 +21,9 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+
+from codesirius.views import Fallback404View
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -32,4 +34,5 @@ urlpatterns = [
         name="docs",
     ),
     path("api/v1/auth/", include("authentication.urls")),
+    re_path(r"^.*$", Fallback404View.as_view(), name="fallback_404"),
 ]
