@@ -1,5 +1,5 @@
 import string
-from datetime import datetime, timedelta
+from django.utils.timezone import now, timedelta
 from random import choices
 
 from django.contrib.auth import get_user_model
@@ -25,14 +25,14 @@ class VerificationCode(BaseModel):
         if not self.code:
             self.code = VerificationCode._generate_verification_code()
         if not self.expires_at:
-            self.expires_at = datetime.now() + timedelta(minutes=5)  # 5 minutes
+            self.expires_at = now() + timedelta(minutes=5)  # 5 minutes
 
     def regenerate_verification_code(self):
         """
         Regenerate the verification code and set the expiration time to 5 minutes from now.
         """
         self.code = VerificationCode._generate_verification_code()
-        self.expires_at = datetime.now() + timedelta(minutes=5)
+        self.expires_at = now() + timedelta(minutes=5)
         self.is_used = False
         self.used_at = None
         self.save()
@@ -50,15 +50,15 @@ class VerificationCode(BaseModel):
     def __str__(self):
         return f"{self.user.username} - {self.code}"
 
-    def is_expired(self):
-        return self.expires_at < datetime.now()
+    def _is_expired(self):
+        return self.expires_at < now()
 
     def is_valid(self):
-        return not self.is_used and not self.is_expired()
+        return not self.is_used and not self._is_expired()
 
     def mark_as_used(self):
         self.is_used = True
-        self.used_at = datetime.now()
+        self.used_at = now()
         self.save()
 
     def save(self, *args, **kwargs):
