@@ -1,22 +1,8 @@
-"""
-Serializers for authentication app.
-"""
-
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.exceptions import (
-    AuthenticationFailed,
-    ValidationError,
-)
 from rest_framework.validators import UniqueValidator
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.serializers import (
-    TokenObtainPairSerializer,
-    TokenVerifySerializer,
-    TokenRefreshSerializer,
-)
 
-from authentication.models import VerificationCode
+from authentication.models.verification import VerificationCode
 
 User = get_user_model()
 
@@ -30,10 +16,10 @@ class SignupSerializer(serializers.Serializer):
         min_length=1,
         max_length=255,
         error_messages={
-            "required": "First name is required",
-            "blank": "First name is required",
-            "min_length": "First name is too short",
-            "max_length": "First name is too long",
+            "required": "First name is required.",
+            "blank": "First name is required.",
+            "min_length": "First name is too short.",
+            "max_length": "First name is too long.",
         },
     )
     last_name = serializers.CharField()
@@ -103,62 +89,3 @@ class SignupSerializer(serializers.Serializer):
         verification_code = VerificationCode.objects.create(user=user)
         verification_code.send_code()
         return user
-
-
-class SigninSerializer(TokenObtainPairSerializer):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["username"].error_messages["required"] = "Username is required"
-        self.fields["username"].error_messages["blank"] = "Username is required"
-
-        self.fields["password"].error_messages["required"] = "Password is required"
-        self.fields["password"].error_messages["blank"] = "Password is required"
-
-    def validate(self, attrs):
-        username_field = self.username_field
-        credentials = {
-            username_field: attrs[username_field],
-            "password": attrs["password"],
-        }
-
-        user = authenticate(**credentials)
-        if not user:
-            raise AuthenticationFailed("Invalid credentials")
-        if not user.is_active:
-            raise AuthenticationFailed("Account is not active")
-        return super().validate(attrs)
-
-
-class CustomTokenVerifySerializer(TokenVerifySerializer):
-    token = serializers.CharField(
-        required=True,
-        error_messages={
-            "required": "Token is required",
-            "blank": "Token is required",
-        },
-    )
-
-    def validate(self, data):
-        try:
-            super().validate(data)
-        except TokenError as e:
-            raise ValidationError({"token": [str(e)]})
-        return data
-
-
-class CustomTokenRefreshSerializer(TokenRefreshSerializer):
-    refresh = serializers.CharField(
-        required=True,
-        error_messages={
-            "required": "Refresh token is required",
-            "blank": "Refresh token is required",
-        },
-    )
-
-    def validate(self, data):
-        try:
-            super().validate(data)
-        except TokenError as e:
-            raise ValidationError({"refresh": [str(e)]})
-        return data
