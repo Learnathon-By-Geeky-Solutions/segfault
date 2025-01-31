@@ -69,10 +69,10 @@ class AuthenticationApiTests(TestCase):
 
     def test_signup_user_with_short_password_fails(self):
         """Test signing up with short password fails"""
-        short_password = self.fake.password(
-            length=5)  # Generate a short password
-        payload = self.generate_user_payload(password1=short_password,
-                                             password2=short_password)
+        short_password = self.fake.password(length=5)  # Generate a short password
+        payload = self.generate_user_payload(
+            password1=short_password, password2=short_password
+        )
 
         res = self.client.post(SIGNUP_URL, payload)
 
