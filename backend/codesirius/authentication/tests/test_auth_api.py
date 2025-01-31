@@ -2,14 +2,12 @@
 Test cases for the authentication API
 """
 
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 from django.urls import reverse
-
-from rest_framework.test import APIClient
-from rest_framework import status
-
 from faker import Faker
+from rest_framework import status
+from rest_framework.test import APIClient
 
 SIGNUP_URL = reverse("signup")
 
@@ -71,7 +69,10 @@ class AuthenticationApiTests(TestCase):
 
     def test_signup_user_with_short_password_fails(self):
         """Test signing up with short password fails"""
-        payload = self.generate_user_payload(password1="pw", password2="pw")
+        short_password = self.fake.password(
+            length=5)  # Generate a short password
+        payload = self.generate_user_payload(password1=short_password,
+                                             password2=short_password)
 
         res = self.client.post(SIGNUP_URL, payload)
 
