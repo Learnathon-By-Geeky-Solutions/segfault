@@ -10,7 +10,11 @@ from authentication.views.whoami import WhoAmIView
 
 urlpatterns = [
     path("signup", SignupAPIView.as_view(), name="signup"),
-    path(":id/verification", VerificationCodeAPIView.as_view(), name="verification"),
+    path(
+        "<int:user_id>/verification",
+        VerificationCodeAPIView.as_view(),
+        name="verification",
+    ),
     path("signin", TokenObtainPairAPIView.as_view(), name="signin"),
     path("token/verify", TokenVerifyAPIView.as_view(), name="token_verify"),
     path("token/refresh", TokenRefreshAPIView.as_view(), name="token_refresh"),
