@@ -1,4 +1,3 @@
-from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from authentication.serializers.token_refresh import CodesiriusTokenRefreshSerializer
