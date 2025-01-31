@@ -1,10 +1,11 @@
-from codesirius.models import BaseModel
-from django.db import models
-from django.contrib.auth import get_user_model
-
-from random import choices
-from datetime import datetime, timedelta
 import string
+from datetime import datetime, timedelta
+from random import choices
+
+from django.contrib.auth import get_user_model
+from django.db import models
+
+from codesirius.models import BaseModel
 
 
 class VerificationCode(BaseModel):
@@ -14,9 +15,36 @@ class VerificationCode(BaseModel):
     used_at = models.DateTimeField(null=True, blank=True)
     expires_at = models.DateTimeField()
 
+    def __init__(self, *args, **kwargs):
+        """
+        Generate a random verification code if not provided.
+        Set the expiration time to 5 minutes if not provided.
+        """
+        self._regenerated = False
+        super().__init__(*args, **kwargs)
+        if not self.code:
+            self.code = VerificationCode._generate_verification_code()
+        if not self.expires_at:
+            self.expires_at = datetime.now() + timedelta(minutes=5)  # 5 minutes
+
+    def regenerate_verification_code(self):
+        """
+        Regenerate the verification code and set the expiration time to 5 minutes from now.
+        """
+        self.code = VerificationCode._generate_verification_code()
+        self.expires_at = datetime.now() + timedelta(minutes=5)
+        self.is_used = False
+        self.used_at = None
+        self.save()
+        self._regenerated = True
+
     @staticmethod
-    def generate_verification_code(length=6):
-        """Generate a random alphanumeric verification code."""
+    def _generate_verification_code(length=6):
+        """
+        Generate a random verification code.
+        This is a static method so that it can be used without an instance of the class.
+        This is also a private method so that it should NOT be called from outside the class.
+        """
         return "".join(choices(string.ascii_uppercase + string.digits, k=length))
 
     def __str__(self):
@@ -34,14 +62,19 @@ class VerificationCode(BaseModel):
         self.save()
 
     def save(self, *args, **kwargs):
-        if not self.code:
-            self.code = self.generate_verification_code()
-        if not self.expires_at:
-            self.expires_at = datetime.now() + timedelta(minutes=5)  # 5 minutes
+        """
+        Save the verification code and send it to the user.
+
+        TODO: Use celery to send the code asynchronously.
+        """
+        if self._regenerated:
+            # If the verification code is regenerated, do not save it.
+            # As the verification code is already saved in the database.
+            raise Exception("You cannot save a regenerated verification code.")
         super().save(*args, **kwargs)
 
-    def send_code(self):
-        pass
+        # for example, using celery
+        # send_verification_code.delay(self.user.email, self.code)
 
     class Meta:
         verbose_name = "Verification Code"
