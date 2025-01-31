@@ -26,7 +26,7 @@ class SignupAPIView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             return CodesiriusAPIResponse(
-                data={"user_id": user.id},
+                data={"user_id": user.id, "is_active": user.is_active},
                 status_code=status.HTTP_201_CREATED,
                 message="User created",
             )
