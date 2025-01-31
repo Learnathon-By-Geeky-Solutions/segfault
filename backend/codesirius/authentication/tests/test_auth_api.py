@@ -9,6 +9,8 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
+from faker import Faker
+
 SIGNUP_URL = reverse("signup")
 
 
@@ -23,18 +25,28 @@ class AuthenticationApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
+        self.fake = Faker()
+
+    def generate_user_payload(self, password1=None, password2=None, override=None):
+        if not password1:
+            password1 = self.fake.password()
+        if not password2:
+            password2 = password1
+        payload = {
+            "first_name": self.fake.first_name(),
+            "last_name": self.fake.last_name(),
+            "email": self.fake.email(),
+            "username": self.fake.user_name(),
+            "password1": password1,
+            "password2": password2,
+        }
+        if override:
+            payload.update(override)
+        return payload
 
     def test_signup_valid_user_success(self):
         """Test signing up with valid payload is successful"""
-        payload = {
-            "first_name": "test",
-            "last_name": "user",
-            "email": "test@example.com",
-            "username": "testuser",
-            "password1": "testpassword",
-            "password2": "testpassword",
-        }
-
+        payload = self.generate_user_payload()
         res = self.client.post(SIGNUP_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
@@ -43,14 +55,7 @@ class AuthenticationApiTests(TestCase):
 
     def test_signup_user_with_existing_email_fails(self):
         """Test signing up with existing email fails"""
-        payload = {
-            "first_name": "test",
-            "last_name": "user",
-            "email": "test@example.com",
-            "username": "testuser",
-            "password1": "testpassword",
-            "password2": "testpassword",
-        }
+        payload = self.generate_user_payload()
         create_user(**payload)
         res = self.client.post(SIGNUP_URL, payload)
 
@@ -58,14 +63,7 @@ class AuthenticationApiTests(TestCase):
 
     def test_signup_user_with_existing_username_fails(self):
         """Test signing up with existing username fails"""
-        payload = {
-            "first_name": "test",
-            "last_name": "user",
-            "email": "test@example.com",
-            "username": "testuser",
-            "password1": "testpassword",
-            "password2": "testpassword",
-        }
+        payload = self.generate_user_payload()
         create_user(**payload)
         res = self.client.post(SIGNUP_URL, payload)
 
@@ -73,14 +71,7 @@ class AuthenticationApiTests(TestCase):
 
     def test_signup_user_with_short_password_fails(self):
         """Test signing up with short password fails"""
-        payload = {
-            "first_name": "test",
-            "last_name": "user",
-            "email": "test@example.com",
-            "username": "testuser",
-            "password1": "pw",
-            "password2": "pw",
-        }
+        payload = self.generate_user_payload(password1="pw", password2="pw")
 
         res = self.client.post(SIGNUP_URL, payload)
 
@@ -90,14 +81,9 @@ class AuthenticationApiTests(TestCase):
 
     def test_signup_user_with_mismatched_passwords_fails(self):
         """Test signing up with mismatched passwords fails"""
-        payload = {
-            "first_name": "test",
-            "last_name": "user",
-            "email": "test@example.com",
-            "username": "testuser",
-            "password1": "testpassword",
-            "password2": "testpassword1",
-        }
+        payload = self.generate_user_payload(
+            password2="testpassword1", password1="testpassword"
+        )
 
         res = self.client.post(SIGNUP_URL, payload)
 
