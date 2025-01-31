@@ -15,7 +15,6 @@ class CodesiriusTokenVerifySerializer(TokenVerifySerializer):
 
     def validate(self, data):
         try:
-            super().validate(data)
+            return super().validate(data)
         except TokenError as e:
-            raise ValidationError({"token": [str(e)]})
-        return data
+            raise ValidationError({"token": str(e)})
