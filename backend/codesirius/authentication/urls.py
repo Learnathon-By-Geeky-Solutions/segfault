@@ -1,5 +1,4 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
 
 from authentication.views.auth import SignupAPIView
 from authentication.views.token_obtain_pair import TokenObtainPairAPIView
