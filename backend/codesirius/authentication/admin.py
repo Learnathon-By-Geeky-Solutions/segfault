@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
+from authentication.models import VerificationCode
+
 User = get_user_model()
 
 
@@ -69,3 +71,38 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.register(User, UserAdmin)
 # admin.site.register(User)
+# admin.site.register(VerificationCode)
+
+
+class VerificationCodeAdmin(admin.ModelAdmin):
+    list_display = ["user", "code", "created_at", "updated_at"]
+    fieldsets = [
+        ("Primary Info", {"fields": ["user", "code"]}),
+        ("Important Dates", {"fields": ["created_at", "updated_at"]}),
+        (
+            "Other Info",
+            {
+                "fields": [
+                    "is_used",
+                    "used_at",
+                    "expires_at",
+                    "created_by",
+                    "updated_by",
+                ]
+            },
+        ),
+    ]
+    readonly_fields = (
+        "id",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "expires_at",
+        "is_used",
+        "used_at",
+    )
+
+
+admin.site.register(VerificationCode, VerificationCodeAdmin)
+admin.site.site_title = "Codesirius Admin Portal"
