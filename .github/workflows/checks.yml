@@ -14,7 +14,7 @@ on:
       - dev
 
 jobs:
-  lint:
+  backend-test-and-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
