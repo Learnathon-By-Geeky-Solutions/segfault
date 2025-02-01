@@ -2,8 +2,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from authentication.models.verification import VerificationCode
-
 User = get_user_model()
 
 

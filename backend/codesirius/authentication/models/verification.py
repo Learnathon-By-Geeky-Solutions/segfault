@@ -1,9 +1,9 @@
 import string
-from django.utils.timezone import now, timedelta
 from secrets import choice
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils.timezone import now, timedelta
 
 from codesirius.models import BaseModel
 

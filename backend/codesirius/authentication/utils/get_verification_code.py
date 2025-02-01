@@ -1,4 +1,5 @@
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound
+
 from authentication.models import VerificationCode
 
 

@@ -9,7 +9,8 @@ from django.test import TestCase
 class ModelTests(TestCase):
 
     def test_create_user_with_first_name_email_username_password_successful(self):
-        """Test creating a new user with first name, email, username and password is successful"""
+        """Test creating a new user with
+        first name, email, username and password is successful"""
         first_name = "Test"
         email = "test@example.com"
         username = "testusername"
