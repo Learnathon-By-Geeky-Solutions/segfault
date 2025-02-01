@@ -86,6 +86,4 @@ class SignupSerializer(serializers.Serializer):
             is_active=False, **validated_data
         )  # enforce is_active=False
 
-        verification_code = VerificationCode.objects.create(user=user)
-        verification_code.save()
         return user
