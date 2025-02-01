@@ -126,16 +126,12 @@ const Signin = () => {
                         <Divider/>
                         <Typography variant="body2" sx={{textAlign: 'center'}}>
                             Don&#39;t have an account?
-                        </Typography>
-                        <Link href="/auth/signup">
-                            <Button
-                                variant="text"
-                                color="primary"
-                                fullWidth
-                            >
+                            <br/>
+                            <Link component={NextLink} href="/auth/signup" variant="body2"
+                                  sx={{textDecoration: 'none'}} onClick={() => setCodesiriusLoading(true)}>
                                 Sign up
-                            </Button>
-                        </Link>
+                            </Link>
+                        </Typography>
                     </Paper>
                 </Grid>
             </Grid>
