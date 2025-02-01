@@ -43,6 +43,12 @@ const Signin = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
 
+    // this runs only once when the component is mounted
+    useEffect(() => {
+        setCodesiriusLoading(false);
+    }, [])
+
+
     return (
         <>
             <Grid container spacing={2} direction="column" alignItems="center" justifyContent="center">
