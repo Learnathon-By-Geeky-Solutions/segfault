@@ -7,7 +7,9 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import {AccountCircle, NavigateNext, Password, Visibility, VisibilityOff} from "@mui/icons-material";
 import Button from "@mui/material/Button";
-import Link from "next/link";
+import {useCodesiriusState} from "@/contexts/codesiriusStateContext";
+import NextLink from "next/link";
+import Link from "@mui/material/Link";
 
 const Signin = () => {
     const {setCodesiriusLoading} = useCodesiriusState();
