@@ -21,5 +21,8 @@ class CheckVerificationCodeSerializer(serializers.Serializer):
 
         if verification_code.code != attrs["code"]:
             raise ValidationError({"code": "Invalid verification code"})
+
+        # delete the verification code after successful verification
+        verification_code.delete()
         self.context["user"] = user
         return attrs
