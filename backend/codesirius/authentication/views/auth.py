@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 
+from authentication.models import VerificationCode
 from authentication.serializers.signup import SignupSerializer
 from codesirius.codesirius_api_response import CodesiriusAPIResponse
 
@@ -14,6 +15,7 @@ class SignupAPIView(APIView):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            VerificationCode.objects.create(user=user)
             return CodesiriusAPIResponse(
                 data={"user_id": user.id, "is_active": user.is_active},
                 status_code=status.HTTP_201_CREATED,
