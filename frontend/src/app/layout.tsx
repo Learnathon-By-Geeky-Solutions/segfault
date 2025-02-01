@@ -1,13 +1,11 @@
 import {AppRouterCacheProvider} from '@mui/material-nextjs/v15-appRouter';
 import {Roboto} from 'next/font/google';
-import ResponsiveAppBar from "@/components/appbar";
-import {Grid} from "@mui/system";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar"
 import * as React from "react";
-import CodesiriusThemeProvider from "@/components/themeProvider";
 import {cookies} from "next/headers";
 import {themeType} from "@/types";
+import {CodesiriusStateProvider} from "@/contexts/codesiriusStateContext";
 
 const roboto = Roboto({
     weight: ['300', '400', '500', '700'],
@@ -31,12 +29,12 @@ export default async function RootLayout({children}: Readonly<{ children: React.
         <html lang="en">
         <body className={roboto.variable}>
         <AppRouterCacheProvider options={{key: 'css'}}>
-            <CodesiriusThemeProvider theme={theme}>
+            <CodesiriusStateProvider theme={theme}>
                 <Box component="main" sx={{p: 3}}>
                     <Toolbar/>
                     {children}
                 </Box>
-            </CodesiriusThemeProvider>
+            </CodesiriusStateProvider>
         </AppRouterCacheProvider>
 
         </body>
