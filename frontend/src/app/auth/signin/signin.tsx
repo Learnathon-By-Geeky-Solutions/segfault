@@ -1,5 +1,5 @@
 "use client";
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Grid} from "@mui/system";
 import {FormControl, InputAdornment, Paper, TextField} from "@mui/material";
 import Divider from "@mui/material/Divider";
@@ -117,6 +117,11 @@ const Signin = () => {
                                 helperText={passwordError}
                                 error={passwordError.length > 0}
                             />
+                            <Typography variant="body2" sx={{textAlign: 'right', mt: 1}}>
+                                <Link href="#" variant="body2" sx={{textDecoration: "none"}}>
+                                    Forgot password?
+                                </Link>
+                            </Typography>
                         </FormControl>
                         <Button
                             variant="contained"
