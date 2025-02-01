@@ -10,6 +10,7 @@ import Button from "@mui/material/Button";
 import Link from "next/link";
 
 const Signin = () => {
+    const {setCodesiriusLoading} = useCodesiriusState();
 
     const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
     const [usernameOrEmailError, setUsernameOrEmailError] = useState<string>('');
