@@ -29,7 +29,8 @@ class VerificationCode(BaseModel):
 
     def regenerate_verification_code(self):
         """
-        Regenerate the verification code and set the expiration time to 5 minutes from now.
+        Regenerate the verification code
+        and set the expiration time to 5 minutes from now.
         """
         self.code = VerificationCode._generate_verification_code()
         self.expires_at = now() + timedelta(minutes=5)
@@ -42,8 +43,10 @@ class VerificationCode(BaseModel):
     def _generate_verification_code(length=6):
         """
         Generate a random verification code.
-        This is a static method so that it can be used without an instance of the class.
-        This is also a private method so that it should NOT be called from outside the class.
+        This is a static method so that
+        it can be used without an instance of the class.
+        This is also a private method so that
+        it should NOT be called from outside the class.
         """
         return "".join(
             choice(string.ascii_uppercase + string.digits) for _ in range(length)
