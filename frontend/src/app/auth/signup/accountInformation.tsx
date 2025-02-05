@@ -267,6 +267,11 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
                 />
             </Box>
         </BlockUi>
+            <Snackbar
+                open={isSnackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setIsSnackbarOpen(false)}
+                message={snackbarMessage}
     );
 };
 
