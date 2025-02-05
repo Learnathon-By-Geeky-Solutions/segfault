@@ -1,9 +1,9 @@
 'use client'
 import {useRef} from 'react'
 import {Provider} from 'react-redux'
-import {makeStore, AppStore} from '@/lib/store/store'
-import {setCodesiriusLoading, setProgress, setTheme} from "@/lib/store/codesiriusSlice";
 import {themeType} from "@/types";
+import {AppStore, makeStore} from "@/lib/store";
+import {setCodesiriusLoading, setProgress, setTheme} from "@/lib/features/codesirius/codesiriusSlice";
 
 interface StoreProviderProps {
     children: React.ReactNode,

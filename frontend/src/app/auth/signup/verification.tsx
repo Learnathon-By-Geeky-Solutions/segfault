@@ -4,10 +4,10 @@ import {Key, NavigateNext, Redo} from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import {useCheckVerificationMutation} from "@/lib/store/authApiSlice";
-import {APIError, VerificationRequest} from "@/types";
-import {isFetchBaseQueryError} from "@/lib/isFetchBaseQueryError";
-import {setCodesiriusLoading} from "@/lib/store/codesiriusSlice";
+import {useCheckVerificationMutation} from "@/lib/features/api/authApiSlice";
+import {setCodesiriusLoading} from "@/lib/features/codesirius/codesiriusSlice";
+import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
+import {APIError, VerificationRequest} from "@/lib/features/api/types";
 
 interface VerificationProps {
     setActiveStep: (value: number) => void;

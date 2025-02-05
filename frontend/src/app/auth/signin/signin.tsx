@@ -9,15 +9,16 @@ import {AccountCircle, NavigateNext, Password, Visibility, VisibilityOff} from "
 import Button from "@mui/material/Button";
 import NextLink from "next/link";
 import Link from "@mui/material/Link";
-import {useAppDispatch} from "@/lib/store/hooks";
-import {setCodesiriusLoading} from "@/lib/store/codesiriusSlice";
-import {useSigninMutation} from "@/lib/store/authApiSlice";
-import {APIError, SigninRequest} from "@/types";
-import {isFetchBaseQueryError} from "@/lib/isFetchBaseQueryError";
 import Box from "@mui/material/Box";
+import {useAppDispatch} from "@/lib/hooks/hooks";
+import {AppDispatch} from "@/lib/store";
+import {useSigninMutation} from "@/lib/features/api/authApiSlice";
+import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
+import {setCodesiriusLoading} from "@/lib/features/codesirius/codesiriusSlice";
+import {APIError, SigninRequest} from "@/lib/features/api/types";
 
 const Signin = () => {
-    const dispatch = useAppDispatch();
+    const dispatch = useAppDispatch<AppDispatch>();
 
     const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
     const [usernameOrEmailError, setUsernameOrEmailError] = useState<string>('');

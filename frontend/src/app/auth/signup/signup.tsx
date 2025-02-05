@@ -9,9 +9,9 @@ import Complete from "@/app/auth/signup/complete";
 import Typography from "@mui/material/Typography";
 import NextLink from "next/link";
 import Link from '@mui/material/Link';
-import {useAppDispatch} from "@/lib/store/hooks";
-import {setCodesiriusLoading} from "@/lib/store/codesiriusSlice";
 import Box from "@mui/material/Box";
+import {useAppDispatch} from "@/lib/hooks/hooks";
+import {setCodesiriusLoading} from "@/lib/features/codesirius/codesiriusSlice";
 
 
 const Signup = () => {

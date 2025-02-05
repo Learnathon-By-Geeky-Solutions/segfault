@@ -1,8 +1,8 @@
 "use client";
 import React, {useEffect} from 'react';
-import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
-import {AppDispatch} from "@/lib/store/store";
-import {setCodesiriusLoading} from "@/lib/store/codesiriusSlice";
+import {useAppDispatch, useAppSelector} from "@/lib/hooks/hooks";
+import {AppDispatch} from "@/lib/store";
+import {setCodesiriusLoading} from "@/lib/features/codesirius/codesiriusSlice";
 
 const Home = () => {
     const dispatch = useAppDispatch<AppDispatch>();

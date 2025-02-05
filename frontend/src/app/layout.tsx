@@ -3,9 +3,10 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar"
 import * as React from "react";
 import {cookies, headers} from "next/headers";
-import {themeType, User} from "@/types";
+import {themeType} from "@/types";
 import StoreProvider from "@/app/store-provider";
 import CodesiriusApp from "@/app/codesirius-app";
+import {User} from "@/lib/features/api/types";
 
 const roboto = Roboto({
     weight: ['300', '400', '500', '700'],

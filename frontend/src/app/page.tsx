@@ -1,7 +1,7 @@
 import Home from "@/app/home/home";
 import {headers} from "next/headers";
 import SessionCreator from "@/app/home/session-creator";
-import {User} from "@/types";
+import {User} from "@/lib/features/api/types";
 
 export const metadata = {
     title: 'Codesirius',

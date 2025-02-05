@@ -18,9 +18,9 @@ import {styled} from "@mui/system";
 import {EmojiEvents, Leaderboard, Logout, Psychology, Settings} from "@mui/icons-material";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
-import {setCodesiriusLoading, setTheme, setThemeAsync} from "@/lib/store/codesiriusSlice";
-import {AppDispatch} from "@/lib/store/store";
+import {useAppDispatch, useAppSelector} from "@/lib/hooks/hooks";
+import {AppDispatch} from "@/lib/store";
+import {setCodesiriusLoading, setTheme, setThemeAsync} from "@/lib/features/codesirius/codesiriusSlice";
 
 
 const MaterialUISwitch = styled(Switch)(({theme}) => ({

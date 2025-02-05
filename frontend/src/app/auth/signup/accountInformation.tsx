@@ -5,9 +5,9 @@ import {NavigateNext, Visibility, VisibilityOff} from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import {useSignupMutation} from "@/lib/store/authApiSlice";
-import {isFetchBaseQueryError} from "@/lib/isFetchBaseQueryError";
-import {APIError, FieldError, SignupRequest} from "@/types";
+import {useSignupMutation} from "@/lib/features/api/authApiSlice";
+import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
+import {APIError, FieldError, SignupRequest} from "@/lib/features/api/types";
 
 interface AccountInformationProps {
     setActiveStep: (value: number) => void;
@@ -192,7 +192,6 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
     useEffect(() => {
         setIsSignupLoading(isLoading);
     }, [isLoading]);
-
 
 
     return (
