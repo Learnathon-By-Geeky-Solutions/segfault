@@ -44,10 +44,58 @@ const Signin = () => {
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
+    const [signin, {isLoading}] = useSigninMutation();
+
+    const handleSubmit = async () => {
+        if (usernameOrEmail.length < 3) {
+            setUsernameOrEmailError('Username or email must be at least 3 characters');
+        }
+        if (password.length < 8) {
+            setPasswordError('Password must be at least 8 characters');
+        }
+
+        if (usernameOrEmail.length >= 3 && password.length >= 8) {
+            const signinRequest: SigninRequest = {
+                username: usernameOrEmail,
+                password
+            }
+            try {
+                const res = await signin(signinRequest).unwrap();
+                if (res.status === 200) {
+                    // redirect to home page if user is signed in
+                    window.location.href = res.data.redirect;
+                }
+            } catch (err) {
+                console.log(err)
+                if (isFetchBaseQueryError(err)) {
+                    // handle error coming from the API
+                    const error = err.data as APIError;
+                    console.log(error.message);
+                    if (error.status === 401) {
+                        setPasswordError(error.message.slice(0, -1));
+                    } else {
+                        setIsSnackbarOpen(true);
+                    }
+                } else {
+                    // handle error coming from the client
+                    setIsSnackbarOpen(true);
+                }
+            }
+        }
+    }
+
+    // useEffect(() => {
+    //     // redirect to home page if user is signed in
+    //     if (isSuccess && data.data.redirect) {
+    //         window.location.href = data.data.redirect;
+    //     }
+    //
+    // }, [isSuccess]);
+
 
     // this runs only once when the component is mounted
     useEffect(() => {
-        setCodesiriusLoading(false);
+        dispatch(setCodesiriusLoading(false));
     }, [])
 
 
