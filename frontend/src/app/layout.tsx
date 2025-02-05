@@ -1,4 +1,3 @@
-import {AppRouterCacheProvider} from '@mui/material-nextjs/v15-appRouter';
 import {Roboto} from 'next/font/google';
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar"
