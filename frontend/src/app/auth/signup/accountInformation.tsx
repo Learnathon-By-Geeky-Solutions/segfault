@@ -135,8 +135,6 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
         if (confirmPassword !== password) {
             setConfirmPasswordError('Passwords do not match');
         }
-        if (firstName.length >= 3 && username.length >= 3 && isValidEmail(email) && password.length >= 8 && confirmPassword === password) {
-            setActiveStep(1);
         if (firstNameError.length === 0 && usernameError.length === 0 && emailError.length === 0 && passwordError.length === 0 && confirmPasswordError.length === 0) {
             const user: SignupRequest = {
                 firstName,
@@ -157,6 +155,32 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
                     setIsSignupLoading(false);
                 }
             } catch (err) {
+                if (isFetchBaseQueryError(err)) {
+                    const apiError = err.data as APIError;
+                    console.log(apiError);
+                    if (apiError.status === 400) {
+                        apiError.errors?.forEach((error: FieldError) => {
+                            if (error.field === 'firstName') {
+                                setFirstNameError(error.message);
+                            }
+                            if (error.field === 'lastName') {
+                                setFirstNameError(error.message);
+                            }
+                            if (error.field === 'email') {
+                                setEmailError(error.message);
+                            }
+                            if (error.field === 'username') {
+                                setUsernameError(error.message);
+                            }
+                            if (error.field === 'password1') {
+                                setPasswordError(error.message);
+                            }
+                            if (error.field === 'password2') {
+                                setConfirmPasswordError(error.message);
+                            }
+                        })
+                    }
+                }
             }
         } else {
             setSnackbarMessage('Please correct the errors before proceeding');
