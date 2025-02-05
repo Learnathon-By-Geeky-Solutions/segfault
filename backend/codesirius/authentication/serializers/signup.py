@@ -26,6 +26,7 @@ class SignupSerializer(serializers.Serializer):
     )
     email = serializers.EmailField(
         error_messages={
+            "blank": "Email is required",
             "required": "Email is required",
             "invalid": "Email is invalid",
         },
@@ -39,6 +40,7 @@ class SignupSerializer(serializers.Serializer):
         min_length=1,
         max_length=255,
         error_messages={
+            "blank": "Username is required",
             "required": "Username is required",
             "min_length": "Username is too short",
             "max_length": "Username is too long",
@@ -53,6 +55,7 @@ class SignupSerializer(serializers.Serializer):
         write_only=True,
         min_length=8,
         error_messages={
+            "blank": "Password is required",
             "required": "Password is required",
             "blank": "Password is required",
             "min_length": "Password is too short",
@@ -62,6 +65,7 @@ class SignupSerializer(serializers.Serializer):
         write_only=True,
         min_length=8,
         error_messages={
+            "blank": "Password confirmation is required",
             "required": "Password confirmation is required",
             "min_length": "Password confirmation is too short",
         },
