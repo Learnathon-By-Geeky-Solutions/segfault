@@ -1,11 +1,13 @@
 'use client';
-import React, {useState} from 'react';
-import { FormControl, InputAdornment, Snackbar, TextField} from "@mui/material";
+import React, {useEffect, useState} from 'react';
+import {FormControl, InputAdornment, Snackbar, TextField} from "@mui/material";
 import {NavigateNext, Visibility, VisibilityOff} from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import BlockUi from "@/components/blockUi";
+import {useSignupMutation} from "@/lib/store/authApiSlice";
+import {isFetchBaseQueryError} from "@/lib/isFetchBaseQueryError";
+import {APIError, FieldError, SignupRequest} from "@/types";
 
 interface AccountInformationProps {
     setActiveStep: (value: number) => void;
@@ -113,8 +115,9 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
         setIsSnackbarOpen(true);
     }
 
+    const [signup, {isLoading}] = useSignupMutation();
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
         console.log('submit');
         event.preventDefault();
         if (firstName.length < 3) {
@@ -134,10 +137,39 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
         }
         if (firstName.length >= 3 && username.length >= 3 && isValidEmail(email) && password.length >= 8 && confirmPassword === password) {
             setActiveStep(1);
+        if (firstNameError.length === 0 && usernameError.length === 0 && emailError.length === 0 && passwordError.length === 0 && confirmPasswordError.length === 0) {
+            const user: SignupRequest = {
+                firstName,
+                lastName,
+                username,
+                email,
+                password1: password,
+                password2: confirmPassword
+            }
+            // signup(user);
+            // setIsSignupLoading(true);
+
+            try {
+                const res = await signup(user).unwrap();
+                if (res.status === 201) {
+                    setUserId(res.data.userId);
+                    setActiveStep(1);
+                    setIsSignupLoading(false);
+                }
+            } catch (err) {
+            }
+        } else {
+            setSnackbarMessage('Please correct the errors before proceeding');
+            setIsSnackbarOpen(true);
         }
     }
 
-    const [isUiBlocked, setIsUiBlocked] = useState<boolean>(false);
+    // pipe isLoginLoading to setIsSignupLoading
+    useEffect(() => {
+        setIsSignupLoading(isLoading);
+    }, [isLoading]);
+
+
 
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}} component="form" onSubmit={handleSubmit}>
