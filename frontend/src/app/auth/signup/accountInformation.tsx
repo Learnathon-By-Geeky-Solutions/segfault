@@ -109,6 +109,7 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
 
     const handlePasteOnConfirmPassword = (event: React.ClipboardEvent<HTMLInputElement>) => {
         event.preventDefault();
+        setSnackbarMessage('Paste is disabled on this field');
         setIsSnackbarOpen(true);
     }
 
