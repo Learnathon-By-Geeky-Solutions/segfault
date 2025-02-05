@@ -2,15 +2,7 @@ import {cookies} from "next/headers";
 
 import {NextRequest, NextResponse} from "next/server";
 import {DJANGO_BACKEND_URL} from "@/lib/constants";
-
-export interface User {
-    userId: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    username: string;
-    isActive: boolean;
-}
+import {User} from "@/types";
 
 interface UserResponse {
     status: number;
