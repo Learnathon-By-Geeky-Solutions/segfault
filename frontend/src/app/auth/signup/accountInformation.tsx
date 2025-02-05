@@ -188,7 +188,7 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
         }
     }
 
-    // pipe isLoginLoading to setIsSignupLoading
+    // pipe loading state to parent component
     useEffect(() => {
         setIsSignupLoading(isLoading);
     }, [isLoading]);
