@@ -6,6 +6,8 @@ import * as React from "react";
 import {cookies} from "next/headers";
 import {themeType} from "@/types";
 import {CodesiriusStateProvider} from "@/contexts/codesiriusStateContext";
+import StoreProvider from "@/app/store-provider";
+import CodesiriusApp from "@/app/codesirius-app";
 
 const roboto = Roboto({
     weight: ['300', '400', '500', '700'],
