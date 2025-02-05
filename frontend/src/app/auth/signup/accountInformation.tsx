@@ -13,7 +13,7 @@ interface AccountInformationProps {
     setUserId: (value: number) => void;
 }
 
-const AccountInformation = ({setActiveStep}: Readonly<{ setActiveStep: (value: number) => void }>) => {
+const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: AccountInformationProps) => {
 
     const [firstName, setFirstName] = useState<string>('');
     const [firstNameError, setFirstNameError] = useState<string>('');
