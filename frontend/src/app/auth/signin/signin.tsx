@@ -90,14 +90,6 @@ const Signin = () => {
         }
     }
 
-    // useEffect(() => {
-    //     // redirect to home page if user is signed in
-    //     if (isSuccess && data.data.redirect) {
-    //         window.location.href = data.data.redirect;
-    //     }
-    //
-    // }, [isSuccess]);
-
 
     // this runs only once when the component is mounted
     useEffect(() => {
