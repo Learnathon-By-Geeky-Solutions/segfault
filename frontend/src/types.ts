@@ -69,3 +69,12 @@ export interface SigninResponse {
         redirect: string;
     }
 }
+
+export interface User {
+    userId: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    username: string;
+    isActive: boolean;
+}
