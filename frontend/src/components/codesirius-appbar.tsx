@@ -13,23 +13,14 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import CodeIcon from '@mui/icons-material/Code';
-import {Switch} from "@mui/material";
-import {Window} from "@popperjs/core";
+import {Avatar, LinearProgress, Menu, MenuItem, Switch, Tooltip} from "@mui/material";
 import {styled} from "@mui/system";
-import {Assignment, EmojiEvents, Leaderboard, Psychology, PsychologyAlt, Task, TaskAlt} from "@mui/icons-material";
+import {EmojiEvents, Leaderboard, Logout, Psychology, Settings} from "@mui/icons-material";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {themeType} from "@/types";
-
-interface Props {
-    /**
-     * Injected by the documentation to work in an iframe.
-     * You won't need it on your project.
-     */
-    window?: () => Window,
-    theme: string,
-    setTheme: (theme: themeType) => void
-}
+import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
+import {setCodesiriusLoading, setTheme, setThemeAsync} from "@/lib/store/codesiriusSlice";
+import {AppDispatch} from "@/lib/store/store";
 
 
 const MaterialUISwitch = styled(Switch)(({theme}) => ({
@@ -105,7 +96,13 @@ const navItems = [
 ]
 
 
-export default function DrawerAppBar(props: Props) {
+export default function CodesiriusAppBar() {
+    const theme = useAppSelector(state => state.codesirius.theme);
+    const user = useAppSelector(state => state.codesirius.user);
+    const dispatch = useAppDispatch<AppDispatch>();
+
+    const isCodesiriusLoading = useAppSelector(state => state.codesirius.isCodesiriusLoading);
+
     // const {window} = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -121,7 +118,7 @@ export default function DrawerAppBar(props: Props) {
             </Typography>
             <Divider/>
             <List>
-                {navItems.map(({name,icon}) => (
+                {navItems.map(({name, icon}) => (
                     <ListItem key={name} disablePadding>
                         <Button variant="text" startIcon={icon}>
                             {name}
@@ -133,15 +130,55 @@ export default function DrawerAppBar(props: Props) {
     );
 
     const handleThemeSwitch = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        props.setTheme(event.target.checked ? 'dark' : 'light');
-        const req = await fetch('/api/themes', {"method": "POST", "headers": {"Content-Type": "application/json"}, "body": JSON.stringify({"theme": event.target.checked ? 'dark' : 'light'})});
-        const res = await req.json();
-        console.log(res);
+        // instant theme switch
+        dispatch(setTheme(event.target.checked ? 'dark' : 'light'));
+        // persist
+        dispatch(setThemeAsync(event.target.checked ? 'dark' : 'light'));
+        // const req = await fetch('/api/themes', {
+        //     "method": "POST",
+        //     "headers": {"Content-Type": "application/json"},
+        //     "body": JSON.stringify({"theme": event.target.checked ? 'dark' : 'light'})
+        // });
+        // const res = await req.json();
+        // console.log(res);
     }
 
     // const container = window !== undefined ? () => window().document.body : undefined;
 
     const pathName = usePathname();
+
+    const settings = [
+        {
+            name: 'Profile',
+            icon: <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg"/>,
+            onClick: () => {
+            }
+        },
+        {
+            name: 'Settings',
+            icon: <Settings/>,
+            onClick: () => {
+            }
+        },
+        {
+            name: 'Sign out',
+            icon: <Logout/>,
+            onClick: () => {
+                window.location.href = '/api/auth/signout';
+            }
+        }
+    ]
+
+    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorElUser(event.currentTarget);
+    };
+
+
+    const handleCloseUserMenu = () => {
+        setAnchorElUser(null);
+    };
 
     return (
         <Box sx={{display: 'flex'}}>
@@ -157,7 +194,7 @@ export default function DrawerAppBar(props: Props) {
                     >
                         <MenuIcon/>
                     </IconButton>
-                    <CodeIcon sx={{display: { xs: 'flex'}, mr: 1}}/>
+                    <CodeIcon sx={{display: {xs: 'flex'}, mr: 1}}/>
                     <Link href="/" style={{textDecoration: 'none', color: 'white'}}>
                         <Typography variant="h6" sx={{cursor: 'pointer', display: {xs: 'none', md: 'block'}}}>
                             Codesirius
@@ -165,21 +202,60 @@ export default function DrawerAppBar(props: Props) {
                     </Link>
                     <Box sx={{ml: "1rem", display: {xs: 'none', md: 'block'}}}>
                         {navItems.map((item) => (
-                            <Button key={item.name} variant="text" startIcon={item.icon} sx={{ml: 5, color: "white", my: 2}}>
+                            <Button key={item.name} variant="text" startIcon={item.icon}
+                                    sx={{ml: 5, color: "white", my: 2}}>
                                 {item.name}
                             </Button>
                         ))}
                     </Box>
-                    <MaterialUISwitch onChange={handleThemeSwitch} checked={props.theme === 'dark'}/>
+                    <MaterialUISwitch onChange={handleThemeSwitch} checked={theme === 'dark'}/>
                     {
-                        pathName === '/auth/signin' || pathName === '/auth/signup' ? null : (
+                        user || pathName === '/auth/signin' || pathName === '/auth/signup' ? null : (
                             <Link href="/auth/signin" style={{marginLeft: "auto"}}>
-                                <Button sx={{ml: 'auto', color: '#fff'}}>Sign in</Button>
+                                <Button sx={{ml: 'auto', color: '#fff'}} onClick={() => dispatch(setCodesiriusLoading(true))}>
+                                    Sign in
+                                </Button>
                             </Link>
                         )
                     }
+                    {
+                        user &&
+                      <Box sx={{flexGrow: 0, ml: "auto"}}>
+                        <Tooltip title="Open settings">
+                          <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
+                            <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg"/>
+                          </IconButton>
+                        </Tooltip>
+                        <Menu
+                          sx={{mt: '45px'}}
+                          id="menu-appbar"
+                          anchorEl={anchorElUser}
+                          anchorOrigin={{
+                              vertical: 'top',
+                              horizontal: 'right',
+                          }}
+                          keepMounted
+                          transformOrigin={{
+                              vertical: 'top',
+                              horizontal: 'right',
+                          }}
+                          open={Boolean(anchorElUser)}
+                          onClose={handleCloseUserMenu}
+                        >
+                            {settings.map(({name, icon, onClick}) => (
+                                // <MenuItem key={name} onClick={handleCloseUserMenu}>
+                                //     <Typography sx={{textAlign: 'center'}}>{name}</Typography>
+                                // </MenuItem>
+                                <MenuItem key={name} onClick={onClick}>
+                                    {icon}
+                                    <Typography sx={{ml: 1}}>{name}</Typography>
+                                </MenuItem>
+                            ))}
+                        </Menu>
+                      </Box>
+                    }
                 </Toolbar>
-                {/*<LinearProgress />*/}
+                {isCodesiriusLoading && <LinearProgress sx={{height: 2}}/>}
             </AppBar>
             <nav>
                 <Drawer
