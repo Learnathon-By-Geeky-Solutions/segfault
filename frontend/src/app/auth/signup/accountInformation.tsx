@@ -105,6 +105,7 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
     const [isSnackbarOpen, setIsSnackbarOpen] = useState<boolean>(false);
+    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
     const handlePasteOnConfirmPassword = (event: React.ClipboardEvent<HTMLInputElement>) => {
         event.preventDefault();
@@ -181,97 +182,91 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
                     />
                 </FormControl>
 
-                <FormControl>
-                    <TextField
-                        value={email}
-                        onChange={handleEmail}
-                        onBlur={handleEmailBlur}
-                        id="email"
-                        label="Email"
-                        placeholder="Enter your email"
-                        aria-describedby="email-helper-text"
-                        variant="outlined"
-                        type="email"
-                        helperText={emailError}
-                        error={emailError.length > 0}
-                    />
-                </FormControl>
-                <FormControl>
-                    <TextField
-                        value={password}
-                        onChange={handlePassword}
-                        onBlur={handlePasswordBlur}
-                        id="password"
-                        label="Password"
-                        placeholder="Enter your password"
-                        aria-describedby="password-helper-text"
-                        variant="outlined"
-                        type={showPassword ? 'text' : 'password'}
-                        slotProps={{
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={() => setShowPassword(!showPassword)}>
-                                            {showPassword ? <VisibilityOff/> : <Visibility/>}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }
-                        }}
-                        helperText={passwordError}
-                        error={passwordError.length > 0}
-                    />
-                </FormControl>
-                <FormControl>
-                    <TextField
-                        value={confirmPassword}
-                        onChange={handleConfirmPassword}
-                        onBlur={handleConfirmPasswordBlur}
-                        onPaste={handlePasteOnConfirmPassword}
-                        id="confirm-password"
-                        label="Confirm Password"
-                        placeholder="Re-enter your password"
-                        aria-describedby="confirm-password-helper-text"
-                        variant="outlined"
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        slotProps={{
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                            {showConfirmPassword ? <VisibilityOff/> : <Visibility/>}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }
-                        }}
-                        helperText={confirmPasswordError}
-                        error={confirmPasswordError.length > 0}
-                    />
-                </FormControl>
-                <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    endIcon={<NavigateNext/>}
-                    onClick={handleSubmit}
-                >
-                    Next
-                </Button>
-                <Snackbar
-                    open={isSnackbarOpen}
-                    autoHideDuration={3000}
-                    onClose={() => setIsSnackbarOpen(false)}
-                    message="Paste is disabled on this field"
+            <FormControl>
+                <TextField
+                    value={email}
+                    onChange={handleEmail}
+                    onBlur={handleEmailBlur}
+                    id="email"
+                    label="Email"
+                    placeholder="Enter your email"
+                    aria-describedby="email-helper-text"
+                    variant="outlined"
+                    type="email"
+                    helperText={emailError}
+                    error={emailError.length > 0}
                 />
-            </Box>
-        </BlockUi>
+            </FormControl>
+            <FormControl>
+                <TextField
+                    value={password}
+                    onChange={handlePassword}
+                    onBlur={handlePasswordBlur}
+                    id="password"
+                    label="Password"
+                    placeholder="Enter your password"
+                    aria-describedby="password-helper-text"
+                    variant="outlined"
+                    type={showPassword ? 'text' : 'password'}
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                        {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                    </IconButton>
+                                </InputAdornment>
+                            )
+                        }
+                    }}
+                    helperText={passwordError}
+                    error={passwordError.length > 0}
+                />
+            </FormControl>
+            <FormControl>
+                <TextField
+                    value={confirmPassword}
+                    onChange={handleConfirmPassword}
+                    onBlur={handleConfirmPasswordBlur}
+                    onPaste={handlePasteOnConfirmPassword}
+                    id="confirm-password"
+                    label="Confirm Password"
+                    placeholder="Re-enter your password"
+                    aria-describedby="confirm-password-helper-text"
+                    variant="outlined"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                        {showConfirmPassword ? <VisibilityOff/> : <Visibility/>}
+                                    </IconButton>
+                                </InputAdornment>
+                            )
+                        }
+                    }}
+                    helperText={confirmPasswordError}
+                    error={confirmPasswordError.length > 0}
+                />
+            </FormControl>
+            <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                endIcon={<NavigateNext/>}
+                onClick={handleSubmit}
+            >
+                Next
+            </Button>
             <Snackbar
                 open={isSnackbarOpen}
                 autoHideDuration={3000}
                 onClose={() => setIsSnackbarOpen(false)}
                 message={snackbarMessage}
+            />
+        </Box>
     );
 };
 
