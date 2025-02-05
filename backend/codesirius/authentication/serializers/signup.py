@@ -10,7 +10,7 @@ class SignupSerializer(serializers.Serializer):
     Serializer for signing up a new user.
     """
 
-    first_name = serializers.CharField(
+    firstName = serializers.CharField(
         min_length=1,
         max_length=255,
         error_messages={
@@ -19,8 +19,11 @@ class SignupSerializer(serializers.Serializer):
             "min_length": "First name is too short.",
             "max_length": "First name is too long.",
         },
+        source="first_name",
     )
-    last_name = serializers.CharField()
+    lastName = serializers.CharField(
+        source="last_name", required=False, allow_blank=True
+    )
     email = serializers.EmailField(
         error_messages={
             "required": "Email is required",
