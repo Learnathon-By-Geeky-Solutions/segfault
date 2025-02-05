@@ -140,48 +140,47 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
     const [isUiBlocked, setIsUiBlocked] = useState<boolean>(false);
 
     return (
-        <BlockUi open={isUiBlocked} onClose={() => setIsUiBlocked(false)}>
-            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}} component="form" onSubmit={handleSubmit}>
-                <FormControl>
-                    <TextField
-                        value={firstName}
-                        onChange={handleFirstName}
-                        onBlur={handleFirstNameBlur}
-                        id="first-name"
-                        label="First Name"
-                        placeholder="Enter your first name"
-                        aria-describedby="first-name-helper-text"
-                        variant="outlined"
-                        helperText={firstNameError}
-                        error={firstNameError.length > 0}
-                    />
-                </FormControl>
-                <FormControl>
-                    <TextField
-                        value={lastName}
-                        onChange={handleLastName}
-                        id="last-name"
-                        label="Last Name"
-                        placeholder="Enter your last name"
-                        aria-describedby="last-name-helper-text"
-                        variant="outlined"
-                    />
-                </FormControl>
+        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}} component="form" onSubmit={handleSubmit}>
+            <FormControl>
+                <TextField
+                    value={firstName}
+                    onChange={handleFirstName}
+                    onBlur={handleFirstNameBlur}
+                    id="first-name"
+                    label="First Name"
+                    placeholder="Enter your first name"
+                    aria-describedby="first-name-helper-text"
+                    variant="outlined"
+                    helperText={firstNameError}
+                    error={firstNameError.length > 0}
+                />
+            </FormControl>
+            <FormControl>
+                <TextField
+                    value={lastName}
+                    onChange={handleLastName}
+                    id="last-name"
+                    label="Last Name"
+                    placeholder="Enter your last name"
+                    aria-describedby="last-name-helper-text"
+                    variant="outlined"
+                />
+            </FormControl>
 
-                <FormControl>
-                    <TextField
-                        value={username}
-                        onChange={handleUsername}
-                        onBlur={handleUsernameBlur}
-                        id="username"
-                        label="Username"
-                        placeholder="Enter your username"
-                        aria-describedby="username-helper-text"
-                        variant="outlined"
-                        helperText={usernameError}
-                        error={usernameError.length > 0}
-                    />
-                </FormControl>
+            <FormControl>
+                <TextField
+                    value={username}
+                    onChange={handleUsername}
+                    onBlur={handleUsernameBlur}
+                    id="username"
+                    label="Username"
+                    placeholder="Enter your username"
+                    aria-describedby="username-helper-text"
+                    variant="outlined"
+                    helperText={usernameError}
+                    error={usernameError.length > 0}
+                />
+            </FormControl>
 
             <FormControl>
                 <TextField
