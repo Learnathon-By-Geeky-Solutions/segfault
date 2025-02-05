@@ -7,6 +7,11 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import BlockUi from "@/components/blockUi";
 
+interface AccountInformationProps {
+    setActiveStep: (value: number) => void;
+    setIsSignupLoading: (value: boolean) => void;
+    setUserId: (value: number) => void;
+}
 
 const AccountInformation = ({setActiveStep}: Readonly<{ setActiveStep: (value: number) => void }>) => {
 
