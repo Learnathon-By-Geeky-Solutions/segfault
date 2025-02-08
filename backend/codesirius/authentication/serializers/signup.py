@@ -57,7 +57,6 @@ class SignupSerializer(serializers.Serializer):
         error_messages={
             "blank": "Password is required",
             "required": "Password is required",
-            "blank": "Password is required",
             "min_length": "Password is too short",
         },
     )
