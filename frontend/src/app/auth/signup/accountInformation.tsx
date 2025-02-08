@@ -118,7 +118,6 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
     const [signup, {isLoading}] = useSignupMutation();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
-        console.log('submit');
         event.preventDefault();
         if (firstName.length < 3) {
             setFirstNameError('First name must be at least 3 characters');
@@ -144,8 +143,6 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
                 password1: password,
                 password2: confirmPassword
             }
-            // signup(user);
-            // setIsSignupLoading(true);
 
             try {
                 const res = await signup(user).unwrap();
