@@ -20,7 +20,6 @@ const getUser = async (accessToken: string): Promise<User | null> => {
         }
     });
 
-    console.log(user);
     if (!user.ok) {
         return null;
     }
@@ -43,7 +42,6 @@ export async function middleware(req: NextRequest) {
 
     let user = await getUser(accessToken);
     if (!user) {
-        console.log("refreshing token", refreshToken);
         const newAccessToken = await fetch(`${DJANGO_BACKEND_URL}/api/v1/auth/token/refresh`, {
             method: "POST",
             headers: {
@@ -55,7 +53,6 @@ export async function middleware(req: NextRequest) {
             const {data: {access}} = await newAccessToken.json();
             // set new access token
             cookieStore.set("access", access);
-            console.log("new access token", access);
             user = await getUser(access);
         }
     }
