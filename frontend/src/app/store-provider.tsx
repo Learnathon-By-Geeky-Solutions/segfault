@@ -7,7 +7,7 @@ import {setCodesiriusLoading, setProgress, setTheme} from "@/lib/features/codesi
 
 interface StoreProviderProps {
     readonly children: React.ReactNode,
-    initialTheme: themeType
+    readonly initialTheme: themeType
 }
 
 export default function StoreProvider({children, initialTheme}: StoreProviderProps) {
