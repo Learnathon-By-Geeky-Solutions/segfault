@@ -16,7 +16,6 @@ import CodeIcon from '@mui/icons-material/Code';
 import {Avatar, LinearProgress, Menu, MenuItem, Switch, Tooltip} from "@mui/material";
 import {styled} from "@mui/system";
 import {EmojiEvents, Leaderboard, Logout, Psychology, Settings} from "@mui/icons-material";
-import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useAppDispatch, useAppSelector} from "@/lib/hooks/hooks";
 import {AppDispatch} from "@/lib/store";
