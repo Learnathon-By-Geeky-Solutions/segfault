@@ -17,7 +17,6 @@ export async function POST(req: Request) {
 
         const drfResponseJson = await drfResponse.json();
         if (drfResponse.ok) {
-            console.log(drfResponseJson);
             // extract token from response
             const {access, refresh} = drfResponseJson.data;
             const cookieStore = await cookies();

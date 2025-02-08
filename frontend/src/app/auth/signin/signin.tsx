@@ -73,11 +73,9 @@ const Signin = () => {
                     window.location.href = res.data.redirect;
                 }
             } catch (err) {
-                console.log(err)
                 if (isFetchBaseQueryError(err)) {
                     // handle error coming from the API
                     const error = err.data as APIError;
-                    console.log(error.message);
                     if (error.status === 401) {
                         setPasswordError(error.message.slice(0, -1));
                     } else {

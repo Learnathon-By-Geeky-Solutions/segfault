@@ -2,7 +2,6 @@ import {DJANGO_BACKEND_URL} from "@/lib/constants";
 
 export async function POST(req: Request) {
     const body = await req.json();
-    console.log(body);
     if (!body.userId) {
         return new Response(JSON.stringify({
             status: 400,
@@ -37,7 +36,6 @@ export async function POST(req: Request) {
 
 
     const responseJson = await response.json();
-    console.log(responseJson);
     // check if status is 200
     // save tokens into a variable
     // delete tokens from response
