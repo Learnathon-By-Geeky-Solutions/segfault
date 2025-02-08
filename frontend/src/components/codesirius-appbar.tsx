@@ -114,6 +114,7 @@ export default function CodesiriusAppBar() {
         setMobileOpen((prevState) => !prevState);
     };
 
+    // this is for smaller screens
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{textAlign: 'center'}}>
             <CodeIcon sx={{display: {xs: 'none', md: 'flex'}, mr: 1}}/>
