@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Cookie': req.headers.get('Cookie') || '',
+            'Cookie': req.headers.get('Cookie') ?? ""
         },
         body: JSON.stringify(body),
     });
