@@ -21,6 +21,8 @@ import {usePathname} from "next/navigation";
 import {useAppDispatch, useAppSelector} from "@/lib/hooks/hooks";
 import {AppDispatch} from "@/lib/store";
 import {setCodesiriusLoading, setTheme, setThemeAsync} from "@/lib/features/codesirius/codesiriusSlice";
+import NextLink from "next/link";
+import Link from "@mui/material/Link";
 
 
 const MaterialUISwitch = styled(Switch)(({theme}) => ({
@@ -205,10 +207,12 @@ export default function CodesiriusAppBar() {
                     </Link>
                     <Box sx={{ml: "1rem", display: {xs: 'none', md: 'block'}}}>
                         {navItems.map((item) => (
-                            <Button key={item.name} variant="text" startIcon={item.icon}
-                                    sx={{ml: 5, color: "white", my: 2}}>
-                                {item.name}
-                            </Button>
+                            <NextLink href={item.link} key={item.name}>
+                                <Button variant="text" startIcon={item.icon}
+                                        sx={{ml: 5, color: "white", my: 2}}>
+                                    {item.name}
+                                </Button>
+                            </NextLink>
                         ))}
                     </Box>
                     <MaterialUISwitch onChange={handleThemeSwitch} checked={theme === 'dark'}/>
