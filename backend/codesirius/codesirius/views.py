@@ -4,10 +4,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-@api_view(["GET"])
 def health_check(request):
-    """Make sure allowing safe and unsafe HTTP methods is safe here."""
-    return Response({"status": "ok"})
+    if request.method == "GET":
+        return Response({"status": "ok"})
+    return Response(status=405)
 
 
 class Fallback404View(APIView):
