@@ -242,9 +242,6 @@ export default function CodesiriusAppBar() {
                           onClose={handleCloseUserMenu}
                         >
                             {settings.map(({name, icon, onClick}) => (
-                                // <MenuItem key={name} onClick={handleCloseUserMenu}>
-                                //     <Typography sx={{textAlign: 'center'}}>{name}</Typography>
-                                // </MenuItem>
                                 <MenuItem key={name} onClick={onClick}>
                                     {icon}
                                     <Typography sx={{ml: 1}}>{name}</Typography>
@@ -258,7 +255,6 @@ export default function CodesiriusAppBar() {
             </AppBar>
             <nav>
                 <Drawer
-                    // container={container}
                     variant="temporary"
                     open={mobileOpen}
                     onClose={handleDrawerToggle}
