@@ -117,73 +117,83 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
 
     const [signup, {isLoading}] = useSignupMutation();
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
+    const validateInputs = (): boolean => {
+        let isValid = true;
+
         if (firstName.length < 3) {
             setFirstNameError('First name must be at least 3 characters');
+            isValid = false;
         }
         if (username.length < 3) {
             setUsernameError('Username must be at least 3 characters');
+            isValid = false;
         }
         if (!isValidEmail(email)) {
             setEmailError('Invalid email address');
+            isValid = false;
         }
         if (password.length < 8) {
             setPasswordError('Password must be at least 8 characters');
+            isValid = false;
         }
         if (confirmPassword !== password) {
             setConfirmPasswordError('Passwords do not match');
+            isValid = false;
         }
-        if (firstNameError.length === 0 && usernameError.length === 0 && emailError.length === 0 && passwordError.length === 0 && confirmPasswordError.length === 0) {
-            const user: SignupRequest = {
-                firstName,
-                lastName,
-                username,
-                email,
-                password1: password,
-                password2: confirmPassword
-            }
 
-            try {
-                const res = await signup(user).unwrap();
-                if (res.status === 201) {
-                    setUserId(res.data.userId);
-                    setActiveStep(1);
-                    setIsSignupLoading(false);
-                }
-            } catch (err) {
-                if (isFetchBaseQueryError(err)) {
-                    const apiError = err.data as APIError;
-                    console.log(apiError);
-                    if (apiError.status === 400) {
-                        apiError.errors?.forEach((error: FieldError) => {
-                            if (error.field === 'firstName') {
-                                setFirstNameError(error.message);
-                            }
-                            if (error.field === 'lastName') {
-                                setFirstNameError(error.message);
-                            }
-                            if (error.field === 'email') {
-                                setEmailError(error.message);
-                            }
-                            if (error.field === 'username') {
-                                setUsernameError(error.message);
-                            }
-                            if (error.field === 'password1') {
-                                setPasswordError(error.message);
-                            }
-                            if (error.field === 'password2') {
-                                setConfirmPasswordError(error.message);
-                            }
-                        })
-                    }
-                }
-            }
-        } else {
+        return isValid;
+    };
+
+    const handleApiErrors = (errors: FieldError[]) => {
+        const errorMap: Record<string, React.Dispatch<React.SetStateAction<string>>> = {
+            firstName: setFirstNameError,
+            lastName: setFirstNameError,
+            email: setEmailError,
+            username: setUsernameError,
+            password1: setPasswordError,
+            password2: setConfirmPasswordError
+        };
+
+        errors.forEach(({ field, message }) => {
+            if (errorMap[field]) errorMap[field](message);
+        });
+    };
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+
+        if (!validateInputs()) {
             setSnackbarMessage('Please correct the errors before proceeding');
             setIsSnackbarOpen(true);
+            return;
         }
-    }
+
+        const user: SignupRequest = {
+            firstName,
+            lastName,
+            username,
+            email,
+            password1: password,
+            password2: confirmPassword
+        };
+
+        try {
+            const res = await signup(user).unwrap();
+            if (res.status === 201) {
+                setUserId(res.data.userId);
+                setActiveStep(1);
+                setIsSignupLoading(false);
+            }
+        } catch (err) {
+            if (isFetchBaseQueryError(err)) {
+                const apiError = err.data as APIError;
+                if (apiError.status === 400 && apiError.errors) {
+                    handleApiErrors(apiError.errors);
+                }
+            }
+        }
+    };
+
 
     // pipe loading state to parent component
     useEffect(() => {
