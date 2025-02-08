@@ -9,7 +9,6 @@ export const metadata = {
 }
 
 const Page = async () => {
-    // const cookieStore = await cookies();
     const headersList = await headers();
 
     let user: User | null = null;
