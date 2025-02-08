@@ -83,15 +83,18 @@ const drawerWidth = 240;
 const navItems = [
     {
         'name': 'Problem',
-        'icon': <Psychology/>
+        'icon': <Psychology/>,
+        'link': '/problems'
     },
     {
         'name': 'Contest',
-        'icon': <EmojiEvents/>
+        'icon': <EmojiEvents/>,
+        'link': '/contests'
     },
     {
         'name': 'Leaderboard',
-        'icon': <Leaderboard/>
+        'icon': <Leaderboard/>,
+        'link': '/leaderboard'
     },
 ]
 
