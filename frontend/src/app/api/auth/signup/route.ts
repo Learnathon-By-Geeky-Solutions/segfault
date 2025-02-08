@@ -16,7 +16,7 @@ export async function POST(req: Request) {
         statusText: response.statusText,
         headers: {
             'Content-Type': 'application/json',
-            'Set-Cookie': response.headers.get('Set-Cookie') || '',
+            'Set-Cookie': response.headers.get('Set-Cookie') ?? "",
         }
     });
 }
