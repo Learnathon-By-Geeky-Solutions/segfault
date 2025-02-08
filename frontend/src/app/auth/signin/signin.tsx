@@ -1,11 +1,24 @@
 "use client";
 import React, {useEffect, useState} from 'react';
 import Grid from "@mui/material/Grid2";
-import {FormControl, InputAdornment, LinearProgress, Paper, Snackbar, TextField} from "@mui/material";
+import {
+    FormControl,
+    InputAdornment,
+    LinearProgress,
+    Paper,
+    Snackbar,
+    TextField
+} from "@mui/material";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import {AccountCircle, NavigateNext, Password, Visibility, VisibilityOff} from "@mui/icons-material";
+import {
+    AccountCircle,
+    NavigateNext,
+    Password,
+    Visibility,
+    VisibilityOff
+} from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import NextLink from "next/link";
 import Link from "@mui/material/Link";
