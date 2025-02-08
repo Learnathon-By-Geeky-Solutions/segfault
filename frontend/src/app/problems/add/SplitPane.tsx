@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { Box, Paper, Typography } from "@mui/material";
+import React, {useState} from "react";
+import {Box, Paper} from "@mui/material";
 
 interface SplitPaneProps {
     leftWidth?: number;
