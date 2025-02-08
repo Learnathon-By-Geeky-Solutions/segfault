@@ -1,4 +1,3 @@
-import {cookies} from "next/headers";
 import {DJANGO_BACKEND_URL} from "@/lib/constants";
 
 export async function POST(req: Request) {
