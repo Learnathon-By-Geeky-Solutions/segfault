@@ -6,7 +6,7 @@ export async function GET(req: Request) {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Cookie': req.headers.get('Cookie') || '',
+            'Cookie': req.headers.get('Cookie') ?? ""
         },
     });
 
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
         statusText: response.statusText,
         headers: {
             'Content-Type': 'application/json',
-            'Set-Cookie': response.headers.get('Set-Cookie') || '',
+            'Set-Cookie': response.headers.get('Set-Cookie') ?? "",
         }
     });
 }
