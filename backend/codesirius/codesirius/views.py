@@ -5,6 +5,9 @@ from rest_framework.views import APIView
 
 
 @api_view(["GET"])
+# Restricted to GET requests only.
+# Health check endpoint.
+# Safe because it only returns a status and has no side effects.
 def health_check(request):
     return Response({"status": "ok"})
 
