@@ -219,7 +219,8 @@ export default function CodesiriusAppBar() {
                     {
                         user || pathName === '/auth/signin' || pathName === '/auth/signup' ? null : (
                             <Link href="/auth/signin" style={{marginLeft: "auto"}}>
-                                <Button sx={{ml: 'auto', color: '#fff'}} onClick={() => dispatch(setCodesiriusLoading(true))}>
+                                <Button sx={{ml: 'auto', color: '#fff'}}
+                                        onClick={() => dispatch(setCodesiriusLoading(true))}>
                                     Sign in
                                 </Button>
                             </Link>
