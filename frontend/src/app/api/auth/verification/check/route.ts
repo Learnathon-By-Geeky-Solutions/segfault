@@ -23,7 +23,7 @@ export async function POST(req: Request) {
             }
         });
     }
-    // console.log(body);
+
     const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/auth/${body.userId}/verification/check`, {
         method: 'POST',
         headers: {
