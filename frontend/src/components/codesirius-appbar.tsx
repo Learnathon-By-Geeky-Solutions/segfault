@@ -107,7 +107,6 @@ export default function CodesiriusAppBar() {
 
     const isCodesiriusLoading = useAppSelector(state => state.codesirius.isCodesiriusLoading);
 
-    // const {window} = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
 
     const handleDrawerToggle = () => {
@@ -139,16 +138,8 @@ export default function CodesiriusAppBar() {
         dispatch(setTheme(event.target.checked ? 'dark' : 'light'));
         // persist
         dispatch(setThemeAsync(event.target.checked ? 'dark' : 'light'));
-        // const req = await fetch('/api/themes', {
-        //     "method": "POST",
-        //     "headers": {"Content-Type": "application/json"},
-        //     "body": JSON.stringify({"theme": event.target.checked ? 'dark' : 'light'})
-        // });
-        // const res = await req.json();
-        // console.log(res);
     }
 
-    // const container = window !== undefined ? () => window().document.body : undefined;
 
     const pathName = usePathname();
 
