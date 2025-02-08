@@ -30,7 +30,7 @@ const Verification = ({setActiveStep, userId, setIsSignupLoading}: VerificationP
         }
     }
 
-    const [checkVerification, {data, isLoading, isError, error, isSuccess}] = useCheckVerificationMutation();
+    const [checkVerification, {isLoading}] = useCheckVerificationMutation();
     const [isSnackbarOpen, setIsSnackbarOpen] = React.useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = React.useState<string>('');
 
@@ -71,7 +71,7 @@ const Verification = ({setActiveStep, userId, setIsSignupLoading}: VerificationP
     // pipe isLoading to setCodesiriusLoading
     useEffect(() => {
         setIsSignupLoading(isLoading);
-    }, [isLoading]);
+    }, [isLoading, setIsSignupLoading]);
 
     return (
         <>
