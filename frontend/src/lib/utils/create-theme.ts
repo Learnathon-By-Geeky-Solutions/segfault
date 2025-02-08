@@ -7,7 +7,13 @@ export const createCodeSiriusTheme = (theme: themeType) => {
             fontFamily: 'var(--font-roboto)',
         },
         palette: {
-            mode: theme
-        }
+            mode: theme,
+            // primary: {
+            //     main: '#8017f5',
+            // },
+            // secondary: {
+            //     main: '#f50057',
+            // },
+        },
     })
 }
