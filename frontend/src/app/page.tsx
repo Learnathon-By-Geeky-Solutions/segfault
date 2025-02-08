@@ -11,7 +11,6 @@ export const metadata = {
 export default async function Page() {
     const headersList = await headers();
     const user: User = JSON.parse(headersList.get('x-user') as string);
-    console.log(user);
     return (
         <>
             {user && <SessionCreator/>}
