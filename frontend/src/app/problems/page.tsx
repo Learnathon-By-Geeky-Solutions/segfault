@@ -4,7 +4,6 @@ import {User} from "@/lib/features/api/types";
 import AddProblemButton from "@/app/problems/add-problem-button";
 import Grid from "@mui/material/Grid2";
 import ProblemsList from "@/app/problems/problems-list";
-import Divider from "@mui/material/Divider";
 
 const Page = async () => {
 
