@@ -28,8 +28,8 @@ const ExecutionConstraints = ({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {selectedLanguages.map((language, index) => (
-                            <TableRow key={index}>
+                        {selectedLanguages.map((language) => (
+                            <TableRow key={language}>
                                 <TableCell>{language}</TableCell>
                                 <TableCell>
                                     <TextField
