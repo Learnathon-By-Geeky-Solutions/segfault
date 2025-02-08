@@ -111,13 +111,24 @@ const Signin = () => {
 
     return (
         <>
-            <Grid container spacing={2} direction="column" alignItems="center" justifyContent="center">
+            <Grid container spacing={2} direction="column" alignItems="center"
+                  justifyContent="center">
                 <Grid size={{xs: 12, md: 5, lg: 4, xl: 3}}>
-                    <Box sx={{width: '100%', visibility: isLoading ? 'block' : 'hidden'}}>
+                    <Box sx={{
+                        width: '100%',
+                        visibility: isLoading ? 'block' : 'hidden'
+                    }}>
                         <LinearProgress/>
                     </Box>
-                    <Paper elevation={4} component="form" onSubmit={(e) => e.preventDefault()}
-                           sx={{padding: 2, display: "flex", flexDirection: "column", width: "100%", gap: 2}} noValidate
+                    <Paper elevation={4} component="form"
+                           onSubmit={(e) => e.preventDefault()}
+                           sx={{
+                               padding: 2,
+                               display: "flex",
+                               flexDirection: "column",
+                               width: "100%",
+                               gap: 2
+                           }} noValidate
                            autoComplete="off">
                         <Typography variant="h5" component="h1">
                             Sign In
@@ -170,8 +181,10 @@ const Signin = () => {
                                         ),
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <IconButton onClick={() => setShowPassword(!showPassword)}>
-                                                    {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                                <IconButton
+                                                    onClick={() => setShowPassword(!showPassword)}>
+                                                    {showPassword ? <VisibilityOff/> :
+                                                        <Visibility/>}
                                                 </IconButton>
                                             </InputAdornment>
                                         )
@@ -180,8 +193,10 @@ const Signin = () => {
                                 helperText={passwordError}
                                 error={passwordError.length > 0}
                             />
-                            <Typography variant="body2" sx={{textAlign: 'right', mt: 1}}>
-                                <Link href="#" variant="body2" sx={{textDecoration: "none"}}>
+                            <Typography variant="body2"
+                                        sx={{textAlign: 'right', mt: 1}}>
+                                <Link href="#" variant="body2"
+                                      sx={{textDecoration: "none"}}>
                                     Forgot password?
                                 </Link>
                             </Typography>
@@ -201,8 +216,10 @@ const Signin = () => {
                         <Typography variant="body2" sx={{textAlign: 'center'}}>
                             Don&#39;t have an account?
                             <br/>
-                            <Link component={NextLink} href="/auth/signup" variant="body2"
-                                  sx={{textDecoration: 'none'}} onClick={() => dispatch(setCodesiriusLoading(true))}>
+                            <Link component={NextLink} href="/auth/signup"
+                                  variant="body2"
+                                  sx={{textDecoration: 'none'}}
+                                  onClick={() => dispatch(setCodesiriusLoading(true))}>
                                 Sign up
                             </Link>
                         </Typography>
