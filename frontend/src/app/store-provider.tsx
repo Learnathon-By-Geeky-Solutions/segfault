@@ -6,7 +6,7 @@ import {AppStore, makeStore} from "@/lib/store";
 import {setCodesiriusLoading, setProgress, setTheme} from "@/lib/features/codesirius/codesiriusSlice";
 
 interface StoreProviderProps {
-    children: React.ReactNode,
+    readonly children: React.ReactNode,
     initialTheme: themeType
 }
 
