@@ -66,41 +66,45 @@ const Signin = () => {
     const [signin, {isLoading}] = useSigninMutation();
     const [isSnackbarOpen, setIsSnackbarOpen] = useState<boolean>(false);
 
-    const handleSubmit = async () => {
+    const validateInputs = (): boolean => {
+        let isValid = true;
+
         if (usernameOrEmail.length < 3) {
             setUsernameOrEmailError('Username or email must be at least 3 characters');
+            isValid = false;
         }
         if (password.length < 8) {
             setPasswordError('Password must be at least 8 characters');
+            isValid = false;
         }
 
-        if (usernameOrEmail.length >= 3 && password.length >= 8) {
-            const signinRequest: SigninRequest = {
-                username: usernameOrEmail,
-                password
+        return isValid;
+    };
+
+    const handleSubmit = async () => {
+        if (!validateInputs()) return;
+
+        try {
+            const signinRequest: SigninRequest = {username: usernameOrEmail, password};
+            const res = await signin(signinRequest).unwrap();
+
+            if (res.status === 200) {
+                window.location.href = res.data.redirect;
             }
-            try {
-                const res = await signin(signinRequest).unwrap();
-                if (res.status === 200) {
-                    // redirect to home page if user is signed in
-                    window.location.href = res.data.redirect;
-                }
-            } catch (err) {
-                if (isFetchBaseQueryError(err)) {
-                    // handle error coming from the API
-                    const error = err.data as APIError;
-                    if (error.status === 401) {
-                        setPasswordError(error.message.slice(0, -1));
-                    } else {
-                        setIsSnackbarOpen(true);
-                    }
+        } catch (err) {
+            if (isFetchBaseQueryError(err)) {
+                const error = err.data as APIError;
+                if (error.status === 401) {
+                    setPasswordError(error.message.slice(0, -1));
                 } else {
-                    // handle error coming from the client
                     setIsSnackbarOpen(true);
                 }
+            } else {
+                // handle other errors
+                setIsSnackbarOpen(true);
             }
         }
-    }
+    };
 
 
     // this runs only once when the component is mounted
