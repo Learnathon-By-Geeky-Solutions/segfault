@@ -32,6 +32,7 @@ jobs:
           echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
           echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
           cat .env
+          pwd
 
       - name: Checkout
         uses: actions/checkout@v2
