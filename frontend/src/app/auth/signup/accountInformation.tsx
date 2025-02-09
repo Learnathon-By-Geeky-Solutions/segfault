@@ -1,5 +1,6 @@
 'use client';
 import React, {useEffect, useState} from 'react';
+import isEmail from 'validator/lib/isEmail';
 import {FormControl, InputAdornment, Snackbar, TextField} from "@mui/material";
 import {NavigateNext, Visibility, VisibilityOff} from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
@@ -8,6 +9,8 @@ import Box from "@mui/material/Box";
 import {useSignupMutation} from "@/lib/features/api/authApiSlice";
 import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
 import {APIError, FieldError, SignupRequest} from "@/lib/features/api/types";
+
+
 
 interface AccountInformationProps {
     setActiveStep: (value: number) => void;
@@ -49,9 +52,9 @@ const AccountInformation = ({
         setEmailError('');
     }
 
+
     const isValidEmail = (email: string): boolean => {
-        const emailPattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return emailPattern.exec(email.toLowerCase()) !== null;
+        return isEmail(email);
     }
 
 
