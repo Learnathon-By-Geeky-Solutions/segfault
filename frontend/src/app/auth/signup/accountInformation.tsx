@@ -203,7 +203,7 @@ const AccountInformation = ({
     // pipe loading state to parent component
     useEffect(() => {
         setIsSignupLoading(isLoading);
-    }, [isLoading]);
+    }, [isLoading, setIsSignupLoading]);
 
 
     return (
