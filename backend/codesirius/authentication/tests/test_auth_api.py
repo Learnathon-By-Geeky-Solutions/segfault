@@ -13,6 +13,10 @@ SIGNUP_URL = reverse("signup")
 
 
 def create_user(**params):
+    # convert camelCase to snake_case
+    params["first_name"] = params.pop("firstName")
+    params["last_name"] = params.pop("lastName")
+
     params.pop("password2")
     params["password"] = params.pop("password1")
     return get_user_model().objects.create_user(**params)
@@ -31,8 +35,8 @@ class AuthenticationApiTests(TestCase):
         if not password2:
             password2 = password1
         payload = {
-            "first_name": self.fake.first_name(),
-            "last_name": self.fake.last_name(),
+            "firstName": self.fake.first_name(),
+            "lastName": self.fake.last_name(),
             "email": self.fake.email(),
             "username": self.fake.user_name(),
             "password1": password1,

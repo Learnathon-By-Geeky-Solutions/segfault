@@ -1,6 +1,6 @@
 from django.urls import path
 
-from authentication.views.auth import SignupAPIView
+from authentication.views.signup import SignupAPIView
 from authentication.views.check_verification_code import CheckVerificationCodeAPIView
 from authentication.views.resend_verification_code import ResendVerificationCodeAPIView
 from authentication.views.token_obtain_pair import TokenObtainPairAPIView

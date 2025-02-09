@@ -1,13 +1,20 @@
-import {Metadata} from "next";
+import Home from "@/app/home/home";
+import {headers} from "next/headers";
+import SessionCreator from "@/app/home/session-creator";
+import {User} from "@/lib/features/api/types";
 
-export const metadata: Metadata = {
+export const metadata = {
     title: 'Codesirius',
     description: 'Ace your next interview',
 }
 
-export default function Home() {
+export default async function Page() {
+    const headersList = await headers();
+    const user: User = JSON.parse(headersList.get('x-user') as string);
     return (
-        <><h1>Home</h1>
-            <p>Welcome to the Home page</p>
-        </>)
+        <>
+            {user && <SessionCreator/>}
+            <Home/>
+        </>
+    );
 }

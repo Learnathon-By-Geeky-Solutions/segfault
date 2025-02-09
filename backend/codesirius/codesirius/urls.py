@@ -22,7 +22,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from codesirius.views import Fallback404View
+from codesirius.views import Fallback404View, health_check
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,5 +33,6 @@ urlpatterns = [
         name="docs",
     ),
     path("api/v1/auth/", include("authentication.urls")),
+    path("api/v1/health/", health_check, name="health_check"),
     re_path(r"^.*$", Fallback404View.as_view(), name="fallback_404"),
 ]

@@ -10,17 +10,19 @@ class WhoAmIView(APIView):
     def get(self, request):
         user_details = {
             "id": request.user.id,
+            "firstName": request.user.first_name,
+            "lastName": request.user.last_name,
             "username": request.user.username,
             "email": request.user.email,
-            "is_staff": request.user.is_staff,
-            "is_superuser": request.user.is_superuser,
-            "is_active": request.user.is_active,
-            "created_at": request.user.created_at,
-            "updated_at": request.user.updated_at,
-            "created_by": (
+            "isStaff": request.user.is_staff,
+            "isSuperuser": request.user.is_superuser,
+            "isActive": request.user.is_active,
+            "createdAt": request.user.created_at,
+            "updatedAt": request.user.updated_at,
+            "createdBy": (
                 request.user.created_by.id if request.user.created_by else None
             ),
-            "updated_by": (
+            "updatedBy": (
                 request.user.updated_by.id if request.user.updated_by else None
             ),
         }

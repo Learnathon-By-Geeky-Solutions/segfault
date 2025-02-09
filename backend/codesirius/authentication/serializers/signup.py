@@ -10,7 +10,7 @@ class SignupSerializer(serializers.Serializer):
     Serializer for signing up a new user.
     """
 
-    first_name = serializers.CharField(
+    firstName = serializers.CharField(
         min_length=1,
         max_length=255,
         error_messages={
@@ -19,10 +19,14 @@ class SignupSerializer(serializers.Serializer):
             "min_length": "First name is too short.",
             "max_length": "First name is too long.",
         },
+        source="first_name",
     )
-    last_name = serializers.CharField()
+    lastName = serializers.CharField(
+        source="last_name", required=False, allow_blank=True
+    )
     email = serializers.EmailField(
         error_messages={
+            "blank": "Email is required",
             "required": "Email is required",
             "invalid": "Email is invalid",
         },
@@ -36,6 +40,7 @@ class SignupSerializer(serializers.Serializer):
         min_length=1,
         max_length=255,
         error_messages={
+            "blank": "Username is required",
             "required": "Username is required",
             "min_length": "Username is too short",
             "max_length": "Username is too long",
@@ -50,8 +55,8 @@ class SignupSerializer(serializers.Serializer):
         write_only=True,
         min_length=8,
         error_messages={
-            "required": "Password is required",
             "blank": "Password is required",
+            "required": "Password is required",
             "min_length": "Password is too short",
         },
     )
@@ -59,6 +64,7 @@ class SignupSerializer(serializers.Serializer):
         write_only=True,
         min_length=8,
         error_messages={
+            "blank": "Password confirmation is required",
             "required": "Password confirmation is required",
             "min_length": "Password confirmation is too short",
         },

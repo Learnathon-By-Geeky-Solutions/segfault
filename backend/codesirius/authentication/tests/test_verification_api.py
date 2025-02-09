@@ -19,8 +19,8 @@ class VerificationCodeResendCheckAPITests(TestCase):
     def generate_user_payload(self, password1=None, password2=None, override=None):
         password = password1 or self.fake.password()
         payload = {
-            "first_name": self.fake.first_name(),
-            "last_name": self.fake.last_name(),
+            "firstName": self.fake.first_name(),
+            "lastName": self.fake.last_name(),
             "email": self.fake.email(),
             "username": self.fake.user_name(),
             "password1": password,
@@ -34,7 +34,7 @@ class VerificationCodeResendCheckAPITests(TestCase):
         """Test resending verification code with valid user is successful"""
         payload = self.generate_user_payload()
         user = self.client.post(SIGNUP_URL, payload).data["data"]
-        url = reverse("resend_verification_code", args=[user["user_id"]])
+        url = reverse("resend_verification_code", args=[user["userId"]])
         res = self.client.patch(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -55,7 +55,7 @@ class VerificationCodeResendCheckAPITests(TestCase):
         """Test checking verification code without code fails"""
         payload = self.generate_user_payload()
         user = self.client.post(SIGNUP_URL, payload).data["data"]
-        url = reverse("check_verification_code", args=[user["user_id"]])
+        url = reverse("check_verification_code", args=[user["userId"]])
         res = self.client.post(url)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -63,7 +63,7 @@ class VerificationCodeResendCheckAPITests(TestCase):
         """Test checking verification code with invalid code fails"""
         payload = self.generate_user_payload()
         user = self.client.post(SIGNUP_URL, payload).data["data"]
-        url = reverse("check_verification_code", args=[user["user_id"]])
+        url = reverse("check_verification_code", args=[user["userId"]])
         res = self.client.post(url, {"code": self.fake.random_int()})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -71,11 +71,11 @@ class VerificationCodeResendCheckAPITests(TestCase):
         """Test checking verification code with valid code is successful"""
         payload = self.generate_user_payload()
         user = self.client.post(SIGNUP_URL, payload).data["data"]
-        verification_code = VerificationCode.objects.get(user_id=user["user_id"])
-        url = reverse("check_verification_code", args=[user["user_id"]])
+        verification_code = VerificationCode.objects.get(user_id=user["userId"])
+        url = reverse("check_verification_code", args=[user["userId"]])
         res = self.client.post(url, {"code": verification_code.code})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.data["data"]["is_active"])
+        self.assertTrue(res.data["data"]["isActive"])
         # cross-check the user is active
-        user = get_user_model().objects.get(id=user["user_id"])
+        user = get_user_model().objects.get(id=user["userId"])
         self.assertTrue(user.is_active)
