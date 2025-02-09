@@ -70,7 +70,6 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, UserAdmin)
-# admin.site.register(User)
 # admin.site.register(VerificationCode)
 
 
