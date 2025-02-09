@@ -15,22 +15,6 @@ on:
 
 jobs:
   backend-test-and-lint:
-
-    services:
-      db:
-        image: postgres:14.15-alpine3.21
-        env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
-        ports:
-          - 5432:5432
-        options: >
-          --health-cmd "pg_isready -U ${{ secrets.DB_USER }}" 
-          --health-interval 10s 
-          --health-timeout 5s 
-          --health-retries 5
-
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
@@ -63,7 +47,5 @@ jobs:
         run: docker compose exec backend sh -c "flake8 ."
 
       - name: Stop the containers
-        run: |
-          docker compose down backend
-          docker compose down db
+        run: docker compose down backend
 
