@@ -15,7 +15,11 @@ interface AccountInformationProps {
     setUserId: (value: number) => void;
 }
 
-const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: AccountInformationProps) => {
+const AccountInformation = ({
+                                setActiveStep,
+                                setIsSignupLoading,
+                                setUserId
+                            }: AccountInformationProps) => {
 
     const [firstName, setFirstName] = useState<string>('');
     const [firstNameError, setFirstNameError] = useState<string>('');
@@ -46,12 +50,10 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
     }
 
     const isValidEmail = (email: string): boolean => {
-        return String(email)
-            .toLowerCase()
-            .match(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            ) !== null;
+        const emailPattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return emailPattern.exec(email.toLowerCase()) !== null;
     }
+
 
     const handleEmailBlur = () => {
         if (!isValidEmail(email)) {
@@ -154,7 +156,7 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
             password2: setConfirmPasswordError
         };
 
-        errors.forEach(({ field, message }) => {
+        errors.forEach(({field, message}) => {
             if (errorMap[field]) errorMap[field](message);
         });
     };
@@ -202,7 +204,8 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
 
 
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}} component="form" onSubmit={handleSubmit}>
+        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}} component="form"
+             onSubmit={handleSubmit}>
             <FormControl>
                 <TextField
                     value={firstName}
@@ -274,8 +277,10 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
                         input: {
                             endAdornment: (
                                 <InputAdornment position="end">
-                                    <IconButton onClick={() => setShowPassword(!showPassword)}>
-                                        {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                    <IconButton
+                                        onClick={() => setShowPassword(!showPassword)}>
+                                        {showPassword ? <VisibilityOff/> :
+                                            <Visibility/>}
                                     </IconButton>
                                 </InputAdornment>
                             )
@@ -303,7 +308,8 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
                                 <InputAdornment position="end">
                                     <IconButton
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                        {showConfirmPassword ? <VisibilityOff/> : <Visibility/>}
+                                        {showConfirmPassword ? <VisibilityOff/> :
+                                            <Visibility/>}
                                     </IconButton>
                                 </InputAdornment>
                             )
