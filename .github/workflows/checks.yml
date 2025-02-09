@@ -23,6 +23,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Set up environment variables
         run: |
           touch .env
@@ -33,9 +36,6 @@ jobs:
           echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
           cat .env
           pwd
-
-      - name: Checkout
-        uses: actions/checkout@v2
 
       - name: Build the images
         run: docker compose build backend
