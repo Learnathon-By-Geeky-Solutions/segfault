@@ -4,7 +4,7 @@ from secrets import choice
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.timezone import now, timedelta
-from rest_framework.exceptions import APIException, ValidationError
+from rest_framework.exceptions import ValidationError
 
 from codesirius.models import BaseModel
 
@@ -76,7 +76,9 @@ class VerificationCode(BaseModel):
         if self._regenerated:
             # If the verification code is regenerated, do not save it.
             # As the verification code is already saved in the database.
-            raise ValidationError({"detail": "You cannot save a regenerated verification code."})
+            raise ValidationError(
+                {"detail": "You cannot save a regenerated verification code."}
+            )
         super().save(*args, **kwargs)
 
         # for example, using celery
