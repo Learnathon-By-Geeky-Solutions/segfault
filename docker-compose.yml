@@ -12,12 +12,9 @@ services:
     working_dir: /app/codesirius
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
-    environment:
-      - DB_HOST=db
-      - DB_NAME=codesirius
-      - DB_USER=codesirius
-      - DB_PASSWORD=codesirius
-      - DJANGO_SECRET_KEY=django-insecure-ly!pcz4d&expk)u1b5847gglwzd8--rt7s5ge!uihi96i3+7
+
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
@@ -27,9 +24,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     environment:
       # credentials are hardcoded as it is only for development
-      POSTGRES_USER: codesirius
-      POSTGRES_PASSWORD: codesirius
-      POSTGRES_DB: codesirius
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     healthcheck:
