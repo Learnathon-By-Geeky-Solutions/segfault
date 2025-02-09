@@ -14,7 +14,7 @@ on:
       - dev
 
 jobs:
-  lint:
+  backend-test-and-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
@@ -22,7 +22,31 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Lint
-        run: docker compose run --rm backend sh -c "flake8"
+
+      - name: Set up environment variables
+        run: |
+          touch .env
+          echo DB_HOST="${{ secrets.DB_HOST }}" >> .env
+          echo DB_NAME="${{ secrets.DB_NAME }}" >> .env
+          echo DB_USER="${{ secrets.DB_USER }}" >> .env
+          echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
+          echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+
+      - name: Build the images
+        run: docker compose build backend
+
+      - name: Run the containers
+        run: docker compose up -d backend
+
+      - name: Run tests
+        run: docker compose exec backend sh -c "python manage.py test"
+
+      - name: Run linting
+        run: docker compose exec backend sh -c "flake8 ."
+
+      - name: Stop the containers
+        run: docker compose down backend
+

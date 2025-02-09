@@ -12,4 +12,3 @@ LICENSE
 *.swp
 /scripts
 .idea
-package-lock.json
