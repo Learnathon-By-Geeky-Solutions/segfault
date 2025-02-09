@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Editor, {OnMount} from "@monaco-editor/react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -13,6 +13,10 @@ const CodeEditor = () => {
     const theme = useAppSelector(state => state.codesirius.theme);
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [language, setLanguage] = useState<string | undefined>("javascript");
+
+    useEffect(() => {
+        console.log(language);
+    }, [language]);
 
 
     const handleEditorMount: OnMount = (editor, monaco) => {

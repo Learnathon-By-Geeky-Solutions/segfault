@@ -1,5 +1,6 @@
 'use client';
 import React, {useEffect, useState} from 'react';
+import isEmail from 'validator/lib/isEmail';
 import {FormControl, InputAdornment, Snackbar, TextField} from "@mui/material";
 import {NavigateNext, Visibility, VisibilityOff} from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
@@ -9,13 +10,19 @@ import {useSignupMutation} from "@/lib/features/api/authApiSlice";
 import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
 import {APIError, FieldError, SignupRequest} from "@/lib/features/api/types";
 
+
+
 interface AccountInformationProps {
     setActiveStep: (value: number) => void;
     setIsSignupLoading: (value: boolean) => void;
     setUserId: (value: number) => void;
 }
 
-const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: AccountInformationProps) => {
+const AccountInformation = ({
+                                setActiveStep,
+                                setIsSignupLoading,
+                                setUserId
+                            }: AccountInformationProps) => {
 
     const [firstName, setFirstName] = useState<string>('');
     const [firstNameError, setFirstNameError] = useState<string>('');
@@ -45,13 +52,11 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
         setEmailError('');
     }
 
+
     const isValidEmail = (email: string): boolean => {
-        return String(email)
-            .toLowerCase()
-            .match(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            ) !== null;
+        return isEmail(email);
     }
+
 
     const handleEmailBlur = () => {
         if (!isValidEmail(email)) {
@@ -154,7 +159,7 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
             password2: setConfirmPasswordError
         };
 
-        errors.forEach(({ field, message }) => {
+        errors.forEach(({field, message}) => {
             if (errorMap[field]) errorMap[field](message);
         });
     };
@@ -198,11 +203,12 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
     // pipe loading state to parent component
     useEffect(() => {
         setIsSignupLoading(isLoading);
-    }, [isLoading]);
+    }, [isLoading, setIsSignupLoading]);
 
 
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}} component="form" onSubmit={handleSubmit}>
+        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}} component="form"
+             onSubmit={handleSubmit}>
             <FormControl>
                 <TextField
                     value={firstName}
@@ -274,8 +280,10 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
                         input: {
                             endAdornment: (
                                 <InputAdornment position="end">
-                                    <IconButton onClick={() => setShowPassword(!showPassword)}>
-                                        {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                    <IconButton
+                                        onClick={() => setShowPassword(!showPassword)}>
+                                        {showPassword ? <VisibilityOff/> :
+                                            <Visibility/>}
                                     </IconButton>
                                 </InputAdornment>
                             )
@@ -303,7 +311,8 @@ const AccountInformation = ({setActiveStep, setIsSignupLoading, setUserId}: Acco
                                 <InputAdornment position="end">
                                     <IconButton
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                        {showConfirmPassword ? <VisibilityOff/> : <Visibility/>}
+                                        {showConfirmPassword ? <VisibilityOff/> :
+                                            <Visibility/>}
                                     </IconButton>
                                 </InputAdornment>
                             )
