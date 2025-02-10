@@ -2,67 +2,56 @@ import time
 from email.utils import formatdate
 from http import HTTPStatus
 
-from rest_framework.exceptions import (
-    ValidationError,
-    APIException,
-)
+from rest_framework.exceptions import ValidationError, APIException
 from rest_framework.views import exception_handler
 
 
+def generate_timestamp():
+    return formatdate(timeval=time.time(), localtime=False, usegmt=True)
+
+
+def format_validation_errors(errors):
+    formatted_errors = []
+    for field, messages in errors.items():
+        if isinstance(messages, list):
+            for message in messages:
+                formatted_errors.append({"field": field, "message": message})
+        else:
+            formatted_errors.append({"field": field, "message": messages})
+    return formatted_errors
+
+
+def build_response(response, status_code, message, path, errors=None):
+    res = {
+        "timestamp": generate_timestamp(),
+        "status": status_code,
+        "error": HTTPStatus(status_code).phrase,
+        "message": message,
+        "path": path,
+    }
+    if errors:
+        res["errors"] = errors
+    return res
+
+
 def custom_exception_handler(exc, context):
-    # Get the default response from DRF's built-in exception handler
     response = exception_handler(exc, context)
+    path = context["request"].path
 
-    # Generate timestamp in RFC 1123 format (e.g., "Wed, 30 Jan 2025 14:30:00 GMT")
-    timestamp = formatdate(timeval=time.time(), localtime=False, usegmt=True)
-
-    # If response exists, modify the structure
     if response is not None:
         if isinstance(exc, ValidationError):
-            formatted_errors = []
-
-            for field, errors in response.data.items():
-                if isinstance(errors, list):
-                    for error in errors:
-                        formatted_errors.append(
-                            {
-                                "field": field,
-                                "message": error,
-                            }
-                        )
-                else:
-                    formatted_errors.append(
-                        {
-                            "field": field,
-                            "message": errors,
-                        }
-                    )
-
-            response.data = {
-                "timestamp": timestamp,
-                "status": response.status_code,
-                "error": HTTPStatus(response.status_code).phrase,
-                "message": "One or more fields have errors.",
-                "path": context["request"].path,
-                "errors": formatted_errors,
-            }
-
-        elif isinstance(exc, APIException):  # Handle generic API exceptions
-            response.data = {
-                "timestamp": timestamp,
-                "status": response.status_code,
-                "error": HTTPStatus(response.status_code).phrase,
-                "message": exc.detail if exc.detail else exc.default_detail,
-                "path": context["request"].path,
-            }
+            response.data = build_response(
+                response,
+                response.status_code,
+                "One or more fields have errors.",
+                path,
+                format_validation_errors(response.data),
+            )
+        elif isinstance(exc, APIException):
+            response.data = build_response(
+                response, response.status_code, exc.detail or exc.default_detail, path
+            )
     else:
-        # If response does not exist, create a new one
-        response = {
-            "timestamp": timestamp,
-            "status": 500,
-            "error": HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
-            "message": "An unexpected error occurred.",
-            "path": context["request"].path,
-        }
+        response = build_response(None, 500, "An unexpected error occurred.", path)
 
     return response
