@@ -36,6 +36,11 @@ jobs:
           echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
           echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
 
+      - name: Fix permission for logs directory
+        run: |
+          mkdir ./backend/codesirius/logs
+          chmod 777 ./backend/codesirius/logs
+
       - name: Build the images
         run: docker compose build backend
 
