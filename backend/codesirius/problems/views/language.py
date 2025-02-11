@@ -43,3 +43,82 @@ class LanguageListCreateAPIView(APIView):
             )
         logger.warning("Language creation failed due to validation errors")
         raise ValidationError(serializer.errors)
+
+
+class LanguageRetrieveUpdateDestroyAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request: Request, pk: int) -> CodesiriusAPIResponse:
+        """
+        Get a language by its primary key
+        """
+        logger.info(f"Fetching language with ID: {pk}")
+        try:
+            language = Language.objects.get(pk=pk)
+            logger.info(f"Language with ID: {pk} fetched successfully")
+        except Language.DoesNotExist:
+            logger.warning(f"Language with ID: {pk} not found")
+            raise NotFound(f"Language with ID: {pk} not found")
+        serializer = LanguageSerializer(instance=language)
+        return CodesiriusAPIResponse(data=serializer.data)
+
+    def put(self, request: Request, pk: int) -> CodesiriusAPIResponse:
+        """
+        Update a language by its primary key
+        """
+        logger.info(f"Updating language with ID: {pk}")
+        try:
+            language = Language.objects.get(pk=pk)
+            logger.info(f"Language with ID: {pk} fetched successfully")
+        except Language.DoesNotExist:
+            logger.warning(f"Language with ID: {pk} not found")
+            raise NotFound(f"Language with ID: {pk} not found")
+        serializer = LanguageSerializer(instance=language, data=request.data)
+        if serializer.is_valid():
+            language = serializer.save()
+            logger.info(f"Language with ID: {pk} updated successfully")
+            return CodesiriusAPIResponse(
+                data={"id": language.id},
+                message="Language updated",
+            )
+        logger.warning("Language update failed due to validation errors")
+        raise ValidationError(serializer.errors)
+
+    def patch(self, request: Request, pk: int) -> CodesiriusAPIResponse:
+        """
+        Partially update a language by its primary key
+        """
+        logger.info(f"Partially updating language with ID: {pk}")
+        try:
+            language = Language.objects.get(pk=pk)
+            logger.info(f"Language with ID: {pk} fetched successfully")
+        except Language.DoesNotExist:
+            logger.warning(f"Language with ID: {pk} not found")
+            raise NotFound(f"Language with ID: {pk} not found")
+        serializer = LanguageSerializer(
+            instance=language, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            language = serializer.save()
+            logger.info(f"Language with ID: {pk} partially updated successfully")
+            return CodesiriusAPIResponse(
+                data={"id": language.id},
+                message="Language partially updated",
+            )
+        logger.warning("Language partial update failed due to validation errors")
+        raise ValidationError(serializer.errors)
+
+    def delete(self, request: Request, pk: int) -> CodesiriusAPIResponse:
+        """
+        Delete a language by its primary key
+        """
+        logger.info(f"Deleting language with ID: {pk}")
+        try:
+            language = Language.objects.get(pk=pk)
+            logger.info(f"Language with ID: {pk} fetched successfully")
+        except Language.DoesNotExist:
+            logger.warning(f"Language with ID: {pk} not found")
+            raise NotFound(f"Language with ID: {pk} not found")
+        language.delete()
+        logger.info(f"Language with ID: {pk} deleted successfully")
+        return CodesiriusAPIResponse(message="Language deleted")
