@@ -16,6 +16,7 @@ class SignupSerializer(serializers.Serializer):
         error_messages={
             "required": "First name is required.",
             "blank": "First name is required.",
+            "null": "First name is required.",
             "min_length": "First name is too short.",
             "max_length": "First name is too long.",
         },
