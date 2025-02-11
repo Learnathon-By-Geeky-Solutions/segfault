@@ -38,7 +38,7 @@ jobs:
 
       - name: Fix permission for logs directory
         run: |
-          mkdir ./backend/codesirius/logs
+          mkdir -p ./backend/codesirius/logs
           chmod 777 ./backend/codesirius/logs
 
       - name: Build the images
