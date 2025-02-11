@@ -58,4 +58,4 @@ class TagSerializer(serializers.Serializer):
             return instance
         except Exception as e:
             logger.error(f"Error updating tag with ID: {instance.id}: {e}")
-            raise
+            raise APIException("Error while updating tag")
