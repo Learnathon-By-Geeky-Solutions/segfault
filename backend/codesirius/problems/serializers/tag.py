@@ -1,7 +1,12 @@
+import logging
+
 from rest_framework import serializers
+from rest_framework.exceptions import APIException
 from rest_framework.validators import UniqueValidator
 
 from problems.models import Tag
+
+logger = logging.getLogger(__name__)
 
 
 class TagSerializer(serializers.Serializer):
@@ -32,10 +37,25 @@ class TagSerializer(serializers.Serializer):
     )
 
     def create(self, validated_data):
-        return Tag.objects.create(**validated_data)
+        logger.info(f"Creating a new tag with data: {validated_data}")
+        try:
+            tag = Tag.objects.create(**validated_data)
+            logger.info("Tag created successfully")
+            return tag
+        except Exception as e:
+            logger.error(f"Error while creating tag - {e}")
+            raise APIException("Error while creating tag")
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get("name", instance.name)
-        instance.description = validated_data.get("description", instance.description)
-        instance.save()
-        return instance
+        logger.info(f"Updating tag with ID: {instance.id}, Data: {validated_data}")
+        try:
+            instance.name = validated_data.get("name", instance.name)
+            instance.description = validated_data.get(
+                "description", instance.description
+            )
+            instance.save()
+            logger.info(f"Tag with ID: {instance.id} updated successfully")
+            return instance
+        except Exception as e:
+            logger.error(f"Error updating tag with ID: {instance.id}: {e}")
+            raise
