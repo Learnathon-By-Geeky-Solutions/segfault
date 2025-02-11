@@ -39,7 +39,7 @@ jobs:
       - name: Fix permission for logs directory
         run: |
           mkdir -p ./backend/codesirius/logs
-          chmod 777 ./backend/codesirius
+          chmod 777 ./backend/codesirius/logs
 
       - name: Build the images
         run: docker compose build backend
@@ -48,7 +48,7 @@ jobs:
         run: docker compose up -d backend
 
       - name: Run tests
-        run: docker compose exec backend sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py test"
+        run: docker compose exec backend sh -c "python manage.py test"
 
       - name: Run linting
         run: docker compose exec backend sh -c "flake8 ."
