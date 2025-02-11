@@ -9,7 +9,6 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/codesirius:/app/codesirius
-      - ./backend/codesirius/logs:/app/codesirius/logs
     working_dir: /app/codesirius
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
