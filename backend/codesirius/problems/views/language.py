@@ -14,6 +14,15 @@ from problems.serializers.language import LanguageSerializer
 logger = logging.getLogger(__name__)
 
 
+@extend_schema_view(
+    get=extend_schema(summary="Get all languages", description="Get all languages"),
+    post=extend_schema(
+        summary="Create a new language",
+        description="Create a new language",
+        request=LanguageSerializer,
+        responses=LanguageSerializer,
+    ),
+)
 class LanguageListCreateAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -45,6 +54,22 @@ class LanguageListCreateAPIView(APIView):
         raise ValidationError(serializer.errors)
 
 
+@extend_schema_view(
+    get=extend_schema(summary="Get a language", description="Get a language"),
+    put=extend_schema(
+        summary="Update a language",
+        description="Update a language",
+        request=LanguageSerializer,
+        responses=LanguageSerializer,
+    ),
+    patch=extend_schema(
+        summary="Partially update a language",
+        description="Partially update a language",
+        request=LanguageSerializer,
+        responses=LanguageSerializer,
+    ),
+    delete=extend_schema(summary="Delete a language", description="Delete a language"),
+)
 class LanguageRetrieveUpdateDestroyAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
