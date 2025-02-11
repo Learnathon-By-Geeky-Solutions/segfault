@@ -148,3 +148,71 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
+
+
+# set LOG_LEVEL from DJANGO_LOG_LEVEL environment variable
+# if DJANGO_LOG_LEVEL is not set, default to DEBUG if DEBUG is True, otherwise INFO
+LOG_LEVEL = environ.get(
+    "DJANGO_LOG_LEVEL",
+    "DEBUG" if DEBUG else "INFO",
+)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        # console handler for development
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": "DEBUG",
+        },
+        # file handler for production
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "/app/codesirius/logs/codesirius.log",
+            "maxBytes": 1024 * 1024 * 5,  # 5 MB
+            "backupCount": 5,
+            "formatter": "verbose",
+            "level": "INFO",
+        },
+        # error file handler for capturing request errors in production
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "/app/codesirius/logs/error.log",
+            "maxBytes": 1024 * 1024 * 5,  # 5 MB
+            "backupCount": 5,
+            "formatter": "verbose",
+            "level": "ERROR",
+        },
+    },
+    # root logger (capture unhandled logs)
+    "root": {
+        # use console handler for development, file handler for production
+        "handlers": ["console"] if DEBUG else ["file"],
+        "level": LOG_LEVEL,
+    },
+    # named loggers
+    "loggers": {
+        "django": {
+            "handlers": ["console"] if DEBUG else ["file"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["error_file"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}

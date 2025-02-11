@@ -18,6 +18,8 @@ RUN pip install --upgrade pip && \
     if [ "$DEV" = "true" ]; then pip install -r /tmp/requirements.dev.txt; fi && \
     rm -rf /tmp && \
     apk del .tmp-build-deps && \
-    adduser --disabled-password --no-create-home codesirius
+    mkdir -p /app/codesirius/logs && \
+    adduser --disabled-password --no-create-home codesirius && \
+    chown -R codesirius /app/codesirius
 
 USER codesirius
