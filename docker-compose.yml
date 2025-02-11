@@ -52,6 +52,49 @@ services:
     command: >
       sh -c  "npm run dev"
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"  # Grafana UI on port 3001 (default is 3000, but you can change it)
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"  # Set an admin password (default is 'admin')
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/config:/etc/loki/config
+      - ./loki/data:/loki
+    command: -config.file=/etc/loki/config/loki-config.yml
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - ./promtail/config:/etc/promtail
+      - ./backend/codesirius/logs:/logs
+    command: -config.file=/etc/promtail/promtail.yml
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   postgres_data:
-      
+  grafana_data:
