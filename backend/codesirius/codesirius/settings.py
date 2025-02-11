@@ -180,7 +180,7 @@ LOGGING = {
         # file handler for production
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/codesirius.log",
+            "filename": "/app/codesirius/logs/codesirius.log",
             "maxBytes": 1024 * 1024 * 5,  # 5 MB
             "backupCount": 5,
             "formatter": "verbose",
@@ -189,7 +189,7 @@ LOGGING = {
         # error file handler for capturing request errors in production
         "error_file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/error.log",
+            "filename": "/app/codesirius/logs/error.log",
             "maxBytes": 1024 * 1024 * 5,  # 5 MB
             "backupCount": 5,
             "formatter": "verbose",
