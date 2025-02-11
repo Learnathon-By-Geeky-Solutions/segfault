@@ -160,7 +160,13 @@ REST_FRAMEWORK = {
     ],
 }
 
-
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Codesirius API",
+    "DESCRIPTION": "API for Codesirius",
+    "VERSION": "1.0.0",
+    "SCHEMA_PATH_PREFIX": "/api/",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
 # set LOG_LEVEL from DJANGO_LOG_LEVEL environment variable
 # if DJANGO_LOG_LEVEL is not set, default to DEBUG if DEBUG is True, otherwise INFO
 LOG_LEVEL = environ.get(
