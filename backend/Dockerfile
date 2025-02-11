@@ -19,6 +19,7 @@ RUN pip install --upgrade pip && \
     rm -rf /tmp && \
     apk del .tmp-build-deps && \
     mkdir -p /app/codesirius/logs && \
+    chmod 777 /app/codesirius/logs && \
     adduser --disabled-password --no-create-home codesirius && \
     chown -R codesirius /app/codesirius
 
