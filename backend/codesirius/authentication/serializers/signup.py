@@ -16,13 +16,19 @@ class SignupSerializer(serializers.Serializer):
         error_messages={
             "required": "First name is required.",
             "blank": "First name is required.",
+            "null": "First name is required.",
             "min_length": "First name is too short.",
             "max_length": "First name is too long.",
         },
         source="first_name",
     )
     lastName = serializers.CharField(
-        source="last_name", required=False, allow_blank=True
+        source="last_name",
+        required=False,
+        allow_blank=True,
+        error_messages={
+            "null": "Last name can either be left blank or excluded from the request.",
+        },
     )
     email = serializers.EmailField(
         error_messages={

@@ -2,7 +2,11 @@ import time
 from email.utils import formatdate
 from http import HTTPStatus
 
-from rest_framework.exceptions import ValidationError, APIException
+from rest_framework.exceptions import (
+    ValidationError,
+    APIException,
+    AuthenticationFailed,
+)
 from rest_framework.views import exception_handler
 
 
@@ -46,6 +50,13 @@ def custom_exception_handler(exc, context):
                 "One or more fields have errors.",
                 path,
                 format_validation_errors(response.data),
+            )
+        elif isinstance(exc, AuthenticationFailed):
+            response.data = build_response(
+                response,
+                response.status_code,
+                "Authentication credentials were not provided.",
+                path,
             )
         elif isinstance(exc, APIException):
             response.data = build_response(
