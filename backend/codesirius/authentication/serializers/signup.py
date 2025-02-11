@@ -23,7 +23,12 @@ class SignupSerializer(serializers.Serializer):
         source="first_name",
     )
     lastName = serializers.CharField(
-        source="last_name", required=False, allow_blank=True
+        source="last_name",
+        required=False,
+        allow_blank=True,
+        error_messages={
+            "null": "Last name can either be left blank or excluded from the request.",
+        },
     )
     email = serializers.EmailField(
         error_messages={
