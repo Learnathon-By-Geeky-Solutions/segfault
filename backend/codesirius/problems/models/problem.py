@@ -16,6 +16,7 @@ class Problem(BaseModel):
         description: A TextField representing the description of the problem.
         tags: A ManyToManyField representing the tags of the problem.
         languages: A ManyToManyField representing the languages of the problem.
+        status: A CharField representing the status of the problem.
     """
 
     title = models.CharField(max_length=200)
