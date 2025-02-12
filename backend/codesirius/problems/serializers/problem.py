@@ -63,6 +63,11 @@ class ProblemSerializer(serializers.Serializer):
             raise serializers.ValidationError("Minimum one tag is required.")
         return tags
 
+    def validate_languages(self, languages):
+        if not languages:
+            raise serializers.ValidationError("Minimum one language is required.")
+        return languages
+
     def create(self, validated_data):
         logger.info(f"Creating a new problem with data: {validated_data}")
         try:
