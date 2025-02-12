@@ -71,7 +71,10 @@ class ProblemSerializer(serializers.Serializer):
     def create(self, validated_data):
         logger.info(f"Creating a new problem with data: {validated_data}")
         try:
-            problem = Problem.objects.create(**validated_data)
+            problem = Problem(title=validated_data["title"])
+            problem.save()
+            problem.tags.set(validated_data["tags"])
+            problem.languages.set(validated_data["languages"])
             logger.info("Problem created successfully")
             return problem
         except Exception as e:
