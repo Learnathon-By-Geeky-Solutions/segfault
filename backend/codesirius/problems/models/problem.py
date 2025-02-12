@@ -32,6 +32,10 @@ class Problem(BaseModel):
         max_length=10, choices=Status.choices, default=Status.DRAFT
     )
 
+    class Meta:
+        verbose_name = "Problem"
+        verbose_name_plural = "Problems"
+
     def clean(self):
         # make sure description is not empty if status is published
         if self.status == self.Status.PUBLISHED and not self.description:
