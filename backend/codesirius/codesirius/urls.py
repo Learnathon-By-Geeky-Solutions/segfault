@@ -25,6 +25,7 @@ from drf_spectacular.views import (
 from codesirius.views import Fallback404View, health_check
 
 urlpatterns = [
+    path("", include("django_prometheus.urls")),
     path("admin/", admin.site.urls),
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
