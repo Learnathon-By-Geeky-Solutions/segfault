@@ -88,7 +88,7 @@ WSGI_APPLICATION = "codesirius.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django_prometheus.db.backends.postgresql",
         "HOST": environ.get("DB_HOST"),
         "NAME": environ.get("DB_NAME"),
         "USER": environ.get("DB_USER"),
