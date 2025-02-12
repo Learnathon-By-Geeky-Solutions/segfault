@@ -16,5 +16,9 @@ class Tag(BaseModel):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(max_length=200, blank=True)  # Optional
 
+    class Meta:
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
+
     def __str__(self):
         return self.name
