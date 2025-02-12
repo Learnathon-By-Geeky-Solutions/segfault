@@ -31,7 +31,7 @@ SECRET_KEY = environ.get("DJANGO_SECRET_KEY")
 DEBUG = environ.get("DJANGO_DEBUG", "False") == "True"
 
 
-ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0", "localhost"]
+ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0", "localhost", "backend"]
 
 
 # Application definition
