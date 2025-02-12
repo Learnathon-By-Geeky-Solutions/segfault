@@ -19,6 +19,10 @@ class Problem(BaseModel):
         status: A CharField representing the status of the problem.
     """
 
+    class Status(models.TextChoices):
+        DRAFT = "DRAFT"
+        PUBLISHED = "PUBLISHED"
+
     title = models.CharField(max_length=200)
     description = models.TextField(max_length=5000, blank=True)
     tags = models.ManyToManyField(Tag, related_name="problems")
