@@ -46,7 +46,13 @@ class ProblemSerializer(serializers.Serializer):
         },
     )
     languages = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Language.objects.all(), required=True
+        many=True,
+        queryset=Language.objects.all(),
+        required=True,
+        error_messages={
+            "required": "Minimum one language is required.",
+            "null": "Minimum one language is required.",
+        },
     )
     status = serializers.ChoiceField(
         choices=Problem.Status.choices, default=Problem.Status.DRAFT
