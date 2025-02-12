@@ -27,6 +27,10 @@ class Problem(BaseModel):
     description = models.TextField(max_length=5000, blank=True)
     tags = models.ManyToManyField(Tag, related_name="problems")
     languages = models.ManyToManyField(Language, related_name="problems")
+    status = models.CharField(
+        max_length=10, choices=Status.choices, default=Status.DRAFT
+    )
+
 
     def __str__(self):
         return self.title
