@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from codesirius.models import BaseModel
@@ -31,6 +32,14 @@ class Problem(BaseModel):
         max_length=10, choices=Status.choices, default=Status.DRAFT
     )
 
+    def clean(self):
+        # make sure description is not empty if status is published
+        if self.status == self.Status.PUBLISHED and not self.description:
+            raise ValidationError("Description is required for a published problem")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
