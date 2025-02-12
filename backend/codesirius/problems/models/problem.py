@@ -19,7 +19,7 @@ class Problem(BaseModel):
     """
 
     title = models.CharField(max_length=200)
-    description = models.TextField(max_length=5000)
+    description = models.TextField(max_length=5000, blank=True)
     tags = models.ManyToManyField(Tag, related_name="problems")
     languages = models.ManyToManyField(Language, related_name="problems")
 
