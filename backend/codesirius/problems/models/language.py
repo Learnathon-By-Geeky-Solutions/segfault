@@ -16,5 +16,9 @@ class Language(BaseModel):
     name = models.CharField(max_length=50, unique=True)
     version = models.CharField(max_length=50, blank=True)  # Optional
 
+    class Meta:
+        verbose_name = "Language"
+        verbose_name_plural = "Languages"
+
     def __str__(self):
         return self.name + " " + self.version
