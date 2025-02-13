@@ -44,6 +44,11 @@ class ProblemListCreateAPIView(APIView):
         raise ValidationError(serializer.errors)
 
 
+class IsOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
+    def has_object_permission(self, request, view, obj):
+        return obj.created_by == request.user
+
+
 class ProblemRetrieveUpdateDestroyAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
