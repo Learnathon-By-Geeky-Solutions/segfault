@@ -50,7 +50,7 @@ class IsOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
 
 
 class ProblemRetrieveUpdateDestroyAPIView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get(self, request: Request, pk: int) -> CodesiriusAPIResponse:
         """
