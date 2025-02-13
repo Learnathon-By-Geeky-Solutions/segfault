@@ -32,7 +32,8 @@ class LanguageSerializer(serializers.Serializer):
         required=False,
         error_messages={
             "max_length": "The version field must not exceed 50 characters.",
-            "null": "Either leave the version field blank or exclude it from the request.",
+            "null": "Either leave the version field blank \
+                    or exclude it from the request.",
         },
     )
 

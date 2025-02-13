@@ -1,4 +1,5 @@
 import logging
+from typing import Dict
 
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
@@ -69,7 +70,7 @@ class ProblemSerializer(serializers.Serializer):
             raise serializers.ValidationError("Minimum one language is required.")
         return languages
 
-    def create(self, validated_data):
+    def create(self, validated_data: Dict) -> Problem:
         logger.info(f"Creating a new problem with data: {validated_data}")
         try:
             problem: Problem = Problem(
@@ -109,5 +110,4 @@ class ProblemSerializer(serializers.Serializer):
             raise serializers.ValidationError(e.message_dict)
         except Exception as e:
             logger.error(f"Error updating problem with ID: {instance.id}: {e}")
-            logger.error(e.with_traceback())
             raise APIException("Error while updating problem")

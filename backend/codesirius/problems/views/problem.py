@@ -1,7 +1,7 @@
 import logging
 
 from rest_framework import status
-from rest_framework.exceptions import ValidationError, NotFound, APIException
+from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.views import APIView

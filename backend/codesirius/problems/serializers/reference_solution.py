@@ -3,7 +3,7 @@ from typing import Dict
 
 from rest_framework import serializers
 
-from problems.models import ReferenceSolution, Problem, Language
+from problems.models import ReferenceSolution, Language
 
 logger = logging.getLogger(__name__)
 
