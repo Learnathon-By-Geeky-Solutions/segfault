@@ -1,5 +1,6 @@
 import logging
 
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from rest_framework.validators import UniqueValidator
@@ -98,6 +99,14 @@ class ProblemSerializer(serializers.Serializer):
             instance.save()
             logger.info(f"Problem with ID: {instance.id} updated successfully")
             return instance
+        except ValidationError as e:
+            """
+            handle ValidationError raised by clean() method in Problem model
+            """
+            logger.warning(
+                f"Validation error while updating problem with ID: {instance.id} {e}"
+            )
+            raise serializers.ValidationError(e.message_dict)
         except Exception as e:
             logger.error(f"Error updating problem with ID: {instance.id}: {e}")
             logger.error(e.with_traceback())
