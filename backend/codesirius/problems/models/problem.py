@@ -39,7 +39,7 @@ class Problem(BaseModel):
     def clean(self):
         # make sure description is not empty if status is published
         if self.status == self.Status.PUBLISHED and not self.description:
-            raise ValidationError("Description is required for a published problem")
+            raise ValidationError(message={"description": "Description is required."})
 
     def save(self, *args, **kwargs):
         self.clean()
