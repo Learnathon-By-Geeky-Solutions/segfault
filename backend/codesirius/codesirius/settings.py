@@ -162,6 +162,16 @@ REST_FRAMEWORK = {
     ],
 }
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=os.environ.get("ACCESS_TOKEN_LIFETIME", 1440),
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=os.environ.get("REFRESH_TOKEN_LIFETIME", 30),
+    ),
+}
+
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Codesirius API",
     "DESCRIPTION": "API for Codesirius",
