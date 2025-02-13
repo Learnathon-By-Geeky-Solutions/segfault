@@ -73,6 +73,7 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
         logger.info(f"Updating problem with ID: {pk}")
         try:
             problem = Problem.objects.get(pk=pk)
+            self.check_object_permissions(request, problem)
             logger.info(f"Problem with ID: {pk} fetched successfully")
         except Problem.DoesNotExist:
             logger.warning(f"Problem with ID: {pk} not found")
@@ -94,6 +95,7 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
         logger.info(f"Partially updating problem with ID: {pk}")
         try:
             problem = Problem.objects.get(pk=pk)
+            self.check_object_permissions(request, problem)
             logger.info(f"Problem with ID: {pk} fetched successfully")
         except Problem.DoesNotExist:
             logger.warning(f"Problem with ID: {pk} not found")
@@ -121,6 +123,7 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
         try:
             problem = Problem.objects.get(pk=pk)
             logger.info(f"Problem with ID: {pk} fetched successfully")
+            self.check_object_permissions(request, problem)
         except Problem.DoesNotExist:
             logger.warning(f"Problem with ID: {pk} not found")
             raise NotFound("Problem not found")
