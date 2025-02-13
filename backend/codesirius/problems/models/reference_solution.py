@@ -6,17 +6,17 @@ from django.db import models
 
 from codesirius.models import BaseModel
 from problems.models import Problem, Language
+from problems.models.base_submission import BaseSubmission
 
 
-class ReferenceSolution(BaseModel):
-    problem = models.ForeignKey(
-        Problem, on_delete=models.CASCADE, related_name="reference_solutions"
-    )
-    code = models.TextField(max_length=10000)
-    language = models.ForeignKey(
-        Language, on_delete=models.CASCADE, related_name="reference_solutions"
-    )
+class ReferenceSolution(BaseSubmission):
+    """
+    Model representing a reference solution.
+    """
 
     class Meta:
-        verbose_name = "Reference solution"
-        verbose_name_plural = "Reference solutions"
+        verbose_name = "Reference Solution"
+        verbose_name_plural = "Reference Solutions"
+
+    def __str__(self):
+        return f"Reference solution for {self.problem.title} [{self.language}]"
