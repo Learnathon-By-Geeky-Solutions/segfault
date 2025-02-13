@@ -2,10 +2,6 @@
 Reference solution model
 """
 
-from django.db import models
-
-from codesirius.models import BaseModel
-from problems.models import Problem, Language
 from problems.models.base_submission import BaseSubmission
 
 
