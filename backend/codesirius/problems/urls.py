@@ -8,6 +8,10 @@ from problems.views.problem import (
     ProblemListCreateAPIView,
     ProblemRetrieveUpdateDestroyAPIView,
 )
+from problems.views.reference_solution import (
+    ReferenceSolutionListCreateAPIView,
+    ReferenceSolutionRetrieveUpdateDestroyAPIView,
+)
 from problems.views.tag import TagListCreateAPIView, TagRetrieveUpdateDestroyAPIView
 
 urlpatterns = [
@@ -28,5 +32,15 @@ urlpatterns = [
         "languages/<int:pk>",
         LanguageRetrieveUpdateDestroyAPIView.as_view(),
         name="language-retrieve-update-destroy",
+    ),
+    path(
+        "<int:problem_pk>/reference-solutions/",
+        ReferenceSolutionListCreateAPIView.as_view(),
+        name="reference-solution-list-create",
+    ),
+    path(
+        "<int:problem_pk>/reference-solutions/<int:pk>/",
+        ReferenceSolutionRetrieveUpdateDestroyAPIView.as_view(),
+        name="reference-solution-retrieve-update-destroy",
     ),
 ]
