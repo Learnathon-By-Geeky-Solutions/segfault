@@ -31,7 +31,7 @@ class ProblemListCreateAPIView(APIView):
         Create a new problem
         """
         logger.info("Creating a new problem")
-        serializer = ProblemSerializer(data=request.data)
+        serializer = ProblemSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             problem = serializer.save()
             logger.info(f"Problem created successfully with ID: {problem.id}")
