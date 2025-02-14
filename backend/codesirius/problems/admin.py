@@ -20,4 +20,38 @@ class LanguageAdmin(admin.ModelAdmin):
 
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Tag)
-admin.site.register(Problem)
+
+
+class ProblemForm(forms.ModelForm):
+    class Meta:
+        model = Problem
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        status = cleaned_data.get("status")
+        description = cleaned_data.get("description")
+
+        if status == Problem.Status.PUBLISHED and not description:
+            raise ValidationError(
+                {"description": "Description is required for a published problem"}
+            )
+
+        return cleaned_data
+
+
+class ProblemAdmin(admin.ModelAdmin):
+    form = ProblemForm  # Link the custom form to the admin
+    readonly_fields = ("created_by", "updated_by")  # Make these fields read-only
+    list_display = (
+        "title",
+        "status",
+        "description",
+    )  # Add any fields you want to display
+    search_fields = ("title", "description")  # Enable search on these fields
+
+
+admin.site.register(Problem, ProblemAdmin)
+
+admin.site.register(ReferenceSolution)
+admin.site.register(Submission)
