@@ -55,7 +55,11 @@ def custom_exception_handler(exc, context):
             response.data = build_response(
                 response,
                 response.status_code,
-                "Authentication credentials were not provided.",
+                (
+                    "Authentication credentials were not provided."
+                    if exc.detail is None
+                    else exc.default_detail
+                ),
                 path,
             )
         elif isinstance(exc, APIException):
