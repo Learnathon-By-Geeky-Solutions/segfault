@@ -18,8 +18,9 @@ export async function POST(req: Request) {
             // extract token from response
             const {access, refresh} = drfResponseJson.data;
             const cookieStore = await cookies();
-            cookieStore.set("access", access, {path: "/", sameSite: "strict", httpOnly: true, secure: true});
-            cookieStore.set("refresh", refresh, {path: "/", sameSite: "strict", httpOnly: true, secure: true});
+            cookieStore.set("access", access, {path: "/", sameSite: "strict"});
+            cookieStore.set("refresh", refresh, {path: "/", sameSite: "strict"});
+            // use httpOnly: true, secure: true in production
 
             // remove token from response and add redirect url
             delete drfResponseJson.data;

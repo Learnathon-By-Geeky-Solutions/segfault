@@ -52,6 +52,33 @@ services:
     command: >
       sh -c  "npm run dev"
 
+  frontend-prod:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      args:
+        - DEV=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # to avoid overwriting node_modules
+      - /app/.next  # to avoid overwriting .next
+    working_dir: /app
+    command: >
+      sh -c  "npm run build && npm run start"
+      
+
+  nginx:
+    image: nginx:1.21.3-alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+    
+    
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

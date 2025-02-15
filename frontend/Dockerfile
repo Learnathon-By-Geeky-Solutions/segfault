@@ -6,14 +6,16 @@ WORKDIR /app
 COPY package.json ./
 COPY package-lock.json ./
 COPY src ./src
+COPY tsconfig.json ./
 COPY public ./public
 
 EXPOSE 3000
 
 ARG DEV=false
-RUN npm install --ignore-scripts && \
-    if [ "$DEV" = "true" ]; then npm install --only=dev; fi && \
+RUN if [ "$DEV" = "true" ]; then \
+      npm install --ignore-scripts && npm install --only=dev --ignore-scripts; \
+    else \
+      npm ci --ignore-scripts --production; \
+    fi && \
     adduser --disabled-password codesirius
-
-USER codesirius
 
