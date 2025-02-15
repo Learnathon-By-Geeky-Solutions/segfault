@@ -1,5 +1,5 @@
 "use client";
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import {Box, Paper} from "@mui/material";
 
 interface SplitPaneProps {
@@ -21,7 +21,18 @@ const SplitPane = ({ leftWidth = 50, leftChildren, rightChildren }: SplitPanePro
         document.body.style.userSelect = "none";
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    // const handleMouseMove = (e: MouseEvent) => {
+    //     if (!isResizing) return;
+    //
+    //     const deltaX = e.clientX - startX; // Difference from the initial click position
+    //     const newWidth = startWidth + (deltaX / window.innerWidth) * 100; // Adjust width in percentage
+    //
+    //     if (newWidth > 20 && newWidth < 80) {
+    //         setWidth(newWidth);
+    //     }
+    // };
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
         if (!isResizing) return;
 
         const deltaX = e.clientX - startX; // Difference from the initial click position
@@ -30,12 +41,17 @@ const SplitPane = ({ leftWidth = 50, leftChildren, rightChildren }: SplitPanePro
         if (newWidth > 20 && newWidth < 80) {
             setWidth(newWidth);
         }
-    };
+    }, [isResizing, startX, startWidth]);
 
-    const handleMouseUp = () => {
+    // const handleMouseUp = () => {
+    //     document.body.style.userSelect = "auto";
+    //     setIsResizing(false);
+    // };
+
+    const handleMouseUp = useCallback(() => {
         document.body.style.userSelect = "auto";
         setIsResizing(false);
-    };
+    }, []);
 
     React.useEffect(() => {
         if (isResizing) {
@@ -49,7 +65,7 @@ const SplitPane = ({ leftWidth = 50, leftChildren, rightChildren }: SplitPanePro
             window.removeEventListener("mousemove", handleMouseMove);
             window.removeEventListener("mouseup", handleMouseUp);
         };
-    }, [isResizing]);
+    }, [isResizing,, handleMouseUp, handleMouseMove]);
 
     return (
         <Box display="flex">
