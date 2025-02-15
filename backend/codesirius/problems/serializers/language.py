@@ -3,7 +3,6 @@ import logging
 from django.db import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
-from rest_framework.validators import UniqueValidator
 
 from problems.models import Language
 
