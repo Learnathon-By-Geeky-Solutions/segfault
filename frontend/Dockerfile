@@ -6,6 +6,7 @@ WORKDIR /app
 COPY package.json ./
 COPY package-lock.json ./
 COPY src ./src
+COPY tsconfig.json ./
 COPY public ./public
 
 EXPOSE 3000
