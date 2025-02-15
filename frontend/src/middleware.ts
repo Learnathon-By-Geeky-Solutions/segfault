@@ -2,8 +2,7 @@ import {cookies} from "next/headers";
 
 import {NextRequest, NextResponse} from "next/server";
 import {User} from "@/lib/features/api/types";
-
-const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
+import {DJANGO_BACKEND_URL} from "@/lib/constants";
 
 interface UserResponse {
     status: number;

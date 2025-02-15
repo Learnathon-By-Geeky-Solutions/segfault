@@ -1,5 +1,4 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import {BACKEND_URL} from "@/lib/constants";
 import {
     SigninRequest,
     SigninResponse,
@@ -8,11 +7,12 @@ import {
     VerificationRequest,
     VerificationResponse
 } from "@/lib/features/api/types";
+import {NEXTJS_BACKEND_URL} from "@/lib/constants";
 
 
 export const authApiSlice = createApi({
     reducerPath: 'authApi',
-    baseQuery: fetchBaseQuery({baseUrl: `${BACKEND_URL}/api/auth`}),
+    baseQuery: fetchBaseQuery({baseUrl: `${NEXTJS_BACKEND_URL}/api/auth`}),
     endpoints: (builder) => ({
         signup: builder.mutation<SignupResponse, SignupRequest>({
             query: (data) => ({

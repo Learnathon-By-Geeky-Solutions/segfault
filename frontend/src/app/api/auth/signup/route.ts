@@ -1,6 +1,4 @@
-require('dotenv').config();
-
-const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
+import {DJANGO_BACKEND_URL} from "@/lib/constants";
 
 export async function POST(req: Request) {
     const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/auth/signup`, {
