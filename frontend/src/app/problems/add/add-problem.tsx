@@ -37,7 +37,7 @@ const AddProblem = ({languages, tags}: AddProblemProps) => {
 
     useEffect(() => {
         dispatch(setCodesiriusLoading(false));
-    }, []);
+    }, [dispatch]);
 
 
     const steps = [

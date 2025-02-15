@@ -6,12 +6,10 @@ import {
     Checkbox,
     Chip,
     CircularProgress,
-    darken,
     Dialog,
     DialogTitle,
     FormControl,
     FormControlLabel,
-    lighten,
     ListItemText,
     MenuItem,
     TextField,
@@ -25,7 +23,7 @@ import {Cancel, Create, Edit, HelpOutline, NavigateNext} from "@mui/icons-materi
 import {Language, Tag} from "@/app/problems/add/types";
 import AddIcon from '@mui/icons-material/Add';
 import Link from "@mui/material/Link";
-import {Stack, styled} from "@mui/system";
+import {Stack} from "@mui/system";
 import {
     APIError,
     CreateUpdateRequest,
@@ -54,21 +52,6 @@ interface ProblemMetaDataProps {
     setIsSnackbarOpen: (open: boolean) => void;
     setSnackbarMessage: (message: string) => void;
 }
-
-const GroupHeader = styled('div')(({theme}) => ({
-    position: 'sticky',
-    top: '-8px',
-    padding: '4px 10px',
-    color: theme.palette.primary.main,
-    backgroundColor: lighten(theme.palette.primary.light, 0.85),
-    ...theme.applyStyles('dark', {
-        backgroundColor: darken(theme.palette.primary.main, 0.8),
-    }),
-}));
-
-const GroupItems = styled('ul')({
-    padding: 0,
-});
 
 function getNewResourceLink(resource: string, onClick?: () => void): ReactNode {
     return (

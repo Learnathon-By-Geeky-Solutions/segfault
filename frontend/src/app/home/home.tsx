@@ -9,7 +9,7 @@ const Home = () => {
     const user = useAppSelector(state => state.codesirius.user);
     useEffect(() => {
         dispatch(setCodesiriusLoading(false));
-    }, []);
+    }, [dispatch]);
 
     return (
         <div>
