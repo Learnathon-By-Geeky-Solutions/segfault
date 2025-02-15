@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import {useSignupMutation} from "@/lib/features/api/authApiSlice";
 import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
-import {APIError, FieldError, SignupRequest} from "@/lib/features/api/types";
+import {APIError, FieldError, SignupRequest, SignupResponse} from "@/lib/features/api/types";
 
 
 
@@ -183,7 +183,7 @@ const AccountInformation = ({
         };
 
         try {
-            const res = await signup(user).unwrap();
+            const res: SignupResponse = await signup(user).unwrap();
             if (res.status === 201) {
                 setUserId(res.data.userId);
                 setActiveStep(1);
