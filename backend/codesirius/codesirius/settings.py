@@ -34,10 +34,10 @@ DEBUG = environ.get("DJANGO_DEBUG", "False") == "True"
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "0.0.0.0",
-    "localhost",
-    "backend",
-    "100.71.59.30",  # tailscale ip
-    "74.235.140.127",  # public ip
+    "localhost",  # localhost for development
+    "backend",  # Docker container name (for internal communication)
+    environ.get("TAILSCALE_VPN_IP"),  # Tailscale VPN IP for development
+    environ.get("AZURE_VM_IP"),  # Azure VM public IP
 ]
 
 
