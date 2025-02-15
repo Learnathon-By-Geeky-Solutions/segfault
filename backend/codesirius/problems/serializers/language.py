@@ -20,12 +20,6 @@ class LanguageSerializer(serializers.Serializer):
             "null": "The name field must not be null.",
             "max_length": "The name field must not exceed 50 characters.",
         },
-        validators=[
-            UniqueValidator(
-                queryset=Language.objects.all(),
-                message="Language with this name already exists.",
-            )
-        ],
     )
     version = serializers.CharField(
         max_length=50,
