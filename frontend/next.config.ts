@@ -4,7 +4,7 @@ import path from "node:path";
 const nextConfig: NextConfig = {
   /* config options here */
     webpack: (config, { isServer }) => {
-        config.resolve.alias['~'] = path.join(__dirname, 'src');
+        config.resolve.alias['@'] = path.join(__dirname, 'src');
         return config;
     },
 };
