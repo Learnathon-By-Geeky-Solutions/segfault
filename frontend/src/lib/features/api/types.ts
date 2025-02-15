@@ -69,3 +69,19 @@ export interface User {
     username: string;
     isActive: boolean;
 }
+
+export interface CreateUpdateRequest {
+    id?: number;
+    title: string;
+    languages: number[];
+    tags: number[];
+}
+
+export interface CreateUpdateResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+    data: {
+        id: number;
+    }
+}
