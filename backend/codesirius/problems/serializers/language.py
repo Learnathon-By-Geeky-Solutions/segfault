@@ -45,6 +45,14 @@ class LanguageSerializer(serializers.Serializer):
             language = Language.objects.create(**validated_data)
             logger.info("Language created successfully")
             return language
+        except IntegrityError:
+            logger.error("Language with the same name and version already exists")
+            raise serializers.ValidationError(
+                {
+                    "name": "Language with this name and the version already exists",
+                    "version": "Language with the name and this version already exists",
+                }
+            )
         except Exception as e:
             logger.error(f"Error while creating language - {e}")
             raise APIException("Error while creating language")
