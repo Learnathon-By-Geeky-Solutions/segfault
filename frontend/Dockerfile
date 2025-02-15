@@ -13,7 +13,7 @@ EXPOSE 3000
 
 ARG DEV=false
 RUN if [ "$DEV" = "true" ]; then \
-      npm install --ignore-scripts && npm install --only=dev; \
+      npm install --ignore-scripts && npm install --only=dev --ignore-scripts; \
     else \
       npm ci --ignore-scripts --production; \
     fi && \
