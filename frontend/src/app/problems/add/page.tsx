@@ -3,7 +3,9 @@ import {redirect} from "next/navigation";
 import {headers} from "next/headers";
 import {User} from "@/lib/features/api/types";
 import AddProblem from "@/app/problems/add/add-problem";
-import {DJANGO_BACKEND_URL} from "@/app/api/constants";
+import 'dotenv/config';
+
+const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
 
 export const metadata = {
     title: "Create a Problem",
