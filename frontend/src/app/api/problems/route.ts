@@ -1,5 +1,5 @@
-import {DJANGO_BACKEND_URL} from "@/lib/constants";
 import {cookies} from "next/headers";
+import {DJANGO_BACKEND_URL} from "@/app/api/constants";
 
 export async function POST(req: Request) {
     const cookieStore = await cookies();

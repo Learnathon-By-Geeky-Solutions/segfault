@@ -3,7 +3,7 @@ import {redirect} from "next/navigation";
 import {headers} from "next/headers";
 import {User} from "@/lib/features/api/types";
 import AddProblem from "@/app/problems/add/add-problem";
-import {DJANGO_BACKEND_URL} from "@/lib/constants";
+import {DJANGO_BACKEND_URL} from "@/app/api/constants";
 
 export const metadata = {
     title: "Create a Problem",
