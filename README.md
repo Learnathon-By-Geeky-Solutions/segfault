@@ -36,8 +36,18 @@ TBD
 ### Sample .env file
 
 ```bash
-DJANGO_SECRET_KEY=your_secret_key
-DJANGO_DEBUG=True
+DJANGO_DEBUG=<True/False>
+DJANGO_LOG_LEVEL=<DEBUG/INFO/WARNING/ERROR/CRITICAL>
+DB_HOST=<your-db-host>
+DB_NAME=<fancy-db-name>
+DB_USER=<your-db-user>
+DB_PASSWORD=<your-db-password>
+DJANGO_SECRET_KEY=<your-secret-key>
+BACKEND_URL=<nextjs-backend-url>
+# Optional but requires manual configuration in settings.py
+TAILSCALE_VPN_IP=<your-tailscale-ip> # only if you are using Tailscale
+AZURE_VM_IP=<your-azure-vm-ip> # only if you are using Azure VM
+
 ```
 
 ## Development Guidelines
