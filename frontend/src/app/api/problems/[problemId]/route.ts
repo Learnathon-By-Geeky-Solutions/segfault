@@ -1,5 +1,5 @@
 import {cookies} from "next/headers";
-import {DJANGO_BACKEND_URL} from "@/lib/constants";
+import {DJANGO_BACKEND_URL} from "@/app/api/constants";
 
 export async function PUT(req: Request, {params}: {
     params: Promise<{ problemId: number }>

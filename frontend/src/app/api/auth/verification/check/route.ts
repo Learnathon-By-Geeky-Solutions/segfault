@@ -1,4 +1,4 @@
-import {DJANGO_BACKEND_URL} from "@/lib/constants";
+import {DJANGO_BACKEND_URL} from "@/app/api/constants";
 
 export async function POST(req: Request) {
     const body = await req.json();
