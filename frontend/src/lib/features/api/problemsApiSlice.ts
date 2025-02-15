@@ -1,11 +1,11 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import {BACKEND_URL} from "@/lib/constants";
 import {CreateUpdateRequest, CreateUpdateResponse} from "@/lib/features/api/types";
+import {NEXTJS_BACKEND_URL} from "@/lib/constants";
 
 
 export const problemsApiSlice = createApi({
     reducerPath: 'problemsApi',
-    baseQuery: fetchBaseQuery({baseUrl: `${BACKEND_URL}/api/problems`}),
+    baseQuery: fetchBaseQuery({baseUrl: `${NEXTJS_BACKEND_URL}/api/problems`}),
     endpoints: (builder) => ({
         createProblem: builder.mutation<CreateUpdateResponse, CreateUpdateRequest>({
             query: (data) => ({

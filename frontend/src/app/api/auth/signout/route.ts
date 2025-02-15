@@ -1,7 +1,6 @@
 import {cookies} from "next/headers";
-require('dotenv').config();
+import {NEXTJS_BACKEND_URL} from "@/lib/constants";
 
-const NEXTJS_BACKEND_URL = process.env.NEXTJS_BACKEND_URL || "http://localhost:3000";
 
 export async function GET(req: Request) {
     // signout

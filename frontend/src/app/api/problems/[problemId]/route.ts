@@ -1,7 +1,5 @@
 import {cookies} from "next/headers";
-require('dotenv').config();
-
-const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
+import {DJANGO_BACKEND_URL} from "@/lib/constants";
 
 export async function PUT(req: Request, {params}: {
     params: Promise<{ problemId: number }>
