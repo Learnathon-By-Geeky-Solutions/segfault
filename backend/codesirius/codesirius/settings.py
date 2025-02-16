@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     "localhost",  # localhost for development
     "backend",  # Docker container name (for internal communication)
     environ.get("TAILSCALE_VPN_IP"),  # Tailscale VPN IP for development
-    environ.get("AZURE_VM_IP"),  # Azure VM public IP
+    environ.get("TAILSCALE_MAGICDNS"),  # Tailscale MagicDNS for development
 ]
 
 
