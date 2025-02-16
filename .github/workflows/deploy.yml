@@ -16,7 +16,7 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          ssh -o StrictHostKeyChecking=no codesirius "
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@codesirius "
           cd ${{ secrets.PROJECT_PATH }}
           git pull
           docker compose up -d
