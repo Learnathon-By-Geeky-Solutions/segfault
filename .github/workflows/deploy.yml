@@ -17,7 +17,7 @@ jobs:
       - name: Deploy to AWS
         run: |
           ssh -o StrictHostKeyChecking=no codesirius "
-          cd /home/parthokr/segfault
+          cd ${{ secrets.PROJECT_PATH }}
           git pull
           docker compose up -d
           "
