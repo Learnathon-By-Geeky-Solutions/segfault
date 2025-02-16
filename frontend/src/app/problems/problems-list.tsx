@@ -13,7 +13,7 @@ const ProblemsPage = () => {
 
     useEffect(() => {
         dispatch(setCodesiriusLoading(false));
-    }, []);
+    }, [dispatch]);
 
     return (
         <>

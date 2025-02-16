@@ -25,7 +25,7 @@ const Signup = () => {
 
     useEffect(() => {
         dispatch(setCodesiriusLoading(false));
-    }, []);
+    }, [dispatch]);
     return (
         <div>
             <Grid container spacing={2} direction="column" alignItems="center" justifyContent="center">

@@ -1,8 +1,8 @@
 import {cookies} from "next/headers";
 
 import {NextRequest, NextResponse} from "next/server";
-import {DJANGO_BACKEND_URL} from "@/lib/constants";
 import {User} from "@/lib/features/api/types";
+import {DJANGO_BACKEND_URL} from "@/lib/constants";
 
 interface UserResponse {
     status: number;

@@ -1,8 +1,9 @@
 import type {PayloadAction} from "@reduxjs/toolkit";
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {themeType} from "@/types";
-import {BACKEND_URL} from "@/lib/constants";
+import {NEXTJS_BACKEND_URL} from "@/lib/constants";
 import {CodesiriusState} from "@/lib/features/codesirius/types";
+import {User} from "@/lib/features/api/types";
 
 
 const initialState: CodesiriusState = {
@@ -25,19 +26,19 @@ const codesiriusSlice = createSlice({
         setProgress(state, action: PayloadAction<number>) {
             state.progress = action.payload
         },
-        setUser(state, action: PayloadAction<any>) {
+        setUser(state, action: PayloadAction<User | null>) {
             state.user = action.payload
         }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(setThemeAsync.rejected, (state, action) => {
+            .addCase(setThemeAsync.rejected, (state) => {
                 state.isCodesiriusLoading = false
             })
-            .addCase(setThemeAsync.pending, (state, action) => {
+            .addCase(setThemeAsync.pending, (state) => {
                 state.isCodesiriusLoading = true
             })
-            .addCase(setThemeAsync.fulfilled, (state, action) => {
+            .addCase(setThemeAsync.fulfilled, (state) => {
                 state.isCodesiriusLoading = false
             })
     }
@@ -47,7 +48,7 @@ const codesiriusSlice = createSlice({
 export const setThemeAsync = createAsyncThunk(
     "codesirius/setThemeAsync",
     async (theme: themeType) => {
-        const req = await fetch(`${BACKEND_URL}/api/themes`, {
+        const req = await fetch(`${NEXTJS_BACKEND_URL}/api/themes`, {
             "method": "POST",
             "headers": {"Content-Type": "application/json"},
             "body": JSON.stringify({"theme": theme})

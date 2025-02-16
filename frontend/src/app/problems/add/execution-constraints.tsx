@@ -2,7 +2,7 @@ import React from 'react';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField} from "@mui/material";
 
 interface ExecutionConstraintsProps {
-    selectedLanguages: string[];
+    selectedLanguages: number[];
     timeLimit: number | undefined;
     setTimeLimit: (timeLimit: number) => void;
     memoryLimit: number | undefined;

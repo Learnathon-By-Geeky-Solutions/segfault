@@ -17,17 +17,19 @@ from problems.views.tag import TagListCreateAPIView, TagRetrieveUpdateDestroyAPI
 urlpatterns = [
     path("", ProblemListCreateAPIView.as_view(), name="problem-list-create"),
     path(
-        "<int:pk>",
+        "<int:pk>/",
         ProblemRetrieveUpdateDestroyAPIView.as_view(),
         name="problem-retrieve-update-destroy",
     ),
-    path("tags", TagListCreateAPIView.as_view(), name="tag-list-create"),
+    path("tags/", TagListCreateAPIView.as_view(), name="tag-list-create"),
     path(
         "tags/<int:pk>",
         TagRetrieveUpdateDestroyAPIView.as_view(),
         name="tag-retrieve-update-destroy",
     ),
-    path("languages", LanguageListCreateAPIView.as_view(), name="language-list-create"),
+    path(
+        "languages/", LanguageListCreateAPIView.as_view(), name="language-list-create"
+    ),
     path(
         "languages/<int:pk>",
         LanguageRetrieveUpdateDestroyAPIView.as_view(),

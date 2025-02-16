@@ -110,7 +110,7 @@ const Signin = () => {
     // this runs only once when the component is mounted
     useEffect(() => {
         dispatch(setCodesiriusLoading(false));
-    }, [])
+    }, [dispatch]);
 
 
     return (

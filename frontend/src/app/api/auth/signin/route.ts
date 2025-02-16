@@ -1,6 +1,7 @@
 import {cookies} from "next/headers";
 import {DJANGO_BACKEND_URL} from "@/lib/constants";
 
+
 export async function POST(req: Request) {
     try {
         const drfResponse = await fetch(`${DJANGO_BACKEND_URL}/api/v1/auth/signin`, {

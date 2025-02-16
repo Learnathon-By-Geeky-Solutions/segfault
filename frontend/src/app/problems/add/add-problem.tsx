@@ -4,7 +4,7 @@ import {useAppDispatch} from "@/lib/hooks/hooks";
 import {AppDispatch} from "@/lib/store";
 import {setCodesiriusLoading} from "@/lib/features/codesirius/codesiriusSlice";
 import Box from "@mui/material/Box";
-import {LinearProgress, Step, StepButton, Stepper} from "@mui/material";
+import {Alert, LinearProgress, Snackbar, Step, StepButton, Stepper} from "@mui/material";
 import 'katex/dist/katex.min.css';
 import Divider from "@mui/material/Divider";
 import LivePreview from "@/app/problems/add/live-preview";
@@ -13,32 +13,31 @@ import ProblemMetaData from "@/app/problems/add/problem-meta-data";
 import StatementAndConstraints from "@/app/problems/add/statement-and-constraints";
 import CodeEditor from "@/app/problems/add/code-editor";
 import ExecutionConstraints from "@/app/problems/add/execution-constraints";
+import {Language, Tag} from "@/app/problems/add/types";
 
+interface AddProblemProps {
+    languages: Language[];
+    tags: Tag[];
+}
 
-const AddProblem = () => {
+const AddProblem = ({languages, tags}: AddProblemProps) => {
     const dispatch = useAppDispatch<AppDispatch>();
+    const [activeStep, setActiveStep] = useState(0);
     const [title, setTitle] = useState<string>('');
     const [timeLimit, setTimeLimit] = useState<number | undefined>(undefined);
     const [memoryLimit, setMemoryLimit] = useState<number | undefined>(undefined);
     const [description, setDescription] = useState<string>('');
 
-    const supportedLanguages = [
-        {label: 'C++', value: 'cpp'},
-        {label: 'Java', value: 'java'},
-        {label: 'Python', value: 'python'},
-        {label: 'Python3', value: 'python3'},
-        {label: 'C', value: 'c'},
-        {label: 'C#', value: 'csharp'},
-        {label: 'Ruby', value: 'ruby'},
-        {label: 'Swift', value: 'swift'},
-    ]
 
-    const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['cpp', 'java']);
+    const [selectedLanguages, setSelectedLanguages] = useState<number[]>([]);
+    const [selectedTags, setSelectedTags] = useState<number[]>([]);
+
+    const [problemId, setProblemId] = useState<number | undefined>(undefined);
 
 
     useEffect(() => {
         dispatch(setCodesiriusLoading(false));
-    }, []);
+    }, [dispatch]);
 
 
     const steps = [
@@ -51,7 +50,6 @@ const AddProblem = () => {
         "Review & Publish"
     ]
 
-    const [activeStep, setActiveStep] = useState(0);
     const [progress, setProgress] = useState(0);
 
     const handleStepButtonClick = (index: number) => {
@@ -59,12 +57,26 @@ const AddProblem = () => {
         setProgress((index + 1) * 10);
     }
 
+    const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+
     const renderLeft = (step: number) => {
         if (step === 0) {
             return (
-                <ProblemMetaData title={title} setTitle={setTitle}
-                                 supportedLanguages={supportedLanguages}
-                                 selectedLanguages={selectedLanguages} setSelectedLanguages={setSelectedLanguages}/>
+                <ProblemMetaData title={title}
+                                 setTitle={setTitle}
+                                 languages={languages}
+                                 selectedLanguages={selectedLanguages}
+                                 setSelectedLanguages={setSelectedLanguages}
+                                 tags={tags}
+                                 selectedTags={selectedTags}
+                                 setSelectedTags={setSelectedTags}
+                                 problemId={problemId}
+                                 setProblemId={setProblemId}
+                                 setActiveStep={setActiveStep}
+                                 setIsSnackbarOpen={setIsSnackbarOpen}
+                                 setSnackbarMessage={setSnackbarMessage}
+                />
             )
         } else if (step === 1) {
             return <StatementAndConstraints
@@ -82,7 +94,7 @@ const AddProblem = () => {
         } else if (step === 3) {
             return (
                 <div>
-                    <CodeEditor />
+                    <CodeEditor/>
                 </div>
             )
         }
@@ -104,6 +116,7 @@ const AddProblem = () => {
             )
         }
     }
+
 
     return (
         <Box sx={{width: "100%"}}>
@@ -133,6 +146,15 @@ const AddProblem = () => {
                 <LinearProgress variant="determinate" value={progress}/>
             </Box>
             <SplitPane leftChildren={renderLeft(activeStep)} rightChildren={renderRight(activeStep)}/>
+            <Snackbar
+                open={isSnackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setIsSnackbarOpen(false)}
+            >
+                <Alert severity="success">
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
