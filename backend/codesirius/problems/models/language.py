@@ -25,5 +25,9 @@ class Language(BaseModel):
             )
         ]
 
+    class Meta:
+        verbose_name = "Language"
+        verbose_name_plural = "Languages"
+
     def __str__(self):
         return self.name + " " + self.version

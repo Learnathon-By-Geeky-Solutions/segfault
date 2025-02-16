@@ -21,6 +21,7 @@ class LanguageSerializer(serializers.Serializer):
             "max_length": "The name field must not exceed 50 characters.",
         },
     )
+    
     version = serializers.CharField(
         max_length=50,
         required=False,
