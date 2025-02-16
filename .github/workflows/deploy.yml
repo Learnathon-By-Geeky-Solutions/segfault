@@ -1,0 +1,23 @@
+name: Deploy to EC2 via Tailscale
+on:
+    push:
+        branches:
+        - main
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Connect Tailscale
+            uses: tailscale/github-action@v2
+            with:
+              oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+              oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+              tags: tag:ci
+
+          - name: Deploy to AWS
+            run: |
+              ssh -o StrictHostKeyChecking=no codesirius "
+              cd /home/parthokr/segfault
+              git pull
+              docker compose up -d
+              "
