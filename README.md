@@ -46,8 +46,7 @@ DJANGO_SECRET_KEY=<your-secret-key>
 BACKEND_URL=<nextjs-backend-url>
 # Optional but requires manual configuration in settings.py
 TAILSCALE_VPN_IP=<your-tailscale-ip> # only if you are using Tailscale
-AZURE_VM_IP=<your-azure-vm-ip> # only if you are using Azure VM
-
+TAILSCALE_MAGICDNS=<your-tailscale-magicdns> # only if you are using Tailscale
 ```
 
 ## Development Guidelines
