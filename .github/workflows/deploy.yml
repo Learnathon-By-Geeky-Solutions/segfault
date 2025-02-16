@@ -20,5 +20,5 @@ jobs:
           cd ${{ secrets.PROJECT_PATH }}
           git pull
           docker compose down
-          docker compose up --profile production
+          docker compose --profile production up -d
           "
