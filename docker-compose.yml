@@ -55,6 +55,8 @@ services:
     working_dir: /app
     command: >
       sh -c  "npm run dev"
+    profiles:
+      - development
 
   frontend-prod:
     build:
@@ -101,7 +103,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     profiles:
-      - production
+      - monitoring
 
 
   loki:
@@ -120,7 +122,7 @@ services:
       retries: 5
     restart: unless-stopped
     profiles:
-      - production
+      - monitoring
 
   promtail:
     image: grafana/promtail:latest
@@ -134,7 +136,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     profiles:
-      - production
+      - monitoring
 
   prometheus:
     image: prom/prometheus:latest
@@ -149,7 +151,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     profiles:
-      - production
+      - monitoring
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -162,7 +164,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     restart: unless-stopped
     profiles:
-      - production
+      - monitoring
 
 volumes:
   postgres_data:
