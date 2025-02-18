@@ -1,13 +1,13 @@
 FROM node:22.13.1-alpine3.21
 LABEL maintainer="segfault"
 
+USER node
 WORKDIR /app
 
-COPY package.json ./
-COPY package-lock.json ./
-COPY src ./src
-COPY tsconfig.json ./
-COPY public ./public
+COPY --chown=node:node package.json package-lock.json tsconfig.json ./
+COPY --chown=node:node next.config.ts ./
+COPY --chown=node:node src ./src
+COPY --chown=node:node public ./public
 
 EXPOSE 3000
 
@@ -16,6 +16,5 @@ RUN if [ "$DEV" = "true" ]; then \
       npm install --ignore-scripts && npm install --only=dev --ignore-scripts; \
     else \
       npm ci --ignore-scripts --production; \
-    fi && \
-    adduser --disabled-password codesirius
+    fi
 
