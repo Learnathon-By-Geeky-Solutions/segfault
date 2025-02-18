@@ -4,10 +4,10 @@ LABEL maintainer="segfault"
 USER node
 WORKDIR /app
 
-COPY --chown=node:node package.json package-lock.json tsconfig.json ./
-COPY --chown=node:node next.config.ts ./
-COPY --chown=node:node src ./src
-COPY --chown=node:node public ./public
+COPY --chown=node:node --chmod=755 package.json package-lock.json tsconfig.json ./
+COPY --chown=node:node --chmod=755 next.config.ts ./
+COPY --chown=node:node --chmod=755 src ./src
+COPY --chown=node:node --chmod=755 public ./public
 
 EXPOSE 3000
 
