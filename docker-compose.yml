@@ -49,9 +49,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
-      - /app/node_modules # to avoid overwriting node_modules
-      - /app/.next  # to avoid overwriting .next
+      - ./frontend/src:/app/src
     working_dir: /app
     command: >
       sh -c  "npm run dev"
@@ -67,9 +65,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
-      - /app/node_modules # to avoid overwriting node_modules
-      - /app/.next  # to avoid overwriting .next
+      - ./frontend/src:/app/src
     working_dir: /app
     command: >
       sh -c  "npm run build && npm run start"
