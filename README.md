@@ -11,26 +11,75 @@
 - redwanuzzaman
 
 ## Project Description
+
 **Codesirius**
-Codesirius is a platform to arrange interview sessions with live coding. It is aimed to facilitate the interview process for both the interviewer and the interviewee.
-It has also problem archive where users can practice problems and can see the solutions of the problems. Users can also submit their solutions and can see the results.
+Codesirius is a platform to arrange interview sessions with live coding. It is aimed to
+facilitate the interview process for both the interviewer and the interviewee.
+It has also problem archive where users can practice problems and can see the solutions
+of the problems. Users can also submit their solutions and can see the results.
+
+## Tech Stack
+
+### Frontend  
+- **Framework:** Next.js  
+- **State Management:** Redux Toolkit & RTK Query  
+- **UI Library:** Material UI  
+
+### Backend  
+- **Framework:** Django & Django REST Framework (DRF)  
+- **Database:** PostgreSQL  
+
+### Distributed Processing  
+- **Message Broker:** Apache Kafka  
+- **Producers:** Django REST Framework (DRF)  
+- **Consumers:**  
+  - Email Service  
+  - Submission Service  
+  - Notification Service  
+
+### Monitoring & Logging  
+- **Metrics & Monitoring:**  
+  - Grafana  
+  - Prometheus  
+  - cAdvisor (for container monitoring in Grafana)  
+- **Logging:**  
+  - Loki  
+  - Promtail  
+
+### Deployment  
+- **EC2 Instance** (for production deployment)  
+- **CI/CD:** GitHub Actions  
+- **VPN/Networking:** Tailscale (for secure networking and access)  
+
+### Containerization  
+- **Docker & Docker Compose**  
+
+---
 
 ## Getting Started
+
 ### Using Docker
+
 To spin up the project using Docker, follow the steps below:
-0. Make sure you have Docker installed on your system. If not, you can download it from [here](https://docs.docker.com/get-docker/).
+
+0. Make sure you have Docker installed on your system. If not, you can download it
+   from [here](https://docs.docker.com/get-docker/).
 1. Clone the repository
 2. Run the following commands
+
 ```bash
 docker-compose up backend # To start the backend server
-docker-compose up frontend # To start the frontend server
+docker-compose up frontend # To start the frontend development server
 ```
+
 You can also run both the servers at once using the following command
+
 ```bash
 docker-compose up
 ```
 
 ### Without Docker
+
 TBD
 
 ### Sample .env file
