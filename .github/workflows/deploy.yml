@@ -22,5 +22,5 @@ jobs:
           cp /home/${{ secrets.EC2_USER }}/preset/.env .env
           cp /home/${{ secrets.EC2_USER }}/preset/constants.ts frontend/src/lib/constants.ts
           docker compose down
-          docker compose --profile production up -d
+          docker compose --profile production up -d --wait
           "
