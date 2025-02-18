@@ -1,10 +1,27 @@
+import json
+import os
 import string
 from secrets import choice
 
+from confluent_kafka import Producer
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.timezone import now, timedelta
 from rest_framework.exceptions import ValidationError
+
+kafka_conf = {
+    "bootstrap.servers": f"{os.environ.get('TAILSCALE_VPN_IP')}:9092",
+}
+
+producer = Producer(kafka_conf)
+
+
+def delivery_report(err, msg):
+    if err:
+        print(f"❌ Message delivery failed: {err}")
+    else:
+        print(f"✅ Message delivered to {msg.topic()} [{msg.partition()}]")
+
 
 from codesirius.models import BaseModel
 
@@ -81,8 +98,19 @@ class VerificationCode(BaseModel):
             )
         super().save(*args, **kwargs)
 
-        # for example, using celery
-        # send_verification_code.delay(self.user.email, self.code)
+        # Send the verification code to the user
+        producer.produce(
+            topic="email",
+            value=json.dumps(
+                {
+                    "email": self.user.email,
+                    "verification_code": self.code,
+                    "username": self.user.username,
+                    "user_id": str(self.user.id),
+                }
+            ),
+            callback=delivery_report,
+        )
 
     class Meta:
         verbose_name = "Verification Code"
