@@ -16,5 +16,5 @@ RUN if [ "$DEV" = "true" ]; then \
       npm install --ignore-scripts && npm install --only=dev --ignore-scripts; \
     else \
       npm ci --ignore-scripts --production; \
+      mkdir -p /app/.next && chown -R node:node /app/.next; \
     fi
-
