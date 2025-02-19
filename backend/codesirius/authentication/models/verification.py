@@ -1,19 +1,16 @@
 import json
-import os
+import logging
 import string
 from secrets import choice
 
-from confluent_kafka import Producer
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.timezone import now, timedelta
 from rest_framework.exceptions import ValidationError
 
-kafka_conf = {
-    "bootstrap.servers": f"{os.environ.get('TAILSCALE_VPN_IP')}:9092",
-}
+from codesirius.kafa_producer import KafkaProducerSingleton
 
-producer = Producer(kafka_conf)
+logger = logging.getLogger(__name__)
 
 
 def delivery_report(err, msg):
@@ -87,8 +84,6 @@ class VerificationCode(BaseModel):
     def save(self, *args, **kwargs):
         """
         Save the verification code and send it to the user.
-
-        TODO: Use celery to send the code asynchronously.
         """
         if self._regenerated:
             # If the verification code is regenerated, do not save it.
@@ -98,19 +93,22 @@ class VerificationCode(BaseModel):
             )
         super().save(*args, **kwargs)
 
-        # Send the verification code to the user
-        producer.produce(
-            topic="email",
-            value=json.dumps(
-                {
-                    "email": self.user.email,
-                    "verification_code": self.code,
-                    "username": self.user.username,
-                    "user_id": str(self.user.id),
-                }
-            ),
-            callback=delivery_report,
-        )
+        try:
+            # Send the verification code to the user
+            KafkaProducerSingleton.produce_message(
+                topic="email",
+                value=json.dumps(
+                    {
+                        "email": self.user.email,
+                        "verification_code": self.code,
+                        "username": self.user.username,
+                        "user_id": str(self.user.id),
+                    }
+                ),
+                callback=delivery_report,
+            )
+        except Exception as e:
+            logger.error(f"Failed to send verification code: {e}")
 
     class Meta:
         verbose_name = "Verification Code"
