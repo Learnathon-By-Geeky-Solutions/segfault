@@ -5,6 +5,7 @@ from confluent_kafka import Producer, KafkaError
 
 kafka_conf = {
     "bootstrap.servers": f"{os.environ.get('TAILSCALE_VPN_IP')}:9092",
+    "message.timeout.ms": 60000,  # 1 minute
 }
 
 
@@ -19,6 +20,8 @@ class KafkaProducerSingleton:
 
     @classmethod
     def produce_message(cls, topic, value, callback=None):
+        if os.getenv("GITHUB_ACTIONS", False):
+            return
         producer = cls.get_instance()
         try:
             producer.produce(topic, value, callback=callback)
