@@ -34,6 +34,7 @@ jobs:
           echo DB_NAME="${{ secrets.DB_NAME }}" >> .env
           echo DB_USER="${{ secrets.DB_USER }}" >> .env
           echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
+          echo DJANGO_DEBUG="False" >> .env
           echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
 
       - name: Fix permission for logs directory
