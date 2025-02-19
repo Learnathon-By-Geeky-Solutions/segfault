@@ -20,7 +20,7 @@ class KafkaProducerSingleton:
 
     @classmethod
     def produce_message(cls, topic, value, callback=None):
-        if os.getenv("GITHUB_ACTIONS", "False") == "True":
+        if os.getenv("GITHUB_ACTIONS", "false") == "true":
             return
         producer = cls.get_instance()
         try:
