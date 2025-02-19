@@ -14,7 +14,8 @@ services:
       sh -c "mkdir -p /app/codesirius/logs && python manage.py runserver 0.0.0.0:8000"
     profiles:
       - production
-
+    environment:
+      - GITHUB_ACTIONS=${GITHUB_ACTIONS:-false}
     env_file:
       - .env
     depends_on:
