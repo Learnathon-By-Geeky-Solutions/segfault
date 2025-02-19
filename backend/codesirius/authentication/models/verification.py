@@ -9,6 +9,7 @@ from django.utils.timezone import now, timedelta
 from rest_framework.exceptions import ValidationError
 
 from codesirius.kafa_producer import KafkaProducerSingleton
+from codesirius.models import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +19,6 @@ def delivery_report(err, msg):
         print(f"❌ Message delivery failed: {err}")
     else:
         print(f"✅ Message delivered to {msg.topic()} [{msg.partition()}]")
-
-
-from codesirius.models import BaseModel
 
 
 class VerificationCode(BaseModel):
