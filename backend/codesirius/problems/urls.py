@@ -1,5 +1,6 @@
 from django.urls import path
 
+from problems.views.execution_constraints import ExecutionConstraintBulkCreateView
 from problems.views.language import (
     LanguageListCreateAPIView,
     LanguageRetrieveUpdateDestroyAPIView,
@@ -34,6 +35,11 @@ urlpatterns = [
         "languages/<int:pk>",
         LanguageRetrieveUpdateDestroyAPIView.as_view(),
         name="language-retrieve-update-destroy",
+    ),
+    path(
+        "<int:problem_pk>/constraints/",
+        ExecutionConstraintBulkCreateView.as_view(),
+        name="execution-constraint-bulk-create",
     ),
     path(
         "<int:problem_pk>/reference-solutions/",
