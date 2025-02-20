@@ -12,24 +12,27 @@ logger = logging.getLogger(__name__)
 class LanguageSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(
+        min_length=1,
         max_length=50,
         required=True,
         error_messages={
             "required": "The name field is required.",
             "blank": "The name field must not be blank.",
             "null": "The name field must not be null.",
+            "min_length": "The name field must be at least 1 character long.",
             "max_length": "The name field must not exceed 50 characters.",
         },
     )
     version = serializers.CharField(
+        min_length=1,
         max_length=50,
-        required=False,
+        required=True,
         error_messages={
             "required": "The version field is required.",
             "blank": "The version field must not be blank.",
-            "null": "Either leave the version field blank \
-                    or exclude it from the request.",
+            "null": "The version field must not be null.",
             "max_length": "The version field must not exceed 50 characters.",
+            "min_length": "The version field must be at least 1 character long.",
         },
     )
 
