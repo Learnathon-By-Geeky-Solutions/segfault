@@ -1,3 +1,4 @@
+import logging
 import time
 from email.utils import formatdate
 from http import HTTPStatus
@@ -8,6 +9,8 @@ from rest_framework.exceptions import (
     AuthenticationFailed,
 )
 from rest_framework.views import exception_handler
+
+logger = logging.getLogger(__name__)
 
 
 def generate_timestamp():
@@ -39,6 +42,8 @@ def build_response(response, status_code, message, path, errors=None):
 
 
 def custom_exception_handler(exc, context):
+    logger.error(f"An exception occurred: {exc}")
+
     response = exception_handler(exc, context)
     path = context["request"].path
 
