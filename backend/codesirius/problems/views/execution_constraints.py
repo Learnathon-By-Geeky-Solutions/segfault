@@ -7,6 +7,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from codesirius.codesirius_api_response import CodesiriusAPIResponse
 from codesirius.exception_handler import generate_timestamp
 from problems.models import Problem, ExecutionConstraints
 from problems.serializers.execution_constraints import ExecutionConstraintsSerializer
@@ -91,12 +92,7 @@ class ExecutionConstraintBulkCreateView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        return Response(
-            {
-                "timestamp": generate_timestamp(),
-                "status": status.HTTP_201_CREATED,
-                "message": "Constraints created successfully",
-                "path": request.path,
-            },
-            status=status.HTTP_201_CREATED,
+        return CodesiriusAPIResponse(
+            data=request.data,
+            message="Constraints created successfully",
         )
