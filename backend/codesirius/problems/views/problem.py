@@ -36,7 +36,12 @@ class ProblemListCreateAPIView(APIView):
             problem = serializer.save()
             logger.info(f"Problem created successfully with ID: {problem.id}")
             return CodesiriusAPIResponse(
-                data={"id": problem.id},
+                data={
+                    "id": problem.id,
+                    "title": problem.title,
+                    "languages": [language.id for language in problem.languages.all()],
+                    "tags": [tag.id for tag in problem.tags.all()],
+                },
                 status_code=status.HTTP_201_CREATED,
                 message="Problem created",
             )
@@ -83,7 +88,12 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
             problem = serializer.save()
             logger.info(f"Problem with ID: {pk} updated successfully")
             return CodesiriusAPIResponse(
-                data={"id": problem.id}, message="Problem updated"
+                data={
+                    "id": problem.id,
+                    "languages": [language.id for language in problem.languages.all()],
+                    "tags": [tag.id for tag in problem.tags.all()],
+                },
+                message="Problem updated",
             )
         logger.warning("Problem update failed due to validation errors")
         raise ValidationError(serializer.errors)
@@ -110,7 +120,7 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
             problem = serializer.save()
             logger.info(f"Problem with ID: {pk} updated successfully")
             return CodesiriusAPIResponse(
-                data={"id": problem.id}, message="Problem updated"
+                data=serializer.data, message="Problem updated"
             )
         logger.warning("Problem update failed due to validation errors")
         raise ValidationError(serializer.errors)
