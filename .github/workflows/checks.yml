@@ -49,7 +49,12 @@ jobs:
         run: docker compose up -d backend
 
       - name: Run tests with coverage
-        run: docker compose exec backend sh -c "coverage run manage.py test && coverage xml"
+        run: |
+          docker compose exec backend sh -c "
+          coverage run manage.py test && \
+          coverage xml && \
+          coverage report
+          "
 
       - name: Run linting
         run: docker compose exec backend sh -c "flake8 ."
