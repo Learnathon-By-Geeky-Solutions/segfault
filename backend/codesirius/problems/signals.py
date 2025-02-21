@@ -7,7 +7,7 @@ from problems.models.execution_constraints import ExecutionConstraints
 
 @receiver(m2m_changed, sender=Problem.languages.through)
 def remove_execution_constraints_on_language_removal(
-    _sender, instance, action, pk_set, **kwargs
+    sender, instance, action, pk_set, **kwargs
 ):
     """
     Signal handler that deletes related ExecutionConstraints when a language
