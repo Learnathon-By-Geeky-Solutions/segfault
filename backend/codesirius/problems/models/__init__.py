@@ -1,4 +1,4 @@
-from problems.models.execution_constraints import ExecutionConstraints
+from problems.models.execution_constraint import ExecutionConstraint
 from problems.models.language import Language
 from problems.models.problem import Problem
 from problems.models.reference_solution import ReferenceSolution
@@ -11,5 +11,5 @@ __all__ = [
     "Problem",
     "ReferenceSolution",
     "Submission",
-    "ExecutionConstraints",
+    "ExecutionConstraint",
 ]
