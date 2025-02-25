@@ -2,7 +2,7 @@ import logging
 
 from rest_framework import status
 from rest_framework.exceptions import ValidationError, NotFound
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, BasePermission
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
@@ -11,6 +11,31 @@ from problems.models import Problem
 from problems.serializers.problem import ProblemSerializer
 
 logger = logging.getLogger(__name__)
+
+
+class IsOwnerOrPublishedOnly(BasePermission):
+    """
+    Custom permission class to allow only the owner of an object to see all versions
+    or allow others to see only published versions.
+    """
+
+    def has_permission(self, request, view):
+        # allow all safe methods
+        if request.method in ["GET", "HEAD", "OPTIONS"]:
+            return True
+        # other methods (POST, PUT, PATCH, DELETE) require authentication
+        return request.user and request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in ["GET", "HEAD", "OPTIONS"]:
+            # Check if the object is published or if the user is the owner
+            return (
+                obj.status == Problem.Status.PUBLISHED or obj.created_by == request.user
+            )
+        # Write permissions are only allowed to the owner of the problem.
+        return obj.created_by == request.user
 
 
 class ProblemListCreateAPIView(APIView):
