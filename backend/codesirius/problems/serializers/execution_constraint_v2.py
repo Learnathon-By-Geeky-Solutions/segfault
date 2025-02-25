@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from problems.models import Language, ExecutionConstraint
-from problems.serializers.language import LanguageSerializer
 
 
 class ExecutionConstraintSerializerV2(serializers.ModelSerializer):
