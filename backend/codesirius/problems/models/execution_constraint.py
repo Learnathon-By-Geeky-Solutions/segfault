@@ -7,7 +7,7 @@ from problems.models.language import Language
 from problems.models.problem import Problem
 
 
-class ExecutionConstraints(BaseModel):
+class ExecutionConstraint(BaseModel):
     """
     Model representing the execution constraints of a problem.
 
@@ -56,7 +56,7 @@ class ExecutionConstraints(BaseModel):
         # check if it is a update operation
         if self.pk:
             # get the existing object from the database
-            existing = ExecutionConstraints.objects.get(pk=self.pk)
+            existing = ExecutionConstraint.objects.get(pk=self.pk)
             if self.language not in existing.problem.languages.all():
                 raise ValidationError(
                     {"language": "Language is not supported by the problem."}
