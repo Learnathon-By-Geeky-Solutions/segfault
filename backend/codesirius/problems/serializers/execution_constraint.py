@@ -24,7 +24,7 @@ class CustomPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
 
 class ExecutionConstraintsSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    time_limit = serializers.IntegerField(
+    timeLimit = serializers.IntegerField(
         min_value=1,
         max_value=1024,
         required=True,
@@ -35,8 +35,9 @@ class ExecutionConstraintsSerializer(serializers.Serializer):
             "min_value": "The time_limit field must be at least 1.",
             "max_value": "The time_limit field must not exceed 300.",
         },
+        source="time_limit",
     )
-    memory_limit = serializers.IntegerField(
+    memoryLimit = serializers.IntegerField(
         required=True,
         error_messages={
             "required": "The memory_limit field is required.",
@@ -45,6 +46,7 @@ class ExecutionConstraintsSerializer(serializers.Serializer):
             "min_value": "The memory_limit field must be at least 32.",
             "max_value": "The memory_limit field must not exceed 1024.",
         },
+        source="memory_limit",
     )
     language = CustomPrimaryKeyRelatedField(
         queryset=Language.objects.all(),
