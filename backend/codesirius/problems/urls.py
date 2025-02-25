@@ -8,6 +8,7 @@ from problems.views.language import (
 from problems.views.problem import (
     ProblemListCreateAPIView,
     ProblemRetrieveUpdateDestroyAPIView,
+    ProblemPublishAPIView,
 )
 from problems.views.reference_solution import (
     ReferenceSolutionListCreateAPIView,
@@ -50,5 +51,10 @@ urlpatterns = [
         "<int:problem_pk>/reference-solutions/<int:pk>/",
         ReferenceSolutionRetrieveUpdateDestroyAPIView.as_view(),
         name="reference-solution-retrieve-update-destroy",
+    ),
+    path(
+        "<int:problem_pk>/publish/",
+        ProblemPublishAPIView.as_view(),
+        name="problem-publish",
     ),
 ]
