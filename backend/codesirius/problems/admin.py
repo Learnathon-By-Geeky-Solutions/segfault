@@ -8,7 +8,7 @@ from problems.models import (
     Problem,
     ReferenceSolution,
     Submission,
-    ExecutionConstraints,
+    ExecutionConstraint,
 )
 
 
@@ -63,4 +63,4 @@ admin.site.register(Problem, ProblemAdmin)
 
 admin.site.register(ReferenceSolution)
 admin.site.register(Submission)
-admin.site.register(ExecutionConstraints)
+admin.site.register(ExecutionConstraint)
