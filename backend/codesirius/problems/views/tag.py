@@ -1,10 +1,8 @@
 import logging
 
-from rest_framework import status
-from rest_framework.exceptions import ValidationError, NotFound, APIException
+from rest_framework import generics, status
+from rest_framework.exceptions import APIException, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.request import Request
-from rest_framework.views import APIView
 
 from codesirius.codesirius_api_response import CodesiriusAPIResponse
 from problems.models import Tag
@@ -13,128 +11,88 @@ from problems.serializers.tag import TagSerializer
 logger = logging.getLogger(__name__)
 
 
-class TagListCreateAPIView(APIView):
+class TagListCreateAPIView(generics.ListCreateAPIView):
+    """
+    API to list all tags or create a new tag
+    """
+
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get(self, request):
-        """
-        Get all tags
-        """
+    def list(self, request, *args, **kwargs):
         logger.info("Fetching all tags")
-        tags = Tag.objects.all()
-        serializer = TagSerializer(instance=tags, many=True)
+        response = super().list(request, *args, **kwargs)
         logger.info("Tags fetched successfully")
-        return CodesiriusAPIResponse(data=serializer.data)
+        return CodesiriusAPIResponse(data=response.data)
 
-    def post(self, request):
-        """
-        Create a new tag
-        """
+    def create(self, request, *args, **kwargs):
         logger.info("Creating a new tag")
-        serializer = TagSerializer(data=request.data)
-        if serializer.is_valid():
-            tag = serializer.save()
-            logger.info(f"Tag created successfully with ID: {tag.id}")
-            return CodesiriusAPIResponse(
-                data={"id": tag.id},
-                status_code=status.HTTP_201_CREATED,
-                message="Tag created",
-            )
-        logger.warning("Tag creation failed due to validation errors")
-        raise ValidationError(serializer.errors)
+        response = super().create(request, *args, **kwargs)
+        logger.info(f"Tag created successfully with ID: {response.data.get('id')}")
+        return CodesiriusAPIResponse(
+            data={"id": response.data.get("id")},
+            status_code=status.HTTP_201_CREATED,
+            message="Tag created",
+        )
 
 
-class TagRetrieveUpdateDestroyAPIView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class IsAdminOrReadOnly(IsAuthenticatedOrReadOnly):
+    def has_permission(self, request, view):
+        return request.user.is_staff
 
-    def get(self, request: Request, pk: int) -> CodesiriusAPIResponse:
-        """
-        Get a tag by its primary key
-        """
+
+class TagRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API to retrieve, update, or delete a tag by its primary key
+    """
+
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
         logger.info(f"Fetching tag with ID: {pk}")
         try:
-            tag = Tag.objects.get(pk=pk)
+            response = super().retrieve(request, *args, **kwargs)
             logger.info(f"Tag with ID: {pk} fetched successfully")
+            return CodesiriusAPIResponse(data=response.data)
         except Tag.DoesNotExist:
             logger.warning(f"Tag with ID: {pk} not found")
             raise NotFound("Tag not found")
         except Exception as e:
             logger.error(f"Error while fetching tag with ID: {pk} - {e}")
-            raise APIException(
-                detail="Error while fetching tag",
-                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise APIException("Error while fetching tag")
 
-        serializer = TagSerializer(tag)
-        return CodesiriusAPIResponse(data=serializer.data)
-
-    def put(self, request, pk):
-        """
-        Update a tag by its primary key
-        """
+    def update(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
         logger.info(f"Updating tag with ID: {pk}")
-        try:
-            tag = Tag.objects.get(pk=pk)
-        except Tag.DoesNotExist:
-            logger.warning(f"Tag with ID: {pk} not found for update")
-            raise NotFound("Tag not found")
-
-        serializer = TagSerializer(tag, data=request.data)
-        if serializer.is_valid():
-            tag = serializer.save()
-            logger.info(f"Tag with ID: {pk} updated successfully")
-            return CodesiriusAPIResponse(
-                data={"id": tag.id},
-                status_code=status.HTTP_200_OK,
-                message="Tag updated",
-            )
-        logger.warning(f"Tag update failed for ID: {pk} due to validation errors")
-        raise ValidationError(serializer.errors)
-
-    def patch(self, request, pk):
-        """
-        Partially update a tag by its primary key
-        """
-        logger.info(f"Partially updating tag with ID: {pk}")
-        try:
-            tag = Tag.objects.get(pk=pk)
-        except Tag.DoesNotExist:
-            logger.warning(f"Tag with ID: {pk} not found for partial update")
-            raise NotFound("Tag not found")
-
-        serializer = TagSerializer(tag, data=request.data, partial=True)
-        if serializer.is_valid():
-            tag = serializer.save()
-            logger.info(f"Tag with ID: {pk} partially updated successfully")
-            return CodesiriusAPIResponse(
-                data={"id": tag.id},
-                status_code=status.HTTP_200_OK,
-                message="Tag updated",
-            )
-        logger.warning(
-            f"Partial update failed for tag with ID: \
-                        {pk} due to validation errors"
+        response = super().update(request, *args, **kwargs)
+        logger.info(f"Tag with ID: {pk} updated successfully")
+        return CodesiriusAPIResponse(
+            data={"id": response.data.get("id")},
+            status_code=status.HTTP_200_OK,
+            message="Tag updated",
         )
-        raise ValidationError(serializer.errors)
 
-    def delete(self, request, pk):
-        """
-        Delete a tag by its primary key
-        """
+    def partial_update(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        logger.info(f"Partially updating tag with ID: {pk}")
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(f"Tag with ID: {pk} partially updated successfully")
+        return CodesiriusAPIResponse(
+            data={"id": response.data.get("id")},
+            status_code=status.HTTP_200_OK,
+            message="Tag updated",
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
         logger.info(f"Deleting tag with ID: {pk}")
-        try:
-            tag = Tag.objects.get(pk=pk)
-            tag.delete()
-            logger.info(f"Tag with ID: {pk} deleted successfully")
-            return CodesiriusAPIResponse(
-                status_code=status.HTTP_204_NO_CONTENT, message="Tag deleted"
-            )
-        except Tag.DoesNotExist:
-            logger.warning(f"Tag with ID: {pk} not found for deletion")
-            raise NotFound("Tag not found")
-        except Exception as e:
-            logger.error(f"Error while deleting tag with ID: {pk} - {e}")
-            raise APIException(
-                detail="Error while deleting tag",
-                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        super().destroy(request, *args, **kwargs)
+        logger.info(f"Tag with ID: {pk} deleted successfully")
+        return CodesiriusAPIResponse(
+            status_code=status.HTTP_204_NO_CONTENT,
+            message="Tag deleted",
+        )
