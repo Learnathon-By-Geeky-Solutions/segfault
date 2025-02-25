@@ -167,3 +167,54 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
         problem.delete()
         logger.info(f"Problem with ID: {pk} deleted successfully")
         return CodesiriusAPIResponse(message="Problem deleted")
+
+
+class ProblemPublishAPIView(APIView):
+    permission_classes = [IsOwnerOrReadOnly]
+
+    @staticmethod
+    def _is_ready_to_publish(problem: Problem) -> Dict[str, str]:
+        """
+        Check if the problem is ready to be published
+        """
+        errors = {}
+        if not problem.title:
+            errors["title"] = "Title is required"
+        if not problem.description:
+            errors["description"] = "Description is required"
+        if not problem.languages.exists():
+            errors["languages"] = "At least one language is required"
+        if not problem.tags.exists():
+            errors["tags"] = "At least one tag is required"
+
+        if set(
+            problem.execution_constraints.values_list("language__id", flat=True)
+        ) != set(problem.languages.values_list("id", flat=True)):
+            errors["execution_constraints"] = (
+                "Execution constraints must be defined for all languages"
+            )
+
+        return errors
+
+    def post(self, request: Request, problem_pk: int) -> CodesiriusAPIResponse:
+        """
+        Publish a problem by its primary key
+        """
+        logger.info(f"Publishing problem with ID: {problem_pk}")
+        try:
+            problem = Problem.objects.get(pk=problem_pk)
+            self.check_object_permissions(request, problem)
+            logger.info(f"Problem with ID: {problem_pk} fetched successfully")
+        except Problem.DoesNotExist:
+            logger.warning(f"Problem with ID: {problem_pk} not found")
+            raise NotFound("Problem not found")
+
+        errors = self._is_ready_to_publish(problem)
+        if errors:
+            logger.warning("Problem cannot be published due to validation errors")
+            raise ValidationError(errors)
+
+        problem.status = Problem.Status.PUBLISHED
+        problem.save()
+        logger.info(f"Problem with ID: {problem_pk} published successfully")
+        return CodesiriusAPIResponse(message="Problem published")
