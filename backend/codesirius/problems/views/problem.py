@@ -1,4 +1,5 @@
 import logging
+from typing import Dict
 
 from rest_framework import status
 from rest_framework.exceptions import ValidationError, NotFound
@@ -39,14 +40,18 @@ class IsOwnerOrPublishedOnly(BasePermission):
 
 
 class ProblemListCreateAPIView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrPublishedOnly]
 
     def get(self, request):
         """
         Get all problems
         """
         logger.info("Fetching all problems")
-        problems = Problem.objects.all()
+        problems = Problem.objects.filter(
+            status=Problem.Status.PUBLISHED
+        ) | Problem.objects.filter(
+            created_by=request.user if request.user.is_authenticated else None
+        )
         serializer = ProblemSerializer(instance=problems, many=True)
         logger.info("Problems fetched successfully")
         return CodesiriusAPIResponse(data=serializer.data)
@@ -61,12 +66,7 @@ class ProblemListCreateAPIView(APIView):
             problem = serializer.save()
             logger.info(f"Problem created successfully with ID: {problem.id}")
             return CodesiriusAPIResponse(
-                data={
-                    "id": problem.id,
-                    "title": problem.title,
-                    "languages": [language.id for language in problem.languages.all()],
-                    "tags": [tag.id for tag in problem.tags.all()],
-                },
+                data=serializer.data,
                 status_code=status.HTTP_201_CREATED,
                 message="Problem created",
             )
@@ -80,7 +80,7 @@ class IsOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
 
 
 class ProblemRetrieveUpdateDestroyAPIView(APIView):
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrPublishedOnly]
 
     def get(self, request: Request, pk: int) -> CodesiriusAPIResponse:
         """
@@ -90,6 +90,7 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
         try:
             problem = Problem.objects.get(pk=pk)
             logger.info(f"Problem with ID: {pk} fetched successfully")
+            self.check_object_permissions(request, problem)
         except Problem.DoesNotExist:
             logger.warning(f"Problem with ID: {pk} not found")
             raise NotFound("Problem not found")
@@ -141,7 +142,8 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
             partial=True,
             context={"request": request},
         )
-        if serializer.is_valid():
+
+        if serializer.is_valid(raise_exception=True):
             problem = serializer.save()
             logger.info(f"Problem with ID: {pk} updated successfully")
             return CodesiriusAPIResponse(
