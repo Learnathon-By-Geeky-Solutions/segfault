@@ -33,10 +33,11 @@ class ExecutionConstraint(BaseModel):
         Problem, on_delete=models.CASCADE, related_name="execution_constraints"
     )
     time_limit = models.IntegerField(
-        default=1, validators=[MinValueValidator(1), MaxValueValidator(300)]
+        validators=[MinValueValidator(1), MaxValueValidator(300)], null=True
     )
     memory_limit = models.IntegerField(
-        default=128, validators=[MinValueValidator(32), MaxValueValidator(1024)]
+        validators=[MinValueValidator(32), MaxValueValidator(1024)],
+        null=True,
     )
     language = models.ForeignKey(
         Language, on_delete=models.CASCADE, related_name="execution_constraints"
