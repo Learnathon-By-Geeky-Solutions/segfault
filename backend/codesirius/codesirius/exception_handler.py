@@ -10,6 +10,8 @@ from rest_framework.exceptions import (
 )
 from rest_framework.views import exception_handler
 
+from problems.serializers.execution_constraint_v2 import BulkOperationError
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,13 +20,27 @@ def generate_timestamp():
 
 
 def format_validation_errors(errors):
+    logger.info(f"Type of errors: {type(errors)}")
+    logger.info(f"Errors: {errors}")
     formatted_errors = []
-    for field, messages in errors.items():
-        if isinstance(messages, list):
-            for message in messages:
-                formatted_errors.append({"field": field, "message": message})
-        else:
-            formatted_errors.append({"field": field, "message": messages})
+    if isinstance(errors, list):
+        for error in errors:
+            formatted_errors.extend(format_validation_errors(error))
+        return formatted_errors
+    elif isinstance(errors, dict):
+        for key, value in errors.items():
+            if isinstance(value, list):
+                for item in value:
+                    formatted_errors.append({"field": key, "message": item})
+            elif isinstance(value, dict):
+                formatted_errors.extend(format_validation_errors(value))
+            else:
+                formatted_errors.append({"field": key, "message": value})
+    # elif isinstance(errors, BulkOperationError):
+    #     formatted_errors.extend(errors.errors)
+    elif isinstance(errors, str):
+        formatted_errors.append({"message": errors})
+    logger.info(f"Formatted errors: {formatted_errors}")
     return formatted_errors
 
 
