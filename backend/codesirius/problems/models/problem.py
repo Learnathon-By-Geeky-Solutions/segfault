@@ -50,7 +50,8 @@ class Problem(BaseModel):
         ):
             raise ValidationError(
                 {
-                    "execution_constraints": "Execution constraints must be provided for all languages"
+                    "execution_constraints": "Execution constraints must be provided "
+                    "for all languages"
                 }
             )
 
