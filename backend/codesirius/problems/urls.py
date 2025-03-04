@@ -55,6 +55,16 @@ urlpatterns = [
         name="execution-constraint",
     ),
     path(
+        "<int:problem_pk>/tests/",
+        SampleTestBulkAPIView.as_view(),
+        name="sample-test-bulk",
+    ),
+    path(
+        "<int:problem_pk>/tests/<int:sample_test_pk>/",
+        SampleTestAPIView.as_view(),
+        name="sample-test",
+    ),
+    path(
         "<int:problem_pk>/publish/",
         ProblemPublishAPIView.as_view(),
         name="problem-publish",
