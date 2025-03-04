@@ -1,6 +1,7 @@
 from django.urls import path
 
-from problems.views.execution_constraints import ExecutionConstraintBulkCreateView
+from problems.views.execution_constraint import ExecutionConstraintAPIView
+from problems.views.hidden_test import HiddenTestPresignedUrlAPIView
 from problems.views.language import (
     LanguageListCreateAPIView,
     LanguageRetrieveUpdateDestroyAPIView,
@@ -14,6 +15,7 @@ from problems.views.reference_solution import (
     ReferenceSolutionListCreateAPIView,
     ReferenceSolutionRetrieveUpdateDestroyAPIView,
 )
+from problems.views.sample_test import SampleTestAPIView, SampleTestBulkAPIView
 from problems.views.tag import TagListCreateAPIView, TagRetrieveUpdateDestroyAPIView
 
 urlpatterns = [
@@ -38,11 +40,6 @@ urlpatterns = [
         name="language-retrieve-update-destroy",
     ),
     path(
-        "<int:problem_pk>/constraints/",
-        ExecutionConstraintBulkCreateView.as_view(),
-        name="execution-constraint-bulk-create",
-    ),
-    path(
         "<int:problem_pk>/reference-solutions/",
         ReferenceSolutionListCreateAPIView.as_view(),
         name="reference-solution-list-create",
@@ -51,6 +48,11 @@ urlpatterns = [
         "<int:problem_pk>/reference-solutions/<int:pk>/",
         ReferenceSolutionRetrieveUpdateDestroyAPIView.as_view(),
         name="reference-solution-retrieve-update-destroy",
+    ),
+    path(
+        "<int:problem_pk>/execution-constraints/",
+        ExecutionConstraintAPIView.as_view(),
+        name="execution-constraint",
     ),
     path(
         "<int:problem_pk>/publish/",
