@@ -25,7 +25,7 @@ class CodesiriusTokenRefreshSerializer(TokenRefreshSerializer):
             return res
         except TokenError as e:
             raise ValidationError({"refresh": str(e)})
-        except get_user_model().DoesNotExist as e:
+        except get_user_model().DoesNotExist:
             raise ValidationError({"refresh": "User not found"})
         except Exception as e:
             logger.error(f"Error refreshing token: {e}")
