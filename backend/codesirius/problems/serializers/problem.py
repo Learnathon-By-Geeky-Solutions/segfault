@@ -78,7 +78,8 @@ class ProblemSerializer(serializers.ModelSerializer):
             validated_data
         )
 
-        # create the problem instance without the languages, tags, constraints and sample tests
+        # create the problem instance without the languages, tags, constraints
+        # and sample tests
         problem = Problem.objects.create(created_by=request_user, **validated_data)
         # now set the languages and tags
         problem.languages.set(new_languages)
@@ -94,7 +95,8 @@ class ProblemSerializer(serializers.ModelSerializer):
         )
         if new_languages:
             instance.languages.set(new_languages)
-            # remove the constraints for the languages that are not present in the new_languages
+            # remove the constraints for the languages that are not present
+            # in the new_languages
             instance.execution_constraints.exclude(
                 language__id__in=[language.id for language in new_languages]
             ).delete()
