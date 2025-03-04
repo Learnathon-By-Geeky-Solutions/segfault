@@ -93,6 +93,7 @@ class VerificationCode(BaseModel):
 
         try:
             # Send the verification code to the user
+            logger.info(f"Sending verification code to {self.user.email}")
             KafkaProducerSingleton.produce_message(
                 topic="email",
                 value=json.dumps(
