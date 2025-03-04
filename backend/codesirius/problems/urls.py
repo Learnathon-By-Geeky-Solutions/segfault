@@ -65,6 +65,11 @@ urlpatterns = [
         name="sample-test",
     ),
     path(
+        "<int:problem_pk>/hidden-tests/presigned-url/",
+        HiddenTestPresignedUrlAPIView.as_view(),
+        name="hidden-test-presigned-url",
+    ),
+    path(
         "<int:problem_pk>/publish/",
         ProblemPublishAPIView.as_view(),
         name="problem-publish",
