@@ -1,10 +1,5 @@
 import logging
 
-logger = logging.getLogger(__name__)
-
-
-import logging
-
 from rest_framework.views import APIView
 
 from codesirius.aws_client import AWSClient
