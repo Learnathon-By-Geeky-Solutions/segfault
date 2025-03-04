@@ -127,7 +127,7 @@ class LanguageRetrieveUpdateDestroyAPIView(APIView):
             language = serializer.save()
             logger.info(f"Language with ID: {pk} partially updated successfully")
             return CodesiriusAPIResponse(
-                data={"id": language.id},
+                data=serializer.data,
                 message="Language partially updated",
             )
         logger.warning("Language partial update failed due to validation errors")

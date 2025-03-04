@@ -1,3 +1,5 @@
+from django.core.validators import MinLengthValidator
+
 from codesirius.models import BaseModel
 from django.db import models
 
@@ -13,8 +15,8 @@ class Language(BaseModel):
         version (str): The version of the language.
     """
 
-    name = models.CharField(max_length=50)
-    version = models.CharField(max_length=50)  # Optional
+    name = models.CharField(max_length=50, validators=[MinLengthValidator(1)])
+    version = models.CharField(max_length=50, validators=[MinLengthValidator(1)])
 
     class Meta:
         verbose_name = "Language"
