@@ -1,8 +1,16 @@
+from django import forms
 from django.contrib import admin
 from django.core.exceptions import ValidationError
-from django import forms
 
-from problems.models import Language, Tag, Problem, ReferenceSolution, Submission
+from problems.models import (
+    Language,
+    Tag,
+    Problem,
+    ReferenceSolution,
+    Submission,
+    ExecutionConstraint,
+)
+
 
 # Register your models here.
 
@@ -55,3 +63,4 @@ admin.site.register(Problem, ProblemAdmin)
 
 admin.site.register(ReferenceSolution)
 admin.site.register(Submission)
+admin.site.register(ExecutionConstraint)

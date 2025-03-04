@@ -24,7 +24,7 @@ class Problem(BaseModel):
         DRAFT = "DRAFT"
         PUBLISHED = "PUBLISHED"
 
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, unique=True)
     description = models.TextField(max_length=5000, blank=True)
     tags = models.ManyToManyField(Tag)
     languages = models.ManyToManyField(Language)
@@ -36,10 +36,29 @@ class Problem(BaseModel):
         verbose_name = "Problem"
         verbose_name_plural = "Problems"
 
+    def check_ready_for_publish(self):
+        """
+        Check if the problem is ready to be published.
+        """
+        if not self.description:
+            raise ValidationError(
+                {"description": "Description is required for a published problem"}
+            )
+
+        if set(self.execution_constraints.values_list("language_id", flat=True)) != set(
+            self.languages.values_list("id", flat=True)
+        ):
+            raise ValidationError(
+                {
+                    "execution_constraints": "Execution constraints must be provided "
+                    "for all languages"
+                }
+            )
+
     def clean(self):
         # make sure description is not empty if status is published
-        if self.status == self.Status.PUBLISHED and not self.description:
-            raise ValidationError(message={"description": "Description is required."})
+        if self.status == self.Status.PUBLISHED:
+            self.check_ready_for_publish()
 
     def save(self, *args, **kwargs):
         self.clean()

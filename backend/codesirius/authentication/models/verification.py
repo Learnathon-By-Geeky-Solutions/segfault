@@ -1,3 +1,5 @@
+import json
+import logging
 import string
 from secrets import choice
 
@@ -6,7 +8,17 @@ from django.db import models
 from django.utils.timezone import now, timedelta
 from rest_framework.exceptions import ValidationError
 
+from codesirius.kafa_producer import KafkaProducerSingleton
 from codesirius.models import BaseModel
+
+logger = logging.getLogger(__name__)
+
+
+def delivery_report(err, msg):
+    if err:
+        print(f"❌ Message delivery failed: {err}")
+    else:
+        print(f"✅ Message delivered to {msg.topic()} [{msg.partition()}]")
 
 
 class VerificationCode(BaseModel):
@@ -70,8 +82,6 @@ class VerificationCode(BaseModel):
     def save(self, *args, **kwargs):
         """
         Save the verification code and send it to the user.
-
-        TODO: Use celery to send the code asynchronously.
         """
         if self._regenerated:
             # If the verification code is regenerated, do not save it.
@@ -81,8 +91,22 @@ class VerificationCode(BaseModel):
             )
         super().save(*args, **kwargs)
 
-        # for example, using celery
-        # send_verification_code.delay(self.user.email, self.code)
+        try:
+            # Send the verification code to the user
+            KafkaProducerSingleton.produce_message(
+                topic="email",
+                value=json.dumps(
+                    {
+                        "email": self.user.email,
+                        "verification_code": self.code,
+                        "username": self.user.username,
+                        "user_id": str(self.user.id),
+                    }
+                ),
+                callback=delivery_report,
+            )
+        except Exception as e:
+            logger.error(f"Failed to send verification code: {e}")
 
     class Meta:
         verbose_name = "Verification Code"

@@ -1,0 +1,9 @@
+[run]
+relative_files = True
+omit =
+    */migrations/*
+    */tests/*
+    codesirius/settings.py
+    codesirius/wsgi.py
+    codesirius/asgi.py
+    */__init__.py

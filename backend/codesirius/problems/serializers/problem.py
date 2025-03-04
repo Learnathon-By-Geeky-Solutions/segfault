@@ -1,113 +1,112 @@
 import logging
-from typing import Dict
 
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from rest_framework.exceptions import APIException
-from rest_framework.validators import UniqueValidator
 
-from problems.models import Problem, Tag, Language
+from problems.models import Problem, Language, Tag
+from problems.serializers.execution_constraint_v2 import ExecutionConstraintSerializer
+from problems.serializers.language import LanguageSerializer
+from problems.serializers.sample_test import SampleTestSerializer
+from problems.serializers.tag import TagSerializer
 
 logger = logging.getLogger(__name__)
 
 
-class ProblemSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(
-        max_length=200,
-        required=True,
-        error_messages={
-            "required": "The title field is required.",
-            "blank": "The title field must not be blank.",
-            "null": "The title field must not be null.",
-            "max_length": "The title field must not exceed 200 characters.",
-        },
-        validators=[
-            UniqueValidator(
-                queryset=Problem.objects.all(),
-                message="Problem with this title already exists.",
-            )
-        ],
-    )
-    description = serializers.CharField(
-        max_length=5000,
-        required=False,
-        error_messages={
-            "max_length": "The description field must not exceed 5000 characters.",
-            "null": "Either leave the description field blank \
-                or exclude it from the request.",
-        },
-    )
-    tags = serializers.PrimaryKeyRelatedField(
+class ProblemSerializer(serializers.ModelSerializer):
+    createdBy = serializers.PrimaryKeyRelatedField(read_only=True, source="created_by")
+
+    languageIds = serializers.PrimaryKeyRelatedField(
         many=True,
-        queryset=Tag.objects.all(),
-        required=True,
-        error_messages={
-            "required": "Minimum one tag is required.",
-            "null": "Minimum one tag is required.",
-        },
-    )
-    languages = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Language.objects.all(),
-        required=True,
-        error_messages={
-            "required": "Minimum one language is required.",
-            "null": "Minimum one language is required.",
-        },
-    )
-    status = serializers.ChoiceField(
-        choices=Problem.Status.choices, default=Problem.Status.DRAFT
+        queryset=Language.objects.only("id"),
+        write_only=True,
+        source="new_languages",
     )
 
-    def validate_tags(self, tags):
-        if not tags:
-            raise serializers.ValidationError("Minimum one tag is required.")
-        return tags
+    tagIds = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.only("id"), write_only=True, source="new_tags"
+    )
 
-    def validate_languages(self, languages):
-        if not languages:
-            raise serializers.ValidationError("Minimum one language is required.")
-        return languages
+    languages = LanguageSerializer(many=True, read_only=True)
 
-    def create(self, validated_data: Dict) -> Problem:
-        logger.info(f"Creating a new problem with data: {validated_data}")
-        try:
-            problem: Problem = Problem(
-                title=validated_data["title"], created_by=self.context["request"].user
-            )
-            problem.save()
-            problem.tags.set(validated_data["tags"])
-            problem.languages.set(validated_data["languages"])
-            logger.info("Problem created successfully")
-            return problem
-        except Exception as e:
-            logger.error(f"Error while creating problem - {e}")
-            raise APIException("Error while creating problem")
+    tags = TagSerializer(many=True, read_only=True)
+
+    executionConstraints = ExecutionConstraintSerializer(
+        many=True, source="execution_constraints", read_only=True
+    )
+
+    sampleTests = SampleTestSerializer(
+        many=True, source="sample_tests", required=False, read_only=True
+    )
+
+    class Meta:
+        model = Problem
+        fields = [
+            "id",  # READ
+            "title",  # READ, WRITE
+            "languageIds",  # WRITE
+            "languages",  # READ
+            "tagIds",  # WRITE
+            "tags",  # READ
+            "description",  # READ, WRITE
+            "executionConstraints",  # READ
+            "sampleTests",  # READ
+            "createdBy",  # READ
+            "status",  # READ
+        ]
+        extra_kwargs = {
+            "status": {"default": Problem.Status.DRAFT, "read_only": True},
+            "id": {"read_only": True},
+        }
+
+    @staticmethod
+    def _extract_related_data(validated_data):
+        """
+        Extract the related data from the validated data.
+        """
+        new_languages = validated_data.pop("new_languages", [])
+        new_tags = validated_data.pop("new_tags", [])
+        # remove the languageIds and tagIds from the validated data
+        validated_data.pop("languageIds", None)
+        validated_data.pop("tagIds", None)
+
+        return new_languages, new_tags
+
+    def create(self, validated_data):
+        request_user = self.context["request"].user
+
+        # extract the related data
+        new_languages, new_tags = ProblemSerializer._extract_related_data(
+            validated_data
+        )
+
+        # create the problem instance without the languages, tags, constraints
+        # and sample tests
+        problem = Problem.objects.create(created_by=request_user, **validated_data)
+        # now set the languages and tags
+        problem.languages.set(new_languages)
+        problem.tags.set(new_tags)
+
+        return problem
 
     def update(self, instance, validated_data):
-        logger.info(f"Updating problem with ID: {instance.id}, Data: {validated_data}")
-        try:
-            instance.title = validated_data.get("title", instance.title)
-            instance.description = validated_data.get(
-                "description", instance.description
-            )
-            instance.tags.set(validated_data.get("tags", instance.tags.all()))
-            instance.languages.set(
-                validated_data.get("languages", instance.languages.all())
-            )
-            instance.status = validated_data.get("status", instance.status)
-            instance.save()
-            logger.info(f"Problem with ID: {instance.id} updated successfully")
-            return instance
-        except ValidationError as e:
-            """
-            handle ValidationError raised by clean() method in Problem model
-            """
-            logger.warning(
-                f"Validation error while updating problem with ID: {instance.id} {e}"
-            )
-            raise serializers.ValidationError(e.message_dict)
-        except Exception as e:
-            logger.error(f"Error updating problem with ID: {instance.id}: {e}")
-            raise APIException("Error while updating problem")
+        logger.info("Updating problem")
+        # extract the related data
+        new_languages, new_tags = ProblemSerializer._extract_related_data(
+            validated_data
+        )
+        if new_languages:
+            instance.languages.set(new_languages)
+            # remove the constraints for the languages that are not present
+            # in the new_languages
+            instance.execution_constraints.exclude(
+                language__id__in=[language.id for language in new_languages]
+            ).delete()
+
+        if new_tags:
+            instance.tags.set(new_tags)
+
+        # Update other fields, only if present in validated_data
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
