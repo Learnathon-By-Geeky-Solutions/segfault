@@ -83,6 +83,14 @@ def custom_exception_handler(exc, context):
                 ),
                 path,
             )
+        elif isinstance(exc, BulkOperationError):
+            response.data = build_response(
+                response,
+                response.status_code,
+                "One or more fields have errors.",
+                path,
+                exc.errors,
+            )
         elif isinstance(exc, APIException):
             response.data = build_response(
                 response, response.status_code, exc.detail or exc.default_detail, path
