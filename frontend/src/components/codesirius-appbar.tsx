@@ -178,7 +178,7 @@ export default function CodesiriusAppBar() {
 
     return (
         <Box sx={{display: 'flex'}}>
-            <CssBaseline/>
+            <CssBaseline />
             <AppBar component="nav">
                 <Toolbar>
                     <IconButton
@@ -199,8 +199,8 @@ export default function CodesiriusAppBar() {
                     <Box sx={{ml: "1rem", display: {xs: 'none', md: 'block'}}}>
                         {navItems.map((item) => (
                             <NextLink href={item.link} key={item.name}>
-                                <Button variant="text" startIcon={item.icon}
-                                        sx={{ml: 5, color: "white", my: 2}}>
+                                <Button variant="text" startIcon={item.icon} size="small"
+                                        sx={{ml: 5, color: "white"}}>
                                     {item.name}
                                 </Button>
                             </NextLink>

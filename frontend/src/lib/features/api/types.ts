@@ -1,6 +1,9 @@
+import exp from "node:constants";
+
 export interface FieldError {
+    index?: number;  // for bulk operations
     field: string;
-    message: string;
+    message: any;
 }
 
 
@@ -62,7 +65,7 @@ export interface SigninResponse {
 }
 
 export interface User {
-    userId: number;
+    id: number;
     firstName: string;
     lastName: string;
     email: string;
@@ -70,11 +73,27 @@ export interface User {
     isActive: boolean;
 }
 
+export interface ExecutionConstraint {
+    id?: number; // may be undefined if it's a new constraint
+    languageId: number;
+    timeLimit: number | string;
+    memoryLimit: number | string;
+}
+
+export interface SampleTest {
+    id?: number;
+    input: string;
+    output: string;
+}
+
 export interface CreateUpdateRequest {
     id?: number;
-    title: string;
-    languages: number[];
-    tags: number[];
+    title?: string;
+    languageIds?: number[];
+    tagIds?: number[];
+    description?: string;
+    executionConstraints?: ExecutionConstraint;
+    sampleTests?: SampleTest[];
 }
 
 export interface CreateUpdateResponse {
@@ -83,5 +102,46 @@ export interface CreateUpdateResponse {
     timestamp: string;
     data: {
         id: number;
+        title: string;
+        description: string;
+        languages: number[];
+        tags: number[];
+        executionConstraints: ExecutionConstraint[];
+        sampleTests: SampleTest[];
     }
+}
+
+export interface UpsertExecutionConstraintRequest {
+    problemId: number;
+    executionConstraints: ExecutionConstraint[];
+}
+
+export interface UpsertExecutionConstraintResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+    data: ExecutionConstraint[];
+}
+
+export interface UpsertSampleTestsRequest {
+    problemId: number;
+    sampleTests: SampleTest[];
+}
+
+export interface UpsertSampleTestsResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+    data: SampleTest[];
+}
+
+export interface DeleteSampleTestRequest {
+    problemId: number;
+    testId: number;
+}
+
+export interface DeleteSampleTestResponse {
+    status: number;
+    message: string;
+    timestamp: string;
 }

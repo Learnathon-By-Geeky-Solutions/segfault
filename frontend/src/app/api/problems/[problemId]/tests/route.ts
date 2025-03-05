@@ -1,7 +1,7 @@
 import {cookies} from "next/headers";
 import {DJANGO_BACKEND_URL} from "@/lib/constants";
 
-export async function PATCH(req: Request, {params}: {
+export async function PUT(req: Request, {params}: {
     params: Promise<{ problemId: number }>
 }) {
     const cookieStore = await cookies();
@@ -9,8 +9,8 @@ export async function PATCH(req: Request, {params}: {
     const body = await req.text();
     const {problemId} = await params;
 
-    const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/problems/${problemId}/`, {
-        method: 'PATCH',
+    const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/problems/${problemId}/tests/`, {
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',

@@ -70,17 +70,17 @@ const SplitPane = ({ leftWidth = 50, leftChildren, rightChildren }: SplitPanePro
     return (
         <Box display="flex">
             {/* Left Pane */}
-            <Box
-                component={Paper}
+            <Paper
                 // p={2}
                 sx={{
                     width: `${width}%`,
+                    height: "80vh",
                     overflow: "auto",
                     transition: isResizing ? "none" : "width 0.2s ease",
                 }}
             >
                 {leftChildren}
-            </Box>
+            </Paper>
 
             {/* Resizable Divider */}
             <Box
@@ -111,8 +111,12 @@ const SplitPane = ({ leftWidth = 50, leftChildren, rightChildren }: SplitPanePro
                 component={Paper}
                 // p={2}
                 sx={{
+                    width: `${100 - width}%`,
+                    height: "80vh",
                     flexGrow: 1,
                     overflow: "auto",
+                    wordBreak: "break-word",
+                    overflowWrap: "break-word",
                     transition: isResizing ? "none" : "width 0.2s ease",
                 }}
             >

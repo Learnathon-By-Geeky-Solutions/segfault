@@ -1,4 +1,5 @@
-import React, {ReactNode, useEffect} from 'react';
+"use client"
+import React, {ReactNode, useEffect, useState} from 'react';
 import Box from "@mui/material/Box";
 import {
     Autocomplete,
@@ -20,37 +21,35 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import {Cancel, Create, Edit, HelpOutline, NavigateNext} from "@mui/icons-material";
-import {Language, Tag} from "@/app/problems/add/types";
+import {Language, Tag} from "@/app/problems/create/types";
 import AddIcon from '@mui/icons-material/Add';
 import Link from "@mui/material/Link";
 import {Stack} from "@mui/system";
-import {
-    APIError,
-    CreateUpdateRequest,
-    CreateUpdateResponse,
-    FieldError
-} from "@/lib/features/api/types";
+import {APIError, CreateUpdateRequest, CreateUpdateResponse, FieldError} from "@/lib/features/api/types";
 import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
+import {useCreateProblemMutation, useUpdateProblemMutation} from "@/lib/features/api/problemsApiSlice";
+import {useAppDispatch} from "@/lib/hooks/hooks";
 import {
-    useCreateProblemMutation,
-    useUpdateProblemMutation
-} from "@/lib/features/api/problemsApiSlice";
+    addCompletedStep,
+    addFailedStep,
+    addUnsavedStep,
+    incrementProgress,
+    removeUnsavedStep,
+    setIsSnackbarOpen,
+    setSnackbarMessage,
+    setTitle as setProblemTitle
+} from "@/lib/features/codesirius/addProblemSlice";
+import {setCodesiriusLoading} from "@/lib/features/codesirius/codesiriusSlice";
+import {useRouter} from "next/navigation";
 
 
 interface ProblemMetaDataProps {
-    readonly title: string;
-    setTitle: (title: string) => void;
-    readonly languages: Language[]; // list of supported languages
-    readonly selectedLanguages: number[]; // list of selected languages
-    setSelectedLanguages: (selectedLanguages: number[]) => void;
-    readonly tags: Tag[]; // list of tags already created
-    readonly selectedTags: number[]; // list of selected tags
-    setSelectedTags: (selectedTags: number[]) => void;
-    readonly problemId: number | undefined;
-    setProblemId: (problemId: number) => void;
-    setActiveStep: (step: number) => void;
-    setIsSnackbarOpen: (open: boolean) => void;
-    setSnackbarMessage: (message: string) => void;
+    problemId?: number,
+    availableLanguages: Language[]; // PREDEFINED list of languages
+    availableTags: Tag[]; // PREDEFINED list of tags
+    title?: string;
+    selectedLanguages?: number[];
+    selectedTags?: number[];
 }
 
 function getNewResourceLink(resource: string, onClick?: () => void): ReactNode {
@@ -108,20 +107,25 @@ function getFooterOption(resource: string, allowCreate: boolean = false, onClick
 }
 
 const ProblemMetaData = ({
-                             title,
-                             setTitle,
-                             languages,
-                             selectedLanguages,
-                             setSelectedLanguages,
-                             tags,
-                             selectedTags,
-                             setSelectedTags,
                              problemId,
-                             setProblemId,
-                             setActiveStep,
-                             setIsSnackbarOpen,
-                             setSnackbarMessage
+                             availableLanguages,
+                             availableTags,
+                             title: _title,
+                             selectedLanguages: _selectedLanguages,
+                             selectedTags: _selectedTags
                          }: ProblemMetaDataProps) => {
+    const dispatch = useAppDispatch();
+
+    // global state
+    const [title, setTitle] = useState<string>(_title || "");
+    const [selectedLanguages, setSelectedLanguages] = useState<number[]>(_selectedLanguages || []);
+    const [selectedTags, setSelectedTags] = useState<number[]>(_selectedTags || []);
+
+
+    // // local state
+    // const [_title, _setTitle] = React.useState<string>("");
+    // const [_selectedLanguages, _setSelectedLanguages] = React.useState<number[]>([]);
+    // const [_selectedTags, _setSelectedTags] = React.useState<number[]>([]);
 
     const [titleError, setTitleError] = React.useState<string>("");
     const [languageError, setLanguageError] = React.useState<string>("");
@@ -129,17 +133,17 @@ const ProblemMetaData = ({
 
     const fieldValidator = {
         title: () => {
-            if (title.length === 0) {
+            if (title && title.length === 0) {
                 setTitleError("Title is required");
             }
         },
         languages: () => {
-            if (selectedLanguages.length === 0) {
+            if (selectedLanguages?.length === 0) {
                 setLanguageError("At least one language is required");
             }
         },
         tags: () => {
-            if (selectedTags.length === 0) {
+            if (selectedTags?.length === 0) {
                 setTagError("At least one tag is required");
             }
         }
@@ -152,8 +156,10 @@ const ProblemMetaData = ({
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (titleError.length > 0) {
             setTitleError("");
+            // removeFailedStep(0);
         }
         setTitle(e.target.value);
+        dispatch(setProblemTitle(e.target.value));
     }
 
     const handleLanguageBlur = () => {
@@ -183,15 +189,18 @@ const ProblemMetaData = ({
     const [updateProblem, {isLoading: isUpdating}] = useUpdateProblemMutation();
 
     useEffect(() => {
-        console.log("isLoading: ", isLoading);
-    }, [isLoading]);
+        dispatch(setCodesiriusLoading(false));
+    }, []);
+
+
+    const router = useRouter();
 
     const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         for (const field in fieldValidator) {
             fieldValidator[field as keyof typeof fieldValidator]();
         }
-        if (titleError.length === 0 && languageError.length === 0 && tagError.length === 0) {
+        if (title && title.length > 0 && selectedLanguages && selectedLanguages.length > 0 && selectedTags && selectedTags.length > 0) {
             let problem: CreateUpdateRequest;
 
             try {
@@ -200,37 +209,46 @@ const ProblemMetaData = ({
                     // Create a new problem
                     problem = {
                         title: title,
-                        languages: selectedLanguages,
-                        tags: selectedTags
+                        languageIds: selectedLanguages,
+                        tagIds: selectedTags
                     }
                     res = await createProblem(problem).unwrap();
                     if (res.status === 201) {
-                        setSnackbarMessage("Problem metadata saved successfully");
-                        setIsSnackbarOpen(true);
-                        setProblemId(res.data.id);
-                        setActiveStep(1);
+                        console.log("Problem created successfully");
+                        dispatch(setCodesiriusLoading(true));
+                        dispatch(setSnackbarMessage("Problem metadata saved successfully"));
+                        dispatch(setIsSnackbarOpen(true));
+                        dispatch(addCompletedStep(0));
+                        dispatch(incrementProgress(20));
+                        router.push(`/problems/create/${res.data.id}/step/2`);
                     }
                 } else {
                     // Update an existing problem
                     problem = {
                         id: problemId,  // will be used in request url
                         title: title,
-                        languages: selectedLanguages,
-                        tags: selectedTags
+                        languageIds: selectedLanguages,
+                        tagIds: selectedTags
                     }
                     res = await updateProblem(problem).unwrap();
                     if (res.status === 200) {
-                        console.log("Problem updated successfully");
-                        setSnackbarMessage("Problem updated successfully");
-                        setIsSnackbarOpen(true);
+                        console.log("Problem updated successfully")
+                        dispatch(setCodesiriusLoading(true));
+                        dispatch(setSnackbarMessage("Problem metadata updated successfully"));
+                        dispatch(setIsSnackbarOpen(true));
+                        dispatch(addCompletedStep(0));
+                        router.push(`/problems/create/${res.data.id}/step/2`);
                     }
                 }
-                console.log(res);
-
+                console.log(res)
             } catch (err) {
                 if (isFetchBaseQueryError(err)) {
                     const apiError = err.data as APIError;
                     if (apiError.status === 400 && apiError.errors) {
+                        if (problemId === undefined) {
+                            // only set failed step if creating a new problem
+                            dispatch(addFailedStep(0));
+                        }
                         const errors: FieldError[] = apiError.errors;
                         errors.forEach(error => {
                             if (error.field === "title") {
@@ -311,9 +329,10 @@ const ProblemMetaData = ({
         }
     }
 
+
     return (
-        <>
-            <Grid component="form" container spacing={2} m={4}>
+        <Box p={2}>
+            <Grid component="form" container spacing={2} m={1}>
                 <Grid size={12}>
                     <Typography variant="h6">Problem Meta Data</Typography>
                     <Divider/>
@@ -334,7 +353,7 @@ const ProblemMetaData = ({
                             placeholder="Problem Title"
                             onChange={handleTitleChange}
                             error={titleError.length > 0}
-                            helperText={titleError}
+                            helperText={titleError || "Keep it short and sweet"}
                             onBlur={handleTitleBlur}
                         />
                     </FormControl>
@@ -350,7 +369,7 @@ const ProblemMetaData = ({
                             multiple
                             id="languages"
                             options={[
-                                ...languages.sort((a, b) => -b.name.localeCompare(a.name)),
+                                ...availableLanguages.toSorted((a, b) => -b.name.localeCompare(a.name)),
                                 {
                                     id: -1,
                                     name: "Escape",
@@ -361,7 +380,7 @@ const ProblemMetaData = ({
                             filterSelectedOptions
                             autoHighlight
                             disableCloseOnSelect
-                            value={languages.filter(l => selectedLanguages.includes(l.id))}
+                            value={availableLanguages.filter(l => selectedLanguages?.includes(l.id))}
                             groupBy={(option) => option.id === -1 ? "" : option.name}
                             // renderGroup={(params) => (
                             //     <li key={params.key}>
@@ -377,7 +396,7 @@ const ProblemMetaData = ({
                                     label="Languages"
                                     placeholder="Languages"
                                     error={languageError.length > 0}
-                                    helperText={languageError}
+                                    helperText={languageError || "Select the languages you want to support"}
                                     onBlur={handleLanguageBlur}
                                 />
                             )}
@@ -403,7 +422,7 @@ const ProblemMetaData = ({
                             multiple
                             id="tags"
                             options={[
-                                ...tags.sort((a, b) => -b.name.localeCompare(a.name)),
+                                ...availableTags.sort((a, b) => -b.name.localeCompare(a.name)),
                                 {
                                     id: -1,
                                     name: "New Tag",
@@ -415,7 +434,7 @@ const ProblemMetaData = ({
                             filterSelectedOptions
                             autoHighlight
                             disableCloseOnSelect
-                            value={tags.filter(t => selectedTags.includes(t.id))}
+                            value={availableTags.filter(t => selectedTags?.includes(t.id))}
                             onChange={handleTagChange}
                             renderInput={(params) => (
                                 <TextField
@@ -424,7 +443,7 @@ const ProblemMetaData = ({
                                     label="Tags"
                                     placeholder="Tags"
                                     error={tagError.length > 0}
-                                    helperText={tagError}
+                                    helperText={tagError || "Select the tags that best describe the problem"}
                                     onBlur={handleTagBlur}
                                 />
                             )}
@@ -573,7 +592,7 @@ const ProblemMetaData = ({
                     </Grid>
                 </Grid>
             </Dialog>
-        </>
+        </Box>
     );
 };
 
