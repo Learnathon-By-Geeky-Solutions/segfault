@@ -7,15 +7,15 @@ on:
       - dev
   pull_request:
     types:
-        - opened
-        - synchronize
-        - reopened
+      - opened
+      - synchronize
+      - reopened
     branches:
       - main
       - dev
 
 jobs:
-  backend-test-and-lint:
+  backend-test-lint-sonar:
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
@@ -37,10 +37,10 @@ jobs:
           echo DJANGO_DEBUG="False" >> .env
           echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
 
-      - name: Fix permission for logs directory
+      - name: Fix permission
         run: |
-          mkdir -p ./backend/codesirius/logs
-          chmod 777 ./backend/codesirius/logs
+          chmod -R 777 backend/codesirius
+          
 
       - name: Build the images
         run: docker compose build backend
@@ -48,12 +48,22 @@ jobs:
       - name: Run the containers
         run: docker compose up -d backend
 
-      - name: Run tests
-        run: docker compose exec backend sh -c "python manage.py test"
+      - name: Run tests with coverage
+        run: |
+          docker compose exec backend sh -c "
+          coverage run manage.py test && \
+          coverage xml && \
+          coverage report
+          "
 
       - name: Run linting
         run: docker compose exec backend sh -c "flake8 ."
 
       - name: Stop the containers
-        run: docker compose down backend
+        run: docker compose down
 
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: "https://sonarcloud.io"
