@@ -32,6 +32,9 @@ SECRET_KEY = environ.get("DJANGO_SECRET_KEY")
 # check if DJANGO_DEBUG is set to True (default is False)
 DEBUG = environ.get("DJANGO_DEBUG", "False") == "True"
 
+AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = environ.get("AWS_REGION")
 
 ALLOWED_HOSTS = [
     "127.0.0.1",

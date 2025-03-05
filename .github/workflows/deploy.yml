@@ -1,10 +1,14 @@
 name: Deploy to EC2 via Tailscale
+
 on:
   push:
     branches:
       - main
+      - dev
+
 jobs:
-  deploy:
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Connect Tailscale
@@ -14,7 +18,7 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Deploy to AWS
+      - name: Deploy to AWS (Production)
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@codesirius "
           cd ${{ secrets.PROJECT_PATH }}
@@ -23,4 +27,26 @@ jobs:
           cp /home/${{ secrets.EC2_USER }}/preset/constants.ts frontend/src/lib/constants.ts
           docker compose down
           docker compose --profile production up -d --wait
+          "
+
+  deploy-dev:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy to AWS (Development)
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@codesirius "
+          cd ${{ secrets.DEV_PROJECT_PATH }}
+          git pull origin dev
+          cp /home/${{ secrets.EC2_USER }}/preset/.env .env
+          cp /home/${{ secrets.EC2_USER }}/preset/constants.dev.ts frontend/src/lib/constants.ts
+          docker compose down
+          docker compose --profile development up -d --wait
           "

@@ -1,11 +1,10 @@
-FROM python:3.10-slim-bookworm
+FROM python:3.13.2-slim-bookworm
 LABEL maintainer="segfault"
 
 ENV PYTHONUNBUFFERED=1
 
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
-COPY ./codesirius /app/codesirius
 #WORKDIR /app
 EXPOSE 8000
 

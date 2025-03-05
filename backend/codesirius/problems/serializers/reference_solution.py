@@ -23,13 +23,14 @@ class ReferenceSolutionSerializer(serializers.Serializer):
             "max_length": "The code field must not exceed 10000 characters.",
         },
     )
-    language = serializers.PrimaryKeyRelatedField(
+    languageId = serializers.PrimaryKeyRelatedField(
         queryset=Language.objects.only("id"),
         required=True,
         error_messages={
-            "required": "The language field is required.",
-            "null": "The language field must not be null.",
+            "required": "The languageId field is required.",
+            "null": "The languageId field must not be null.",
         },
+        source="language",
     )
     verdict = serializers.ChoiceField(
         read_only=True,

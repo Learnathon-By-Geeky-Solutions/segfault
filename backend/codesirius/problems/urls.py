@@ -1,5 +1,7 @@
 from django.urls import path
 
+from problems.views.execution_constraint import ExecutionConstraintAPIView
+from problems.views.hidden_test import HiddenTestPresignedUrlAPIView
 from problems.views.language import (
     LanguageListCreateAPIView,
     LanguageRetrieveUpdateDestroyAPIView,
@@ -7,11 +9,13 @@ from problems.views.language import (
 from problems.views.problem import (
     ProblemListCreateAPIView,
     ProblemRetrieveUpdateDestroyAPIView,
+    ProblemPublishAPIView,
 )
 from problems.views.reference_solution import (
     ReferenceSolutionListCreateAPIView,
     ReferenceSolutionRetrieveUpdateDestroyAPIView,
 )
+from problems.views.sample_test import SampleTestAPIView, SampleTestBulkAPIView
 from problems.views.tag import TagListCreateAPIView, TagRetrieveUpdateDestroyAPIView
 
 urlpatterns = [
@@ -44,5 +48,30 @@ urlpatterns = [
         "<int:problem_pk>/reference-solutions/<int:pk>/",
         ReferenceSolutionRetrieveUpdateDestroyAPIView.as_view(),
         name="reference-solution-retrieve-update-destroy",
+    ),
+    path(
+        "<int:problem_pk>/execution-constraints/",
+        ExecutionConstraintAPIView.as_view(),
+        name="execution-constraint",
+    ),
+    path(
+        "<int:problem_pk>/tests/",
+        SampleTestBulkAPIView.as_view(),
+        name="sample-test-bulk",
+    ),
+    path(
+        "<int:problem_pk>/tests/<int:sample_test_pk>/",
+        SampleTestAPIView.as_view(),
+        name="sample-test",
+    ),
+    path(
+        "<int:problem_pk>/hidden-tests/presigned-url/",
+        HiddenTestPresignedUrlAPIView.as_view(),
+        name="hidden-test-presigned-url",
+    ),
+    path(
+        "<int:problem_pk>/publish/",
+        ProblemPublishAPIView.as_view(),
+        name="problem-publish",
     ),
 ]
