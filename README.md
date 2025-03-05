@@ -18,6 +18,9 @@ facilitate the interview process for both the interviewer and the interviewee.
 It has also problem archive where users can practice problems and can see the solutions
 of the problems. Users can also submit their solutions and can see the results.
 
+Production server: [codesirius.tech](https://codesirius.tech)  
+Dev server: [dev.codesirius.tech](https://dev.codesirius.tech)
+
 ## Tech Stack
 
 ### Frontend  
