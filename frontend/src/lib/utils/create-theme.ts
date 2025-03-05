@@ -8,9 +8,9 @@ export const createCodeSiriusTheme = (theme: themeType) => {
         },
         palette: {
             mode: theme,
-            // primary: {
-            //     main: '#8017f5',
-            // },
+            primary: {
+                main: '#8017f5',
+            },
             // secondary: {
             //     main: '#f50057',
             // },

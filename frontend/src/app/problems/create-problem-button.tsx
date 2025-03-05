@@ -8,17 +8,17 @@ import {useAppDispatch} from "@/lib/hooks/hooks";
 import {AppDispatch} from "@/lib/store";
 import {setCodesiriusLoading} from "@/lib/features/codesirius/codesiriusSlice";
 
-const AddProblemButton = () => {
+const CreateProblemButton = () => {
     const dispatch = useAppDispatch<AppDispatch>();
     return (
         <Box display="flex" justifyContent="flex-end">
-            <Link href="/problems/add">
+            <Link href="/problems/create">
                 <Button startIcon={<Add/>} onClick={() => dispatch(setCodesiriusLoading(true))}>
-                    Add Problem
+                    Create Problem
                 </Button>
             </Link>
         </Box>
     );
 };
 
-export default AddProblemButton;
+export default CreateProblemButton;

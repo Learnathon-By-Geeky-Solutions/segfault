@@ -1,13 +1,12 @@
-import React, {Suspense} from 'react';
-import {redirect} from "next/navigation";
+import React from 'react';
+import CreateProblemStepper from "@/components/stepper"
+import ProblemMetaData from "@/app/problems/create/problem-meta-data";
 import {headers} from "next/headers";
 import {User} from "@/lib/features/api/types";
-import AddProblem from "@/app/problems/add/add-problem";
+import {redirect} from "next/navigation";
 import {DJANGO_BACKEND_URL} from "@/lib/constants";
-
-export const metadata = {
-    title: "Create a Problem",
-}
+import SplitPane from "@/components/SplitPane";
+import LivePreview from "@/components/live-preview";
 
 const Page = async () => {
     const headersList = await headers();
@@ -40,12 +39,16 @@ const Page = async () => {
     });
 
     const tags = await tagsRes.json();
-
     return (
         <div>
-            <Suspense fallback={<div>Loading...</div>}>
-                <AddProblem languages={languages.data} tags={tags.data}/>
-            </Suspense>
+            <CreateProblemStepper step={0}/>
+            <SplitPane
+                leftChildren={
+                    <ProblemMetaData
+                        availableLanguages={languages.data}
+                        availableTags={tags.data}/>
+                }
+                rightChildren={<LivePreview/>}/>
         </div>
     );
 };
