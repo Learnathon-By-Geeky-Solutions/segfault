@@ -1,10 +1,14 @@
 import json
+import logging
 import os
 
 import requests
 from confluent_kafka import Consumer
+from django.db.backends.base.schema import logger
 
 from lib.generate_html_verification_email import generate
+
+logger = logging.getLogger(__name__)
 
 
 def send_verification_email(
@@ -22,7 +26,7 @@ def send_verification_email(
             },
         )
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        logger.error(f"Failed to send email: {e}")
         return None
 
 
@@ -35,7 +39,7 @@ conf = {
 }
 
 topic = "email"
-print(f"Connecting to Kafka at {conf['bootstrap.servers']}")
+logger.info(f"Connecting to Kafka broker at {conf['bootstrap.servers']}")
 consumer = Consumer(conf)
 consumer.subscribe([topic])
 
@@ -45,16 +49,20 @@ try:
         if msg is None:
             continue
         if msg.error():
-            print("Consumer error: {}".format(msg.error()))
+            logger.error(f"Consumer error: {msg.error()}")
             continue
-        print(f'Message: {msg.value().decode("utf-8")} partition: {msg.partition()}')
+        logger.info(f"Received message: {msg.value()}")
         try:
             msg_data = json.loads(msg.value())
-            send_verification_email(**msg_data)
+            res = send_verification_email(**msg_data)
+            if res.status_code == 200:
+                logger.info(f"Email sent to {msg_data['email']}")
+            else:
+                logger.error(f"Failed to send email to {msg_data['email']}")
         except json.JSONDecodeError:
-            print("Failed to decode message")
+            logger.error("Failed to decode message")
         except Exception as e:
-            print(f"Failed to send email: {e}")
+            logger.error(f"Failed to send email: {e}")
         consumer.commit(asynchronous=False)
 except KeyboardInterrupt:
     pass
