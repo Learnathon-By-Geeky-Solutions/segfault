@@ -76,7 +76,7 @@ services:
       args:
         - DEV=false
     ports:
-      - "3000:3000"
+      - "3030:3030"
     volumes:
       - ./frontend/src:/app/src
     working_dir: /app
