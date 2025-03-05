@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3030",
     "lint": "next lint"
   },
   "dependencies": {
@@ -16,8 +16,10 @@
     "@mui/icons-material": "^6.4.1",
     "@mui/material": "^6.4.1",
     "@mui/material-nextjs": "^6.3.1",
+    "@mui/x-tree-view": "^7.26.0",
     "@reduxjs/toolkit": "^2.5.1",
     "@types/validator": "^13.12.2",
+    "axios": "^1.8.1",
     "dotenv": "^16.4.7",
     "i": "^0.3.7",
     "monaco-editor": "^0.52.2",
@@ -26,6 +28,7 @@
     "npm": "^11.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.8",
     "react-markdown": "^9.0.3",
     "react-redux": "^9.2.0",
     "rehype-katex": "^7.0.1",
