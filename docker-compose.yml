@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   backend:
     build:
@@ -21,6 +23,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - shared
+
   db:
     image: postgres:14.15-alpine3.21
     volumes:
@@ -38,6 +43,8 @@ services:
       retries: 5
     profiles:
       - production
+    networks:
+      - shared
 
   email-consumer:
     build:
@@ -52,6 +59,8 @@ services:
       sh -c "python3 main.py"
     profiles:
       - production
+    networks:
+      - shared
 
   frontend:
     build:
@@ -68,6 +77,8 @@ services:
       sh -c  "npm run dev"
     profiles:
       - development
+    networks:
+      - shared
 
   frontend-prod:
     build:
@@ -84,7 +95,8 @@ services:
       sh -c  "npm run build && npm run start"
     profiles:
       - production
-      
+    networks:
+      - shared
 
   nginx:
     image: nginx:1.21.3-alpine
@@ -99,6 +111,8 @@ services:
     restart: unless-stopped
     profiles:
       - production
+    networks:
+      - shared
 
   certbot:
     image: certbot/certbot:latest
@@ -108,7 +122,9 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     profiles:
       - production
-    
+    networks:
+      - shared
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -124,7 +140,8 @@ services:
     restart: unless-stopped
     profiles:
       - monitoring
-
+    networks:
+      - shared
 
   loki:
     image: grafana/loki:latest
@@ -143,6 +160,8 @@ services:
     restart: unless-stopped
     profiles:
       - monitoring
+    networks:
+      - shared
 
   promtail:
     image: grafana/promtail:latest
@@ -157,6 +176,8 @@ services:
     restart: unless-stopped
     profiles:
       - monitoring
+    networks:
+      - shared
 
   prometheus:
     image: prom/prometheus:latest
@@ -172,6 +193,8 @@ services:
     restart: unless-stopped
     profiles:
       - monitoring
+    networks:
+      - shared
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -185,7 +208,13 @@ services:
     restart: unless-stopped
     profiles:
       - monitoring
+    networks:
+      - shared
 
 volumes:
   postgres_data:
   grafana_data:
+
+networks:
+  shared:
+    external: true
