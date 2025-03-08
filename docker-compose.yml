@@ -44,6 +44,20 @@ services:
     networks:
       - shared
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: always
+    profiles:
+      - production
+    networks:
+      - shared
+
   email-consumer:
     build:
       context: consumers/email-consumer
@@ -212,6 +226,8 @@ services:
 volumes:
   postgres_data:
   grafana_data:
+  redis_data:
+    driver: local
 
 networks:
   shared:
