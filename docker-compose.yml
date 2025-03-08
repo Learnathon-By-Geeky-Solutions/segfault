@@ -49,12 +49,12 @@ services:
       context: consumers/email-consumer
       dockerfile: Dockerfile
     env_file:
-      - .env
+      - ./consumers/email-consumer/.env
     volumes:
       - ./consumers/email-consumer:/app
     working_dir: /app
     command: >
-      sh -c "python3 main.py"
+      sh -c "python3 src/email_consumer.py"
     profiles:
       - production
     networks:
