@@ -27,6 +27,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Create a shared docker network
+        run: docker network create shared
+
       - name: Set up environment variables
         run: |
           touch .env
