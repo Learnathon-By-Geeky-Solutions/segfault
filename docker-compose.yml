@@ -62,13 +62,16 @@ services:
     build:
       context: consumers/email-consumer
       dockerfile: Dockerfile
+      args:
+        - DEV=true
     env_file:
       - ./consumers/email-consumer/.env
     volumes:
-      - ./consumers/email-consumer:/app
-    working_dir: /app
+      - ./consumers/email-consumer:/home/codesirius/app
+      - /home/codesirius/app/.venv
+    working_dir: /home/codesirius/app
     command: >
-      sh -c "python3 src/email_consumer.py"
+      sh -c "poetry run email-consumer"
     profiles:
       - production
     networks:

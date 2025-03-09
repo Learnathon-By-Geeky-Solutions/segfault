@@ -44,8 +44,3 @@ class EmailConsumer(BaseKafkaConsumer):
             self.logger.info(f"Email sent to {message['email']}")
         else:
             self.logger.error(f"Failed to send email to {message['email']}")
-
-
-if __name__ == "__main__":
-    consumer = EmailConsumer()
-    consumer.consume()
