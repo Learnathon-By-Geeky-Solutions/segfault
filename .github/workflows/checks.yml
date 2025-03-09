@@ -49,7 +49,7 @@ jobs:
 
 
       - name: Build the images
-        run: docker compose build backend
+        run: docker compose build backend email-consumer
 
       - name: Run the containers
         run: docker compose up -d backend
