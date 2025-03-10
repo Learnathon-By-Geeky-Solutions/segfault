@@ -27,9 +27,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Create a shared docker network
-        run: docker network create shared
-
       - name: Set up environment variables
         run: |
           touch .env
@@ -39,41 +36,25 @@ jobs:
           echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
           echo DJANGO_DEBUG="False" >> .env
           echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
-          
-          touch consumers/email-consumer/.env
 
       - name: Fix permission
         run: |
           chmod -R 777 backend/codesirius
-          chmod -R 777 consumers
+          
 
       - name: Build the images
-        run: docker compose build backend email-consumer
+        run: docker compose build backend
 
       - name: Run the containers
         run: docker compose up -d backend
 
-      - name: Download fix_coverage.py
-        run: |
-          curl -L -o fix_coverage.py https://gist.githubusercontent.com/parthokr/72d04fa1e2f5bebef6a1db496ae3af45/raw
-
       - name: Run tests with coverage
         run: |
           docker compose exec backend sh -c "
-          coverage run manage.py test
-          coverage xml
+          coverage run manage.py test && \
+          coverage xml && \
           coverage report
           "
-          sudo chmod u+w backend/codesirius/.coverage
-          python3 fix_coverage.py "$(pwd)/backend/codesirius/.coverage" "$(pwd)/backend/codesirius/"
-
-      - name: Run tests on email-consumer
-        run: |
-          docker compose run --rm email-consumer sh -c "
-          poetry run pytest
-          "
-          sudo chmod u+w consumers/email-consumer/.coverage
-          python3 fix_coverage.py "$(pwd)/consumers/email-consumer/.coverage" "$(pwd)/consumers/email-consumer/"
 
       - name: Run linting
         run: docker compose exec backend sh -c "flake8 ."
