@@ -62,12 +62,14 @@ jobs:
           coverage run manage.py test && \
           coverage xml && \
           coverage report && \
-          python3 fix_coverage.py .coverage "${pwd}/backend/codesirius"
+          python3 fix_coverage.py .coverage "${pwd}/backend/codesirius" && \
+          ls -l
           "
       - name: Run tests on email-consumer
         run: |
           docker compose run --rm email-consumer sh -c "
-          poetry run pytest
+          poetry run pytest && \
+          python3 fix_coverage.py .coverage "${pwd}/consumers/email-consumer"
           "
 
       - name: Run linting
