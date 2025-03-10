@@ -64,7 +64,7 @@ jobs:
           coverage xml
           coverage report
           "
-          chmod u+w backend/codesirius/.coverage
+          sudo chmod u+w backend/codesirius/.coverage
           python3 fix_coverage.py "$(pwd)/backend/codesirius/.coverage" "$(pwd)/backend/codesirius/"
 
       - name: Run tests on email-consumer
@@ -72,7 +72,7 @@ jobs:
           docker compose run --rm email-consumer sh -c "
           poetry run pytest
           "
-          chmod u+w consumers/email-consumer/.coverage
+          sudo chmod u+w consumers/email-consumer/.coverage
           python3 fix_coverage.py "$(pwd)/consumers/email-consumer/.coverage" "$(pwd)/consumers/email-consumer/"
 
       - name: Run linting
