@@ -47,19 +47,22 @@ jobs:
           chmod -R 777 backend/codesirius
           chmod -R 777 consumers
 
-
       - name: Build the images
         run: docker compose build backend email-consumer
 
       - name: Run the containers
         run: docker compose up -d backend
 
+      - name: Download fix_coverage.py
+        run: curl -L -o fix_coverage.py https://gist.githubusercontent.com/parthokr/72d04fa1e2f5bebef6a1db496ae3af45/raw
+
       - name: Run tests with coverage
         run: |
           docker compose exec backend sh -c "
           coverage run manage.py test && \
           coverage xml && \
-          coverage report
+          coverage report && \
+          python3 fix_coverage.py .coverage "${pwd}/backend/codesirius"
           "
       - name: Run tests on email-consumer
         run: |
