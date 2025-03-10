@@ -27,6 +27,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Create a shared docker network
+        run: docker network create shared
+
       - name: Set up environment variables
         run: |
           touch .env
@@ -36,14 +39,17 @@ jobs:
           echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
           echo DJANGO_DEBUG="False" >> .env
           echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+          
+          touch consumers/email-consumer/.env
 
       - name: Fix permission
         run: |
           chmod -R 777 backend/codesirius
-          
+          chmod -R 777 consumers
+
 
       - name: Build the images
-        run: docker compose build backend
+        run: docker compose build backend email-consumer
 
       - name: Run the containers
         run: docker compose up -d backend
@@ -54,6 +60,11 @@ jobs:
           coverage run manage.py test && \
           coverage xml && \
           coverage report
+          "
+      - name: Run tests on email-consumer
+        run: |
+          docker compose run --rm email-consumer sh -c "
+          poetry run pytest
           "
 
       - name: Run linting
