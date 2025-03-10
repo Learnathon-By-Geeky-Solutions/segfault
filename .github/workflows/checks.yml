@@ -64,14 +64,16 @@ jobs:
           coverage xml
           coverage report
           "
-          python3 fix_coverage.py "${pwd}/backend/codesirius/.coverage" "${pwd}/backend/codesirius/"
+          ls -l backend/codesirius/
+          echo $PWD
+          python3 fix_coverage.py "$(pwd)/backend/codesirius/.coverage" "$(pwd)/backend/codesirius/"
 
       - name: Run tests on email-consumer
         run: |
           docker compose run --rm email-consumer sh -c "
           poetry run pytest
           "
-          python3 fix_coverage.py "${pwd}/consumers/email-consumer/.coverage" "${pwd}/consumers/email-consumer/"
+          python3 fix_coverage.py "$(pwd)/consumers/email-consumer/.coverage" "$(pwd)/consumers/email-consumer/"
 
       - name: Run linting
         run: docker compose exec backend sh -c "flake8 ."
