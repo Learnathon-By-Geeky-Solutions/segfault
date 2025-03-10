@@ -60,18 +60,18 @@ jobs:
       - name: Run tests with coverage
         run: |
           docker compose exec backend sh -c "
-          coverage run manage.py test && \
-          coverage xml && \
-          coverage report && \
-          ls -l && \
-          python3 fix_coverage.py "${pwd}/backend/codesirius/.coverage" "${pwd}/backend/codesirius/"
+          coverage run manage.py test
+          coverage xml
+          coverage report
           "
+          python3 fix_coverage.py "${pwd}/backend/codesirius/.coverage" "${pwd}/backend/codesirius/"
+
       - name: Run tests on email-consumer
         run: |
           docker compose run --rm email-consumer sh -c "
-          poetry run pytest && \
-          python3 fix_coverage.py "${pwd}/consumers/email-consumer/.coverage" "${pwd}/consumers/email-consumer/"
+          poetry run pytest
           "
+          python3 fix_coverage.py "${pwd}/consumers/email-consumer/.coverage" "${pwd}/consumers/email-consumer/"
 
       - name: Run linting
         run: docker compose exec backend sh -c "flake8 ."
