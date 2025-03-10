@@ -55,8 +55,7 @@ jobs:
 
       - name: Download fix_coverage.py
         run: |
-          curl -L -o fix_coverage.py https://gist.githubusercontent.com/parthokr/72d04fa1e2f5bebef6a1db496ae3af45/raw && \
-          ls -l
+          curl -L -o fix_coverage.py https://gist.githubusercontent.com/parthokr/72d04fa1e2f5bebef6a1db496ae3af45/raw
 
       - name: Run tests with coverage
         run: |
@@ -64,13 +63,14 @@ jobs:
           coverage run manage.py test && \
           coverage xml && \
           coverage report && \
-          python3 fix_coverage.py .coverage "${pwd}/backend/codesirius"
+          ls -l && \
+          python3 fix_coverage.py "${pwd}/backend/codesirius/.coverage" "${pwd}/backend/codesirius/"
           "
       - name: Run tests on email-consumer
         run: |
           docker compose run --rm email-consumer sh -c "
           poetry run pytest && \
-          python3 fix_coverage.py .coverage "${pwd}/consumers/email-consumer"
+          python3 fix_coverage.py "${pwd}/consumers/email-consumer/.coverage" "${pwd}/consumers/email-consumer/"
           "
 
       - name: Run linting
