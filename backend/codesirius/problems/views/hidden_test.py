@@ -44,8 +44,8 @@ class HiddenTestPresignedUrlAPIView(APIView):
             problem = Problem.objects.get(pk=problem_pk)
             self.check_object_permissions(request, problem)
 
-            bucket_name = "unprocessed-hidden-tests"
-            object_key = f"hidden-tests-{problem_pk}.zip"
+            bucket_name = "codesirius-tests-data"
+            object_key = f"unprocessed/{problem_pk}/hidden-tests.zip"
             max_file_size = 16 * 1024 * 1024  # 16MB
 
             client = AWSClient("s3").get_client()
