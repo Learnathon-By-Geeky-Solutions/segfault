@@ -1,3 +1,4 @@
+import json
 import logging
 
 from rest_framework.exceptions import ValidationError, PermissionDenied
@@ -94,6 +95,7 @@ class HiddenTestAPIView(APIView):
             raise ValidationError({"clientId": "clientId is required"})
 
         redis_user_id = redis_client.get(client_id)
+        logger.info(f"Redis user ID: {redis_user_id}")
         if not redis_user_id:
             raise ValidationError({"clientId": "Invalid clientId"})
 
@@ -105,11 +107,16 @@ class HiddenTestAPIView(APIView):
         try:
             KafkaProducerSingleton.produce_message(
                 "hidden_test",
-                {
-                    "problem_id": problem_pk,
-                    "user_id": request.user.id,
-                },
-                delivery_report,
+                value=json.dumps(
+                    {
+                        "problem_id": problem_pk,
+                        "client_id": client_id,
+                        "bucket_name": "codesirius-tests-data",
+                        "grpc_server": "sse-server-dev:50051",  # same as SSE URL
+                        "user_id": request.user.id,
+                    }
+                ),
+                callback=delivery_report,
             )
             logger.info("Hidden tests processing initiated")
             return CodesiriusAPIResponse(message="Hidden tests processing initiated")
