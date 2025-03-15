@@ -8,9 +8,9 @@ from typing import Iterator, Generator
 
 import grpc
 
-from aws_client import AWSClient
-from hidden_test_process_pb2 import Status, ProcessRequest
-from hidden_test_process_pb2_grpc import HiddenTestProcessStub
+from hidden_test_consumer.aws_client import AWSClient
+from hidden_test_consumer.hidden_test_process_pb2 import Status, ProcessRequest
+from hidden_test_consumer.hidden_test_process_pb2_grpc import HiddenTestProcessStub
 
 
 def setup_logger(name: str, log_file: str = None):
