@@ -52,6 +52,7 @@ class HiddenTestProcessor:
         self.grpc_server = grpc_server
 
         self.download_dir = os.environ.get("DOWNLOAD_DIR", "/tmp")
+        self.persist_data = os.environ.get("PERSIST_DATA", False)
 
         if not self.problem_id:
             raise ValueError("Problem ID is required.")
@@ -247,6 +248,9 @@ class HiddenTestProcessor:
         """
         yield ProcessRequest(status=Status.INFO, message="🧹 Cleaning up...")
         time.sleep(5)
+
+        if self.persist_data:
+            return
 
         # remove archived files
         os.remove(f"{self.download_dir}/hidden-tests.zip")
