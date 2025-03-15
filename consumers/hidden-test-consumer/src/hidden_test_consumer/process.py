@@ -253,12 +253,16 @@ class HiddenTestProcessor:
             return
 
         # remove archived files
-        os.remove(f"{self.download_dir}/hidden-tests.zip")
-        os.remove(f"{self.download_dir}/bundled-hidden-tests.zip")
+        try:
+            os.remove(f"{self.download_dir}/hidden-tests.zip")
+            os.remove(f"{self.download_dir}/bundled-hidden-tests.zip")
 
-        # remove extracted directory
-        if os.path.exists(f"{self.download_dir}/extracted"):
-            shutil.rmtree(f"{self.download_dir}/extracted")
+            # remove extracted directory
+            if os.path.exists(f"{self.download_dir}/extracted"):
+                shutil.rmtree(f"{self.download_dir}/extracted")
+        except Exception as e:
+            self.logger.error(f"Error cleaning up: {e}")
+            yield ProcessRequest(status=Status.ERROR, message="Error cleaning up")
 
     def process(self) -> Iterator[ProcessRequest]:
         steps = [
@@ -282,6 +286,7 @@ class HiddenTestProcessor:
                 yield ProcessRequest(status=Status.ERROR, message="❌ Error processing")
                 yield ProcessRequest(status=Status.INFO, message="FINISHED_ERROR")
                 return
+
         yield ProcessRequest(status=Status.SUCCESS, message="🎉 Finished")
         yield ProcessRequest(status=Status.INFO, message="FINISHED_SUCCESS")
 
