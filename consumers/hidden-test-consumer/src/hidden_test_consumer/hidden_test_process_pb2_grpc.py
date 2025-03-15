@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import hidden_test_process_pb2 as hidden__test__process__pb2
+import hidden_test_consumer.hidden_test_process_pb2 as hidden__test__process__pb2
 
 GRPC_GENERATED_VERSION = '1.70.0'
 GRPC_VERSION = grpc.__version__
