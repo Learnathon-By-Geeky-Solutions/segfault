@@ -1,0 +1,7 @@
+.venv/
+.env
+.idea
+.dockerignore
+Dockerfile
+.pytest_cache
+hidden-test-consumer.log
