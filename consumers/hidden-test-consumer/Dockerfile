@@ -24,6 +24,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     chown -R codesirius:codesirius $POETRY_HOME
 
+# create a tmp directory at /tmp/codesirius
+RUN mkdir -p /tmp/codesirius && chown -R codesirius:codesirius /tmp/codesirius
+
 USER codesirius
 WORKDIR /home/codesirius/app
 
@@ -33,3 +36,4 @@ ARG DEV=false
 RUN poetry install --without dev && \
     if [ "$DEV" = "true" ]; then poetry install --only dev; fi
 
+CMD ["poetry", "run", "python3", "src/main.py"]
