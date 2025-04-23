@@ -23,13 +23,44 @@ def create_user(**params):
 
 
 class AuthenticationApiTests(TestCase):
-    """Test the public authentication API"""
+    """
+    Test case for the public authentication API.
+
+    This class contains test methods to verify the functionality of the
+    authentication API endpoints, specifically the signup endpoint.  It
+    uses Django's test framework and the Faker library to generate realistic
+    test data.
+    """
 
     def setUp(self):
+        """
+        Set up the test environment.
+
+        This method is called before each test method is executed.  It
+        initializes the following:
+            'self.client': An APIClient instance to make requests to the API.
+            'self.fake': A Faker instance to generate fake data for user
+            attributes.
+        """
         self.client = APIClient()
         self.fake = Faker()
 
     def generate_user_payload(self, password1=None, password2=None, override=None):
+        """
+        Generate a valid user payload with fake data.
+
+        Args:
+            password1 (str, optional): The password. If None, a random
+                password is generated.
+            password2 (str, optional): The password confirmation. If None,
+                it defaults to the value of password1.
+            override (dict, optional): A dictionary of fields to override
+                in the generated payload.
+
+        Returns:
+            dict: A dictionary containing user data (first name, last name,
+                email, username, password, and password confirmation).
+        """
         if not password1:
             password1 = self.fake.password()
         if not password2:
