@@ -122,7 +122,9 @@ class TagApiTests(TestCase):
         tag = create_tag()
         payload = {"name": "Updated Tag"}
 
-        res = self.client.patch(reverse("tag-retrieve-update-destroy", args=[tag.id]), payload)
+        res = self.client.patch(
+            reverse("tag-retrieve-update-destroy", args=[tag.id]), payload
+        )
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -132,7 +134,9 @@ class TagApiTests(TestCase):
         tag = create_tag()
         payload = {"name": "Updated Tag"}
 
-        res = self.client.patch(reverse("tag-retrieve-update-destroy", args=[tag.id]), payload)
+        res = self.client.patch(
+            reverse("tag-retrieve-update-destroy", args=[tag.id]), payload
+        )
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -162,4 +166,4 @@ class TagApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(res.data["message"], "Tag deleted")
-        self.assertFalse(Tag.objects.filter(id=tag.id).exists()) 
+        self.assertFalse(Tag.objects.filter(id=tag.id).exists())

@@ -5,7 +5,6 @@ Test cases for the SampleTest model
 from django.test import TestCase
 from problems.models import Problem
 from problems.models.sample_test import SampleTest
-from codesirius.models import BaseModel
 
 
 class SampleTestModelTests(TestCase):
@@ -35,4 +34,4 @@ class SampleTestModelTests(TestCase):
     def test_sample_test_str(self):
         """Test the string representation of a sample test"""
         expected_str = f"Sample test for {self.problem.title}"
-        self.assertEqual(str(self.sample_test), expected_str) 
+        self.assertEqual(str(self.sample_test), expected_str)

@@ -3,7 +3,7 @@ Test cases for the AWS client
 """
 
 from django.test import TestCase
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from codesirius.aws_client import AWSClient
 
 
@@ -28,7 +28,6 @@ class AWSClientTests(TestCase):
         client1 = AWSClient(self.service_name)
         # Create second instance
         client2 = AWSClient(self.service_name)
-        
         # Both instances should be the same object
         self.assertIs(client1, client2)
         # boto3.client should only be called once
@@ -40,7 +39,6 @@ class AWSClientTests(TestCase):
         # Create instances for different services
         s3_client = AWSClient("s3")
         dynamodb_client = AWSClient("dynamodb")
-        
         # Instances should be different
         self.assertIsNot(s3_client, dynamodb_client)
         # boto3.client should be called twice with different service names
@@ -52,7 +50,6 @@ class AWSClientTests(TestCase):
         # Create instances for different services
         s3_client = AWSClient("s3")
         dynamodb_client = AWSClient("dynamodb")
-        
         # Check that instances are stored in the class dictionary
         self.assertIn("s3", AWSClient._instances)
         self.assertIn("dynamodb", AWSClient._instances)
@@ -64,13 +61,10 @@ class AWSClientTests(TestCase):
         """Test that singleton instances can be reset."""
         # Create initial instance
         client1 = AWSClient(self.service_name)
-        
         # Reset the singleton
         AWSClient._instances = {}
-        
         # Create new instance
         client2 = AWSClient(self.service_name)
-        
         # Instances should be different after reset
         self.assertIsNot(client1, client2)
         # boto3.client should be called twice
@@ -80,22 +74,22 @@ class AWSClientTests(TestCase):
     def test_singleton_thread_safety(self, mock_boto3_client):
         """Test that singleton pattern is thread-safe."""
         import threading
-        
+
         def create_client():
             return AWSClient(self.service_name)
-        
+
         # Create multiple threads to create clients simultaneously
         threads = [threading.Thread(target=create_client) for _ in range(5)]
         for thread in threads:
             thread.start()
         for thread in threads:
             thread.join()
-        
+
         # All instances should be the same
         instances = [AWSClient(self.service_name) for _ in range(5)]
         first_instance = instances[0]
         for instance in instances[1:]:
             self.assertIs(first_instance, instance)
-        
+
         # boto3.client should only be called once
-        mock_boto3_client.assert_called_once() 
+        mock_boto3_client.assert_called_once()

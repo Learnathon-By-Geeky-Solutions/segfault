@@ -10,6 +10,8 @@ class EmailOrUsernameBackend(ModelBackend):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        if username is None:
+            return None
         try:
             # try to fetch user by email or username
             user = (

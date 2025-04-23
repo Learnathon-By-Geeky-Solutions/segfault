@@ -64,9 +64,7 @@ class SampleTestApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_207_MULTI_STATUS)
         self.assertEqual(len(res.data["data"]), 2)  # Check data array length
         self.assertEqual(SampleTest.objects.count(), 2)
-        self.assertEqual(
-            SampleTest.objects.get(id=self.sample_test.id).input, "2 3"
-        )
+        self.assertEqual(SampleTest.objects.get(id=self.sample_test.id).input, "2 3")
 
     def test_bulk_upsert_invalid_data(self):
         """Test bulk upsert with invalid data"""
@@ -119,4 +117,4 @@ class SampleTestApiTests(TestCase):
         res = self.client.delete(url)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(SampleTest.objects.count(), 1) 
+        self.assertEqual(SampleTest.objects.count(), 1)

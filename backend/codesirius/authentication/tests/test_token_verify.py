@@ -94,7 +94,7 @@ class TokenVerifyAPITests(TestCase):
         token = AccessToken.for_user(user_obj)
 
         # Manually expire the token by setting its expiration time to the past
-        token.set_exp(lifetime=timedelta(days=-1))  # Set expiration to 1 day in the past
+        token.set_exp(lifetime=timedelta(days=-1))  # Set expiration to 1 day in past
 
         # Verify the expired token
         res = self.client.post(self.verify_url, {"token": str(token)})
@@ -119,4 +119,4 @@ class TokenVerifyAPITests(TestCase):
 
         # Verify the modified token
         res = self.client.post(self.verify_url, {"token": modified_token})
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST) 
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

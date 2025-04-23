@@ -158,4 +158,4 @@ class TokenObtainPairAPITests(TestCase):
         res = self.client.post(
             self.obtain_url, {"username": "testuser", "password": ""}
         )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST) 
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
