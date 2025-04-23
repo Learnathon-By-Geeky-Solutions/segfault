@@ -61,41 +61,41 @@ class APIKeyAdmin(admin.ModelAdmin):
             # and include a copy button with an icon in the success message
             copy_button_html = format_html(
                 """
-                <span 
-                style="display: inline-flex; 
-                        align-items: center; 
-                        vertical-align: middle; 
+                <span
+                style="display: inline-flex;
+                        align-items: center;
+                        vertical-align: middle;
                         margin-left: 10px;">
-                    <button id="copyButton" onclick="copyToClipboard('{raw_key}')" 
+                    <button id="copyButton" onclick="copyToClipboard('{raw_key}')"
                         style="display: inline-flex;
                          align-items: center;
-                          vertical-align: middle; padding: 4px 10px; 
-                        background-color: #f0f0f0; border: 1px solid #d0d0d0; 
-                        border-radius: 4px; 
-                        font-weight: 500; cursor: pointer; color: #444; 
+                          vertical-align: middle; padding: 4px 10px;
+                        background-color: #f0f0f0; border: 1px solid #d0d0d0;
+                        border-radius: 4px;
+                        font-weight: 500; cursor: pointer; color: #444;
                         transition: all 0.2s;">
-                        <span style="display: inline-flex; align-items: center; 
-                            justify-content: center; width: 14px; height: 14px; 
+                        <span style="display: inline-flex; align-items: center;
+                            justify-content: center; width: 14px; height: 14px;
                             position: relative; margin-right: 4px;">
-                            <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" 
-                                width="14" height="14" viewBox="0 0 24 24" fill="none" 
-                                stroke="currentColor" stroke-width="2" 
-                                stroke-linecap="round" stroke-linejoin="round" 
+                            <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg"
+                                width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
                                 style="position: absolute; top: 0; left: 0;">
-                                <rect x="9" y="9" width="13" height="13" rx="2" 
+                                <rect x="9" y="9" width="13" height="13" rx="2"
                                     ry="2"></rect>
-                                <path 
+                                <path
                                     d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0
                                         1 2-2h9a2 2 0 0 1 2 2v1">
                                 </path>
                             </svg>
-                            <svg id="tickIcon" xmlns="http://www.w3.org/2000/svg" 
-                                width="14" height="14" viewBox="0 0 24 24" 
-                                fill="none" stroke="#4CAF50" stroke-width="2" 
-                                stroke-linecap="round" stroke-linejoin="round" 
+                            <svg id="tickIcon" xmlns="http://www.w3.org/2000/svg"
+                                width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="#4CAF50" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
                                 style="position: absolute;
                                         top: 0;
-                                         left: 0; 
+                                         left: 0;
                                         display: none;">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
@@ -145,12 +145,12 @@ class APIKeyAdmin(admin.ModelAdmin):
                     <div style="align-items: center;">
                         API Key: <span style="font-family: monospace;
                                     margin: 0 5px;">{}</span> {}
-                        <div style="font-weight: bold; 
-                                    color: #f57c00; 
+                        <div style="font-weight: bold;
+                                    color: #f57c00;
                                     margin-top: 8px;">
-                            <i class="fas fa-exclamation-triangle" 
+                            <i class="fas fa-exclamation-triangle"
                             style="margin-right: 8px;"></i>
-                            Important: Store this API key safely. For security reasons, 
+                            Important: Store this API key safely. For security reasons,
                             it will not be displayed again.
                         </div>
                     </div>
