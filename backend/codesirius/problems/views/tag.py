@@ -51,6 +51,12 @@ class TagRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TagSerializer
     permission_classes = [IsAdminOrReadOnly]
 
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Tag.DoesNotExist:
+            raise NotFound("Tag not found")
+
     def retrieve(self, request, *args, **kwargs):
         pk = kwargs.get("pk")
         logger.info(f"Fetching tag with ID: {pk}")
@@ -58,9 +64,6 @@ class TagRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             response = super().retrieve(request, *args, **kwargs)
             logger.info(f"Tag with ID: {pk} fetched successfully")
             return CodesiriusAPIResponse(data=response.data)
-        except Tag.DoesNotExist:
-            logger.warning(f"Tag with ID: {pk} not found")
-            raise NotFound("Tag not found")
         except Exception as e:
             logger.error(f"Error while fetching tag with ID: {pk} - {e}")
             raise APIException("Error while fetching tag")
@@ -68,31 +71,43 @@ class TagRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         pk = kwargs.get("pk")
         logger.info(f"Updating tag with ID: {pk}")
-        response = super().update(request, *args, **kwargs)
-        logger.info(f"Tag with ID: {pk} updated successfully")
-        return CodesiriusAPIResponse(
-            data={"id": response.data.get("id")},
-            status_code=status.HTTP_200_OK,
-            message="Tag updated",
-        )
+        try:
+            response = super().update(request, *args, **kwargs)
+            logger.info(f"Tag with ID: {pk} updated successfully")
+            return CodesiriusAPIResponse(
+                data=response.data,
+                status_code=status.HTTP_200_OK,
+                message="Tag updated",
+            )
+        except Exception as e:
+            logger.error(f"Error while updating tag with ID: {pk} - {e}")
+            raise APIException("Error while updating tag")
 
     def partial_update(self, request, *args, **kwargs):
         pk = kwargs.get("pk")
         logger.info(f"Partially updating tag with ID: {pk}")
-        response = super().partial_update(request, *args, **kwargs)
-        logger.info(f"Tag with ID: {pk} partially updated successfully")
-        return CodesiriusAPIResponse(
-            data={"id": response.data.get("id")},
-            status_code=status.HTTP_200_OK,
-            message="Tag updated",
-        )
+        try:
+            response = super().partial_update(request, *args, **kwargs)
+            logger.info(f"Tag with ID: {pk} partially updated successfully")
+            return CodesiriusAPIResponse(
+                data=response.data,
+                status_code=status.HTTP_200_OK,
+                message="Tag updated",
+            )
+        except Exception as e:
+            logger.error(f"Error while partially updating tag with ID: {pk} - {e}")
+            raise APIException("Error while updating tag")
 
     def destroy(self, request, *args, **kwargs):
         pk = kwargs.get("pk")
         logger.info(f"Deleting tag with ID: {pk}")
-        super().destroy(request, *args, **kwargs)
-        logger.info(f"Tag with ID: {pk} deleted successfully")
-        return CodesiriusAPIResponse(
-            status_code=status.HTTP_204_NO_CONTENT,
-            message="Tag deleted",
-        )
+        try:
+            super().destroy(request, *args, **kwargs)
+            logger.info(f"Tag with ID: {pk} deleted successfully")
+            return CodesiriusAPIResponse(
+                status_code=status.HTTP_204_NO_CONTENT,
+                message="Tag deleted",
+            )
+        except Exception as e:
+            logger.error(f"Error while deleting tag with ID: {pk} - {e}")
+            raise APIException("Error while deleting tag")

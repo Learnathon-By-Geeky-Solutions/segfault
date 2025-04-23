@@ -1,9 +1,10 @@
 from django.db import models
 
+from codesirius.models import BaseModel
 from problems.models import Problem
 
 
-class SampleTest(models.Model):
+class SampleTest(BaseModel):
     problem = models.ForeignKey(
         Problem, on_delete=models.CASCADE, related_name="sample_tests"
     )
