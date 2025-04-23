@@ -9,7 +9,7 @@ from codesirius.codesirius_api_response import CodesiriusAPIResponse
 
 
 class TokenObtainPairAPIView(TokenObtainPairView):
-     """
+    """
     API endpoint for obtaining JWT access and refresh tokens upon user sign-in.
 
     This view extends `TokenObtainPairView` from `rest_framework_simplejwt`

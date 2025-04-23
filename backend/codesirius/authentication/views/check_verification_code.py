@@ -8,7 +8,7 @@ from codesirius.codesirius_api_response import CodesiriusAPIResponse
 
 
 def get_tokens_for_user(user):
-       """
+    """
     Generates JWT refresh and access tokens for a given user.
     Args:
         user: An instance of the user model.
@@ -26,7 +26,7 @@ def get_tokens_for_user(user):
 
 
 class CheckVerificationCodeAPIView(APIView):
-      """
+    """
     API endpoint to check the user's verification code and activate the user account.
 
       Accepts POST requests with the verification code.
@@ -36,7 +36,7 @@ class CheckVerificationCodeAPIView(APIView):
       Returns JWT refresh and access tokens for the activated user.
     """
     def post(self, request, user_id):
-         """
+        """
         This method is used to verify the verification code for a user.
 
         Args:
