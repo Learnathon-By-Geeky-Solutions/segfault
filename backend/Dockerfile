@@ -9,6 +9,9 @@ COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 EXPOSE 8000
 
 ARG DEV=false
+ARG GID=1000
+ARG UID=1000
+
 RUN pip install --upgrade pip && \
     apt-get update && apt-get install -y --no-install-recommends postgresql-client && \
     apt-get install -y --no-install-recommends build-essential libpq-dev && \
@@ -16,7 +19,8 @@ RUN pip install --upgrade pip && \
     if [ "$DEV" = "true" ]; then pip install -r /tmp/requirements.dev.txt; fi && \
     rm -rf /var/lib/apt/lists/* /tmp && \
     mkdir -p /app/codesirius/logs && \
-    adduser --disabled-password --no-create-home codesirius && \
+    groupadd -g $GID codesirius || true && \
+    useradd -u $UID -g $GID -m codesirius && \
     chown -R codesirius /app/codesirius
 
 USER codesirius
