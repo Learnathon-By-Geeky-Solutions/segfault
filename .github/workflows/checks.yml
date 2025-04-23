@@ -49,9 +49,6 @@ jobs:
       - name: Build the images
         run: docker compose build backend
 
-      - name: Create a shared network
-        run: docker network create shared
-
       - name: Run the containers
         run: docker compose up -d backend
 
