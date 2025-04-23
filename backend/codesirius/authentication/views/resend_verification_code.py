@@ -32,7 +32,8 @@ class ResendVerificationCodeAPIView(APIView):
                     should be resent.  This is typically obtained from the URL path.
 
             Returns:
-                CodesiriusAPIResponse: A custom API response with the following structure:
+                CodesiriusAPIResponse:
+                A custom API response with the following structure:
                     {
                         "data": {
                             "user_id": int,

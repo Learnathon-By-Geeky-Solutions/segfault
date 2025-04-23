@@ -41,10 +41,10 @@ class CodesiriusAPIResponse(Response):
             "timestamp": timestamp,
         }
         """
-        Calling the Parent Constructor: Finally, it calls the __init__ method 
-        of the parent Response class 
+        Calling the Parent Constructor: Finally, it calls the __init__ method
+        of the parent Response class
         (super().__init__(response_data, status=status_code, **kwargs))
-        to create the actual HTTP response with the constructed response_data and 
+        to create the actual HTTP response with the constructed response_data and
         the specified status_code.
         """
         if data is not None:

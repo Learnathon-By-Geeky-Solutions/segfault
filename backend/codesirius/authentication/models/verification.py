@@ -41,11 +41,14 @@ class VerificationCode(BaseModel):
         Code Storage:  Stores the verification code as a CharField.
         Usage Tracking:  Flags for whether the code has been used and when.
         Expiration:  A DateTimeField to ensure codes are valid for a limited time.
-        Automatic Code Generation:  Generates a random code if not provided during initialization.
+        Automatic Code Generation:  Generates a random code if not provided during
+                                    initialization.
         Automatic Expiration: Sets a default expiration of 5 minutes.
-        Code Regeneration:  Provides a method to regenerate the code and reset its usage status.
+        Code Regeneration:  Provides a method to regenerate the code
+                            and reset its usage status.
         Validation:  Provides a method to check if the code is valid.
-        Automatic Email Sending:  Sends the verification code to the user's email upon saving.
+        Automatic Email Sending:  Sends the verification code to the
+                                    user's email upon saving.
 
     Usage:
     This model is used to manage the verification process, typically during user
