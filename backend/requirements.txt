@@ -40,3 +40,4 @@ zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
 django-prometheus
 confluent-kafka
 boto3
+redis
