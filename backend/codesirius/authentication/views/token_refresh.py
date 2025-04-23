@@ -13,6 +13,7 @@ class TokenRefreshAPIView(TokenRefreshView):
     `CodesiriusTokenRefreshSerializer` for serializing the refresh token
     data and returns a `CodesiriusAPIResponse` with the new access token.
     """
+
     serializer_class = CodesiriusTokenRefreshSerializer
 
     def post(self, request, *args, **kwargs):
@@ -23,7 +24,8 @@ class TokenRefreshAPIView(TokenRefreshView):
         and returns a new access token in a `CodesiriusAPIResponse`.
 
         Args:
-            request (Request): The incoming HTTP request object containing the refresh token.
+            request (Request): The incoming HTTP request object
+                                containing the refresh token.
             *args:  Additional positional arguments.
             **kwargs: Additional keyword arguments.
 
@@ -41,8 +43,9 @@ class TokenRefreshAPIView(TokenRefreshView):
                 The "message" is "Token refreshed".
 
         Raises:
-            rest_framework.exceptions.ValidationError: If the serializer data is invalid
-                (e.g., invalid or expired refresh token).
+            rest_framework.exceptions.ValidationError:
+            If the serializer data is invalid
+            (e.g., invalid or expired refresh token).
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

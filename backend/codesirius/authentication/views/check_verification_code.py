@@ -12,10 +12,10 @@ def get_tokens_for_user(user):
     Generates JWT refresh and access tokens for a given user.
     Args:
         user: An instance of the user model.
-    RefreshToken.for_user(user) creates a new RefreshToken instance associated with the provided user.
+    RefreshToken.for_user(user) creates a new RefreshToken instance associated
+    with the provided user.
     Returns:
         dict: A dictionary containing the refresh and access tokens.
-            
     """
     refresh = RefreshToken.for_user(user)
 
@@ -35,6 +35,7 @@ class CheckVerificationCodeAPIView(APIView):
       Upon successful verification, sets the user's `is_active` status to True.
       Returns JWT refresh and access tokens for the activated user.
     """
+
     def post(self, request, user_id):
         """
         This method is used to verify the verification code for a user.
@@ -74,7 +75,8 @@ class CheckVerificationCodeAPIView(APIView):
         # on the provided user_id and the matching verification code) is available
         # in the serializer's context.
         user = serializer.context["user"]
-        # Set the user's 'is_active' field to True, effectively activating the user account.
+        # Set the user's 'is_active' field to True, effectively activating the user
+        # account.
         user.is_active = True
         # Save the changes to the user object in the database.
         user.save()

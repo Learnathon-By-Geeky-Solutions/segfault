@@ -13,6 +13,7 @@ class WhoAmIView(APIView):
     a `CodesiriusAPIResponse` containing a dictionary with various user
     attributes.
     """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -44,8 +45,9 @@ class WhoAmIView(APIView):
                 - "updatedAt" (datetime): The timestamp when the user was last updated.
                 - "createdBy" (int, optional): The ID of the user who created this user,
                   or None if not available.
-                - "updatedBy" (int, optional): The ID of the user who last updated this user,
-                  or None if not available.
+                - "updatedBy" (int, optional): The ID of the user
+                                                who last updated this user,
+                                                or None if not available.
         """
         user_details = {
             "id": request.user.id,

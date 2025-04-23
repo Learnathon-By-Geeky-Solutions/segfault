@@ -53,6 +53,7 @@ class VerificationCode(BaseModel):
     user, the code is sent to the user, and the user must provide the code to
     complete the verification process.
     """
+
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     is_used = models.BooleanField(default=False)
@@ -114,7 +115,8 @@ class VerificationCode(BaseModel):
         """
         Returns a string representation of the VerificationCode instance.
 
-        The string includes the username of the associated user and the verification code.
+        The string includes the username of the associated user
+        and the verification code.
 
         Returns:
             str: A string representing the VerificationCode instance.
@@ -195,6 +197,7 @@ class VerificationCode(BaseModel):
         """
         Metadata for the VerificationCode model.
         """
+
         verbose_name = "Verification Code"
         verbose_name_plural = "Verification Codes"
         ordering = ["-created_at"]

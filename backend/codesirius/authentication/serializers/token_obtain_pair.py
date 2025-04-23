@@ -7,7 +7,8 @@ from rest_framework_simplejwt.serializers import (
 
 class CodesiriusTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
-    Serializer for obtaining JWT token pairs (access and refresh) for user authentication.
+    Serializer for obtaining JWT token pairs
+    (access and refresh) for user authentication.
 
     This serializer extends the `TokenObtainPairSerializer` from the
     `rest_framework_simplejwt` library, customizing it for the Codesirius
@@ -60,13 +61,15 @@ class CodesiriusTokenObtainPairSerializer(TokenObtainPairSerializer):
         7.  Returns the validated attributes.
 
         Args:
-            attrs (dict): A dictionary containing the input data (username and password).
+            attrs (dict): A dictionary containing the input data
+                        (username and password).
 
         Returns:
             dict: The validated data, including the token pair.
 
         Raises:
-            AuthenticationFailed: If authentication fails or the user account is not active.
+            AuthenticationFailed: If authentication fails or
+                                    the user account is not active.
         """
         username_field = self.username_field
         credentials = {
