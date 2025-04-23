@@ -5,7 +5,7 @@ from codesirius.codesirius_api_response import CodesiriusAPIResponse
 
 
 class WhoAmIView(APIView):
-     """
+    """
     API endpoint to retrieve the currently authenticated user's details.
 
     This view extends `APIView` and uses the `IsAuthenticated` permission

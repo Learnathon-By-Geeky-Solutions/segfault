@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 class SignupAPIView(APIView):
-      """
+    """
     API endpoint for user registration.
 
     This view handles user signups by accepting user data, validating it
