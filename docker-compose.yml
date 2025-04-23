@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -7,6 +5,8 @@ services:
       dockerfile: Dockerfile
       args:
         - DEV=true
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     ports:
       - "8000:8000"
     volumes:
