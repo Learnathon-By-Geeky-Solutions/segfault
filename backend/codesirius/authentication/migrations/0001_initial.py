@@ -6,6 +6,11 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """
+    Initial migration for the authentication app.
+
+    This migration creates the 'User' and 'VerificationCode' models.
+    """
 
     initial = True
 

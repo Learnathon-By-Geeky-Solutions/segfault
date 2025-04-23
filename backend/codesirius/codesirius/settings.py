@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "authentication",
     "problems",
+    "internal_api",
 ]
 
 MIDDLEWARE = [

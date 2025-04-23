@@ -1,7 +1,7 @@
 import React from 'react';
 import {headers} from "next/headers";
 import {User} from "@/lib/features/api/types";
-import AddProblemButton from "@/app/problems/add-problem-button";
+import CreateProblemButton from "@/app/problems/create-problem-button";
 import Grid from "@mui/material/Grid2";
 import ProblemsList from "@/app/problems/problems-list";
 
@@ -20,7 +20,7 @@ const Page = async () => {
     return (
         <Grid container>
             <Grid size={12}>
-                {user && <AddProblemButton />}
+                {user && <CreateProblemButton />}
             </Grid>
             <Grid size={12}>
                 <ProblemsList />

@@ -8,6 +8,24 @@ User = get_user_model()
 class SignupSerializer(serializers.Serializer):
     """
     Serializer for signing up a new user.
+
+    This serializer handles the validation and creation of new user accounts.
+    It defines the fields required for signup, including first name, last name,
+    email, username, and password (with confirmation).  It also ensures that
+    the email and username are unique.
+
+    The serializer performs the following actions:
+        Validates input data for required fields, data types, and constraints.
+        Ensures that the provided email and username are unique within the
+        system.
+        Confirms that the password and password confirmation match.
+        Has a create method.
+
+    Usage:
+    This serializer is used to process user signup data.  It takes the raw input
+    data from a request, validates it according to the defined fields and
+    rules, and returns the validated data, which can then be used to create a
+    new user account.
     """
 
     firstName = serializers.CharField(
@@ -77,6 +95,23 @@ class SignupSerializer(serializers.Serializer):
     )
 
     def validate(self, data):
+        """
+        Validates the input data for user signup.
+
+        This method performs the following validation checks:
+            Ensures that the two password fields match.
+            Removes the password2 field from the validated data.
+            Renames the password1 field to password.
+
+        Args:
+            data (dict): A dictionary containing the input data for signup.
+
+        Returns:
+            dict: The validated data.
+
+        Raises:
+            serializers.ValidationError: If the passwords do not match.
+        """
         if data["password1"] != data["password2"]:
             raise serializers.ValidationError({"password2": ["Passwords do not match"]})
         # Remove password2 from the validated data
@@ -88,9 +123,17 @@ class SignupSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         """
-        Step 1: Create a new user with is_active=False
-        Step 2: Generate a verification code
-        Step 3: Send the verification code to the user
+        Creates a new user with is_active=False.
+
+        This method creates a new user with the data provided.  It enforces
+        that the user is initially inactive (`is_active=False`).
+
+        Args:
+            validated_data (dict): A dictionary containing the validated data
+                for the new user.
+
+        Returns:
+            User: The newly created user object.
         """
         user = User.objects.create_user(
             is_active=False, **validated_data

@@ -27,6 +27,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Create a shared docker network
+        run: docker network create shared
+
       - name: Set up environment variables
         run: |
           touch .env
@@ -36,6 +39,7 @@ jobs:
           echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
           echo DJANGO_DEBUG="False" >> .env
           echo DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+          touch consumers/email-consumer/.env
 
       - name: Fix permission
         run: |

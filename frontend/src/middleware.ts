@@ -60,6 +60,7 @@ export async function middleware(req: NextRequest) {
 
     // add user to headers
     req.headers.set("x-user", JSON.stringify(user));
+    req.headers.set("Authorization", `Bearer ${accessToken}`);
 
     // check if user tries to access /signin or /signup while signed in
     const url = req.nextUrl.clone();

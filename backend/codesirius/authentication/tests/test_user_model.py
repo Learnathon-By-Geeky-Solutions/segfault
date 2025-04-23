@@ -1,5 +1,5 @@
 """
-Test the user model
+Test cases for the authentication API
 """
 
 from django.contrib.auth import get_user_model
@@ -7,10 +7,24 @@ from django.test import TestCase
 
 
 class ModelTests(TestCase):
+    """
+    Test case for the custom User model.
+
+    This class contains test methods to verify the functionality of the
+    custom User model, including user creation with various scenarios
+    and superuser creation. It tests for successful user creation as well
+    as expected errors when required fields are missing.
+    """
 
     def test_create_user_with_first_name_email_username_password_successful(self):
-        """Test creating a new user with
-        first name, email, username and password is successful"""
+        """
+        Test creating a new user with all required fields is successful.
+
+        This test ensures that a user can be created successfully when
+        provided with a first name, email, username, and password.  It
+        checks that the user's attributes are set correctly and that the
+        password is hashed properly.
+        """
         first_name = "Test"
         email = "test@example.com"
         username = "testusername"
@@ -25,7 +39,13 @@ class ModelTests(TestCase):
         self.assertTrue(user.check_password(password))
 
     def test_create_user_without_first_name_raises_error(self):
-        """Test creating user without first name raises error"""
+        """
+        Test creating a user without a first name raises a ValueError.
+
+        This test verifies that a ValueError is raised when attempting to
+        create a user without providing a first name, both with an empty
+        string and with None.
+        """
         email = "test1@example.com"
         username = "testusername1"
         password = "testpassword"
@@ -40,7 +60,13 @@ class ModelTests(TestCase):
             )
 
     def test_create_user_without_email_raises_error(self):
-        """Test creating user without email raises error"""
+        """
+        Test creating a user without an email raises a ValueError.
+
+        This test verifies that a ValueError is raised when attempting to
+        create a user without providing an email, both with an empty
+        string and with None.
+        """
         first_name = "Test"
         username = "testusername3"
         password = "testpassword"
@@ -55,7 +81,13 @@ class ModelTests(TestCase):
             )
 
     def test_create_user_without_username_raises_error(self):
-        """Test creating user without username raises error"""
+        """
+        Test creating a user without a username raises a ValueError.
+
+        This test verifies that a ValueError is raised when attempting to
+        create a user without providing a username, both with an empty
+        string and with None.
+        """
         first_name = "Test"
         email = "test3@example.com"
         password = "testpassword"
@@ -70,7 +102,13 @@ class ModelTests(TestCase):
             )
 
     def test_create_user_without_password_raises_error(self):
-        """Test creating user without password raises error"""
+        """
+        Test creating a user without a password raises a ValueError.
+
+        This test verifies that a ValueError is raised when attempting to
+        create a user without providing a password, both with an empty
+        string and with None.
+        """
         first_name = "Test"
         email = "test4@example.com"
         username = "testusername4"
@@ -85,7 +123,14 @@ class ModelTests(TestCase):
             )
 
     def test_new_user_email_normalized(self):
-        """Test the email for a new user is normalized"""
+        """
+        Test that the email for a new user is normalized.
+
+        This test checks that the email address is converted to lowercase
+        when a new user is created, ensuring consistency in email storage.
+        It tests various cases of uppercase and lowercase combinations
+        in the email address.
+        """
         first_name = "Test"
         password = "testpassword"
         sample_emails = [
@@ -103,7 +148,13 @@ class ModelTests(TestCase):
             self.assertEqual(user.email, expected_email)
 
     def test_create_superuser(self):
-        """Test creating a new superuser"""
+        """
+        Test creating a new superuser.
+
+        This test verifies that a superuser can be created successfully
+        with the create_superuser method.  It checks that the is_superuser
+        and is_staff attributes are set to True.
+        """
         first_name = "Test Super"
         email = "admin@example.com"
         username = "testsuperuser"
