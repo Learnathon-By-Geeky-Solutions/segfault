@@ -18,6 +18,7 @@ class SignupAPIView(APIView):
     using the `SignupSerializer`, creating a new user, generating a
     verification code, and returning a success response.
     """
+
     def post(self, request):
         """
         Registers a new user.
@@ -30,7 +31,8 @@ class SignupAPIView(APIView):
         `ValidationError` with the serializer errors.
 
         Args:
-            request (Request): The incoming HTTP request object containing the user data.
+            request (Request): The incoming HTTP request object
+                                containing the user data.
 
         Returns:
             CodesiriusAPIResponse: A custom API response with the following structure:
@@ -42,8 +44,9 @@ class SignupAPIView(APIView):
                     "statusCode": int,
                     "message": str
                 }
-                The "data" contains the new user's ID and initial active status (which is typically False).
-                The "statusCode" is set to 201 (HTTP_CREATED) on success, and the "message" indicates
+                The "data" contains the new user's ID and initial active status
+                (which is typically False). The "statusCode" is set to
+                201 (HTTP_CREATED) on success, and the "message" indicates
                 the user creation status.
 
         Raises:

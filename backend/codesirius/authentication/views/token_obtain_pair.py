@@ -17,6 +17,7 @@ class TokenObtainPairAPIView(TokenObtainPairView):
     `CodesiriusTokenObtainPairSerializer` for serializing the token data
     and returns a `CodesiriusAPIResponse` with the tokens.
     """
+
     serializer_class = CodesiriusTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
@@ -27,7 +28,8 @@ class TokenObtainPairAPIView(TokenObtainPairView):
         and returns it in a `CodesiriusAPIResponse`.
 
         Args:
-            request (Request): The incoming HTTP request object containing the user credentials.
+            request (Request): The incoming HTTP request object
+                                containing the user credentials.
             *args:  Additional positional arguments.
             **kwargs: Additional keyword arguments.
 
@@ -47,7 +49,8 @@ class TokenObtainPairAPIView(TokenObtainPairView):
 
         Raises:
             rest_framework.exceptions.AuthenticationFailed: If authentication fails.
-            rest_framework.exceptions.ValidationError: If the serializer data is invalid.
+            rest_framework.exceptions.ValidationError:
+                                                    If the serializer data is invalid.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

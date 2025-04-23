@@ -24,7 +24,8 @@ class TokenVerifyAPIView(TokenVerifyView):
         if the token is valid.
 
         Args:
-            request (Request): The incoming HTTP request object containing the token to verify.
+            request (Request): The incoming HTTP request object containing the token
+                                to verify.
             *args:  Additional positional arguments.
             **kwargs: Additional keyword arguments.
 
