@@ -148,6 +148,8 @@ services:
     volumes:
       - ./frontend/src:/app/src
     working_dir: /app
+    env_file:
+      - frontend/.env
     command: >
       sh -c  "npm run dev"
     profiles:
@@ -165,6 +167,8 @@ services:
       - "3030:3030"
     volumes:
       - ./frontend/src:/app/src
+    env_file:
+      - frontend/.env
     working_dir: /app
     command: >
       sh -c  "npm run build && npm run start"
