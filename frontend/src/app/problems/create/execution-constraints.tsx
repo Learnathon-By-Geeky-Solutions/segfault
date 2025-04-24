@@ -140,29 +140,29 @@ const ExecutionConstraints = ({
             if (isFetchBaseQueryError(err)) {
                 const apiError = err.data as APIError;
                 if (apiError.status === 400 && apiError.errors) {
-                    apiError.errors.forEach((error: FieldError, index) => {
-                      if (error.field === "executionConstraints") {
-                          if (error?.message?.memoryLimit) {
-                                setExecutionConstraintsError((prev) => {
-                                    const newErrors = [...prev];
-                                    newErrors[index] = {
-                                        timeLimit: "",
-                                        memoryLimit: error.message.memoryLimit,
-                                    }
-                                    return newErrors;
-                                });
-                          }
-                          if (error?.message?.timeLimit) {
-                                setExecutionConstraintsError((prev) => {
-                                    const newErrors = [...prev];
-                                    newErrors[index] = {
-                                        timeLimit: error.message.timeLimit,
-                                        memoryLimit: "",
-                                    }
-                                    return newErrors;
-                                });
-                          }
-                      }
+                    apiError.errors.forEach((error: FieldError) => {
+                        if (error.field === "memoryLimit") {
+                            setExecutionConstraintsError((prev) => {
+                                if (error.index === undefined) return prev;
+                                const newErrors = [...prev];
+                                newErrors[error.index] = {
+                                    timeLimit: newErrors[error.index].timeLimit,
+                                    memoryLimit: error.message
+                                }
+                                return newErrors;
+                            });
+                        }
+                        if (error.field === "timeLimit") {
+                            setExecutionConstraintsError((prev) => {
+                                if (error.index === undefined) return prev;
+                                const newErrors = [...prev];
+                                newErrors[error.index] = {
+                                    timeLimit: error.message,
+                                    memoryLimit: newErrors[error.index].memoryLimit
+                                }
+                                return newErrors;
+                            });
+                        }
                     })
                 }
             }

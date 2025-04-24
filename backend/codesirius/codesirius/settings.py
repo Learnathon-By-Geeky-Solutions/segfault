@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "django_prometheus",
     "rest_framework",
     "drf_spectacular",
+    "internal_api",
     "authentication",
     "problems",
     "internal_api",

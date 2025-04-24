@@ -1,3 +1,4 @@
+import json
 import logging
 
 from rest_framework import status
@@ -7,10 +8,18 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from codesirius.codesirius_api_response import CodesiriusAPIResponse
+from codesirius.kafa_producer import KafkaProducerSingleton
 from problems.models import ReferenceSolution, Problem
 from problems.serializers.reference_solution import ReferenceSolutionSerializer
 
 logger = logging.getLogger(__name__)
+
+
+def delivery_report(err, msg):
+    if err:
+        print(f"❌ Message delivery failed: {err}")
+    else:
+        print(f"✅ Message delivered to {msg.topic()} [{msg.partition()}]")
 
 
 class IsProblemOwner(IsAuthenticated):
@@ -52,15 +61,29 @@ class ReferenceSolutionListCreateAPIView(APIView):
         except Problem.DoesNotExist:
             logger.error(f"Problem with ID: {problem_pk} does not exist")
             raise NotFound("Problem does not exist")
-        serializer = ReferenceSolutionSerializer(
-            data=request.data, context={"request": request, "problem": problem}
-        )
+
+        # add the problem to the request data
+        request.data["problemId"] = problem.pk
+        logger.info(f"Request data: {request.data}")
+        serializer = ReferenceSolutionSerializer(data=request.data)
         if serializer.is_valid():
             reference_solution = serializer.save()
             logger.info(
                 f"Reference solution created successfully with ID: \
                     {reference_solution.id}"
             )
+            KafkaProducerSingleton.produce_message(
+                "reference_solution",
+                value=json.dumps(
+                    {
+                        "reference_solution_id": reference_solution.id,
+                        "grpc_server": "sse-server-dev:50051",  # same as SSE URL
+                        # TODO: pull grpc_server from environment variables
+                    }
+                ),
+                callback=delivery_report,
+            )
+            logger.info("Reference solution processing initiated")
             return CodesiriusAPIResponse(
                 data={"id": reference_solution.id},
                 status_code=status.HTTP_201_CREATED,
@@ -109,6 +132,7 @@ class ReferenceSolutionRetrieveUpdateDestroyAPIView(APIView):
         except ReferenceSolution.DoesNotExist:
             logger.warning(f"Reference solution with ID: {pk} not found")
             raise NotFound("Reference solution not found")
+        # TODO: remove passing problem to the context
         serializer = ReferenceSolutionSerializer(
             instance=reference_solution, data=request.data, context={"problem": problem}
         )
@@ -139,6 +163,7 @@ class ReferenceSolutionRetrieveUpdateDestroyAPIView(APIView):
         except ReferenceSolution.DoesNotExist:
             logger.warning(f"Reference solution with ID: {pk} not found")
             raise NotFound("Reference solution not found")
+        # TODO: remove passing problem to the context
         serializer = ReferenceSolutionSerializer(
             instance=reference_solution,
             data=request.data,

@@ -9,3 +9,8 @@ export interface Tag {
     name: string;
     description: string;
 }
+
+export interface HiddenTest {
+    id: number;
+    test_count: number;
+}

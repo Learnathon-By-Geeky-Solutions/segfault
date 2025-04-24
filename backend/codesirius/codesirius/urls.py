@@ -36,5 +36,6 @@ urlpatterns = [
     path("api/v1/auth/", include("authentication.urls")),
     path("api/v1/health/", health_check, name="health_check"),
     path("api/v1/problems/", include("problems.urls")),
+    path("api/internal/v1/", include("internal_api.urls")),
     re_path(r"^.*$", Fallback404View.as_view(), name="fallback_404"),
 ]

@@ -17,7 +17,8 @@ RUN if [ "$NODE_ENV" = "production" ]; then \
 FROM builder AS final
 WORKDIR /app
 
-EXPOSE 3000
+EXPOSE 4000
+EXPOSE 50051
 
 COPY package*.json ./
 COPY --from=builder /app/node_modules ./node_modules

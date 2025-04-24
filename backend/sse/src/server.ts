@@ -9,42 +9,66 @@ import {v4 as uuidv4} from "uuid";
 import Redis from "ioredis";
 import cookieParser from "cookie-parser";
 
-const PROTO_PATH = path.join(__dirname, "../src/proto/hidden_test_process.proto");
+/******************** Load proto files and prepare service definitions *********************/
+const PROTO_PATHS = [
+    path.join(__dirname, "../src/proto/hidden_test_process.proto"),
+    path.join(__dirname, "../src/proto/reference_solution.proto"),
+];
 
 
-// load the proto file
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-    keepCase: true,
-    longs: String,
-    enums: String,
-    defaults: true,
-    oneofs: true,
-});
+const loadProtos = (protoPaths: string[]) => {
+    const packageDefinitions = protoPaths.map((protoPath) =>
+        protoLoader.loadSync(protoPath, {
+            keepCase: true,
+            longs: String,
+            enums: String,
+            defaults: true,
+            oneofs: true,
+        })
+    );
+    return packageDefinitions.map((packageDefinition) =>
+        grpc.loadPackageDefinition(packageDefinition) as any
+    );
+};
 
-const hiddenTestProcessProto: any =
-    grpc.loadPackageDefinition(packageDefinition).hidden_test_process;
+// destructuring the service definitions
+const [hiddenTestProcessProto, referenceSolution] = loadProtos(PROTO_PATHS);
 
-/**
- * Implement the streamHiddenTestProcess
- */
+const hiddenTestProcessService = hiddenTestProcessProto.hidden_test_process.HiddenTestProcess.service;
+const referenceSolutionService = referenceSolution.reference_solution.ReferenceSolution.service;
+
+/******************** Redis Connection ********************/
 const redis = new Redis({
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT || "6379"),
 });
 
+redis.on("connect", () => {
+    console.log("Connected to Redis");
+});
+
+redis.on("error", (err) => {
+    console.error(err);
+});
+
+
+// Keep track of connected clients
 const clients: Map<string, Response> = new Map();
 
+/****************** Implement streaming services ******************/
 const streamHiddenTestProcess = async (call: any, callback: Function) => {
     console.log(`Metadata: ${JSON.stringify(call.metadata)}`);
     const clientId = call.metadata.get("client_id")[0];
-    console.log(`submission-consumer started streaming for client ${clientId}`);
+    console.log(`hidden-test-consumer started streaming for client ${clientId}`);
 
-    call.on("data", async (data: {status: string, message: string }) => {
+    call.on("data", async (data: { status: string, message: string }) => {
         console.log(`Received data: ${JSON.stringify(data)}`);
         const response = clients.get(clientId);
         if (response) {
             console.log(`Sending data to client ${clientId}`);
             response.write(`data: ${JSON.stringify(data)}\n\n`);
+        } else {
+            console.log(`Stale client ${clientId}`);
         }
     });
 
@@ -55,9 +79,17 @@ const streamHiddenTestProcess = async (call: any, callback: Function) => {
     });
 }
 
-// Create a gRPC server
+const streamReferenceSolution = async (call: any, callback: Function) => {
+    // TODO: Implement the streaming service
+}
+
+
+/******************** gRPC server ********************/
 const server = new grpc.Server();
-server.addService(hiddenTestProcessProto.HiddenTestProcess.service, {streamHiddenTestProcess});
+// Add the service to the server
+server.addService(hiddenTestProcessService, {streamHiddenTestProcess});
+server.addService(referenceSolutionService, {streamReferenceSolution});
+// Start the server
 const address = "0.0.0.0:50051";
 server.bindAsync(address, grpc.ServerCredentials.createInsecure(), (error, port) => {
     if (error) {
@@ -68,14 +100,7 @@ server.bindAsync(address, grpc.ServerCredentials.createInsecure(), (error, port)
 });
 
 
-redis.on("connect", () => {
-    console.log("Connected to Redis");
-});
-
-redis.on("error", (err) => {
-    console.error(err);
-});
-
+/****************** Express Server ******************/
 const app = express();
 const PORT = 4000;
 
@@ -101,6 +126,10 @@ app.use(express.json());
 
 
 const authenticate = async (authorization: string) => {
+    /*
+        * Authenticate the user using the access token
+        * This is a helper function to authenticate the user at middleware level
+     */
     try {
         const authResponse = await fetch(`${process.env.DJANGO_BACKEND_URL}/api/v1/auth/whoami`, {
             method: "GET",
@@ -115,7 +144,7 @@ const authenticate = async (authorization: string) => {
     }
 }
 
-
+// Default Route
 app.get("/", (req: Request, res: Response) => {
     res.send("SSE Server is running...");
 });
@@ -159,7 +188,7 @@ app.get("/events/:clientId/hidden-tests", async (req: Request, res: Response) =>
         }
         const user = await response.json();
         console.log(user);
-        const clientId = req.params.clientId;
+        let clientId = req.params.clientId;
         const userId = await redis.get(clientId);
         console.log(`User ID: ${userId}, Client ID: ${clientId}`);
         if (!userId) {
@@ -168,6 +197,8 @@ app.get("/events/:clientId/hidden-tests", async (req: Request, res: Response) =>
         }
         if (userId !== null && parseInt(userId) !== user.data.id) {
             res.status(401).json({error: "Unauthorized"});
+            // invalidate the client id otherwise it will be deleted from redis when this connection is closed
+            clientId = "";
             return;
         }
         console.log(`Client ${clientId} connected`);

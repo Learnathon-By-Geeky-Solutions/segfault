@@ -1,7 +1,7 @@
 import json
 import logging
 
-from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.exceptions import ValidationError, PermissionDenied, NotFound
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import BasePermission
 from rest_framework.views import APIView
@@ -24,8 +24,10 @@ def delivery_report(err, msg):
 
 class IsOwner(BasePermission):
     """
-    Custom permission class to allow only the owner of an object to create
-    a presigned URL for hidden tests to be uploaded.
+    Custom permission class to allow only the owner of an object to
+    1. create a presigned URL for hidden tests to be uploaded.
+    2. initiate the hidden test processing.
+    3. delete the hidden tests.
     """
 
     def has_permission(self, request, view):
@@ -78,7 +80,7 @@ class HiddenTestPresignedUrlAPIView(APIView):
             raise ValidationError("Failed to generate presigned POST URL")
 
 
-class HiddenTestAPIView(APIView):
+class HiddenTestInitiateProcessAPIView(APIView):
     permission_classes = [IsOwner]
 
     def post(self, request, problem_pk):
@@ -104,6 +106,9 @@ class HiddenTestAPIView(APIView):
             # no need to let the client know about the mismatch
             raise ValidationError({"clientId": "Invalid clientId"})
 
+        if hasattr(problem, "hidden_test_bundle"):
+            raise ValidationError({"problem_id": "Hidden test bundle already exists"})
+
         try:
             KafkaProducerSingleton.produce_message(
                 "hidden_test",
@@ -124,3 +129,43 @@ class HiddenTestAPIView(APIView):
         except Exception as e:
             logger.error(f"Kafka message production failed: {e}")
             raise ValidationError("Failed to initiate hidden test processing")
+
+
+class HiddenTestDeleteAPIView(APIView):
+    permission_classes = [IsOwner]
+
+    @staticmethod
+    def get_object(problem_pk):
+        try:
+            problem = Problem.objects.get(
+                pk=problem_pk,
+            )
+            if not hasattr(problem, "hidden_test_bundle"):
+                raise Problem.DoesNotExist("Hidden test bundle does not exist")
+            return problem
+        except Problem.DoesNotExist as e:
+            raise NotFound(e)
+        except Exception as e:
+            logger.exception(e)
+            raise ValidationError("Failed to retrieve problem")
+
+    def delete(self, request, problem_pk):
+        logger.info("Deleting hidden tests")
+
+        problem = HiddenTestDeleteAPIView.get_object(problem_pk)
+        self.check_object_permissions(request, problem)
+
+        try:
+            client = AWSClient("s3").get_client()
+            client.delete_object(
+                Bucket="codesirius-tests-data",
+                Key=problem.hidden_test_bundle.s3_path,
+            )
+            logger.info("Hidden tests deleted from S3 bucket")
+
+            problem.hidden_test_bundle.delete()
+
+            return CodesiriusAPIResponse(message="Hidden tests deleted")
+        except Exception as e:
+            logger.error(f"Failed to delete hidden tests: {e}")
+            raise ValidationError("Failed to delete hidden tests")

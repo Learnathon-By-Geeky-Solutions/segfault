@@ -11,5 +11,9 @@ class SampleTest(BaseModel):
     input = models.TextField(max_length=1000)
     output = models.TextField(max_length=1000)
 
+    class Meta:
+        verbose_name = "Sample Test"
+        verbose_name_plural = "Sample Tests"
+
     def __str__(self):
         return f"Sample test for {self.problem.title}"

@@ -2,11 +2,9 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import Grid from "@mui/material/Grid2";
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
     Alert,
-    CircularProgress, FormControl,
+    CircularProgress,
+    FormControl,
     Grow,
     LinearProgress,
     LinearProgressProps,
@@ -25,24 +23,40 @@ import {useDropzone} from "react-dropzone";
 import {Stack} from "@mui/system";
 import {SimpleTreeView, TreeItem} from "@mui/x-tree-view";
 import AddIcon from "@mui/icons-material/Add";
-import {Block, Check, Clear, Replay} from "@mui/icons-material";
+import {Block, Check, Clear, Delete, Replay} from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
-import {APIError, SampleTest, UpsertSampleTestsRequest} from "@/lib/features/api/types";
-import {useDeleteSampleTestMutation, useUpsertSampleTestsMutation} from "@/lib/features/api/problemsApiSlice";
+import {
+    APIError,
+    DeleteHiddenTestsRequest,
+    ProcessHiddenTestsRequest,
+    SampleTest,
+    UpsertSampleTestsRequest
+} from "@/lib/features/api/types";
+import {
+    useDeleteHiddenTestsMutation,
+    useDeleteSampleTestMutation,
+    useProcessHiddenTestsMutation,
+    useUpsertSampleTestsMutation
+} from "@/lib/features/api/problemsApiSlice";
 import {
     addCompletedStep,
-    setIsHiddenTestsUpload,
+    setIsHiddenTestsUploaded,
     setIsSnackbarOpen,
     setSnackbarMessage
 } from "@/lib/features/codesirius/addProblemSlice";
 import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
 import axios from "axios";
+import {LiveLogsContainer, LogAccordion, LogAccordionDetails, LogAccordionSummary} from "@/components/Logs";
+import {Accordion, AccordionDetails, AccordionSummary} from "@/components/Accordion";
+import BufferingDots from "@/components/BufferingDots";
+import {HiddenTest} from "@/app/problems/create/types";
 
 
 interface TestCaseProps {
     problemId: number,
     sampleTests: SampleTest[];
     presignedUrl: { url: string, fields: { [key: string]: string } };
+    hiddenTest: HiddenTest | null;
 }
 
 interface SampleTestError {
@@ -66,7 +80,8 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
     );
 }
 
-const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCaseProps) => {
+
+const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl, hiddenTest: _hiddenTest}: TestCaseProps) => {
     if (_sampleTests.length === 0) {
         _sampleTests = Array(1).fill({input: "", output: ""});
     }
@@ -128,15 +143,28 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
         setSampleTests(newSampleTests);
     }
     type UploadAlert = {
-        message: string,
+        message: string | React.ReactNode,
         severity: "success" | "error"
     }
     const [uploadAlert, setUploadAlert] = React.useState<UploadAlert | null>(null);
-    const [isUploading, setIsUploading] = React.useState<boolean>(false);
+
+    // const [isUploading, setIsUploading] = React.useState<boolean>(false);
+    enum HiddenTestsStatus {
+        NOT_UPLOADED = "NOT_UPLOADED",
+        UPLOADING = "UPLOADING",
+        UPLOADED = "UPLOADED",
+        UPLOAD_FAILED = "UPLOAD_FAILED",
+        PROCESSING = "PROCESSING",
+        PROCESSED = "PROCESSED",
+        PROCESS_FAILED = "PROCESS_FAILED"
+    }
+
+    const [hiddenTest, setHiddenTest] = React.useState<HiddenTest | null>(_hiddenTest);
+
+    const [hiddenTestsStatus, setHiddenTestsStatus] = React.useState<HiddenTestsStatus>(_hiddenTest ? HiddenTestsStatus.PROCESSED : HiddenTestsStatus.NOT_UPLOADED);
     const [uploadProgress, setUploadProgress] = React.useState<number>(0);
     const axiosControllerRef = useRef<AbortController | null>(null);
 
-    const isHiddenTestsUploaded = useAppSelector((state) => state.addProblem.isHiddenTestsUpload);
 
     const handleOnDropAccepted = useCallback(async (acceptedFiles: File[]) => {
         if (axiosControllerRef.current) {
@@ -150,7 +178,8 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
         });
         console.log(files);
 
-        setIsUploading(true);
+        // setIsUploading(true);
+        setHiddenTestsStatus(HiddenTestsStatus.UPLOADING);
         // upload to s3
         try {
             const formData = new FormData();
@@ -172,31 +201,91 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
                 signal: axiosControllerRef.current?.signal
             });
             console.log(response);
-            setIsUploading(false);
+            setHiddenTestsStatus(HiddenTestsStatus.UPLOADED);
             setUploadProgress(0);
-            setUploadAlert({message: "Hidden test cases uploaded successfully", severity: "success"});
-            dispatch(setIsHiddenTestsUpload(true));
+            setUploadAlert({
+                message: (
+                    <>
+                        Hidden test cases uploaded successfully. <br/>
+                        Processing will begin shortly.
+                    </>
+                ),
+                severity: "success"
+            });
+            dispatch(setIsHiddenTestsUploaded(true)); // global state
         } catch (e) {
             console.error(e);
-            setIsUploading(false);
+            if (axios.isCancel(e)) {
+                console.log("Request cancelled");
+                setHiddenTestsStatus(HiddenTestsStatus.NOT_UPLOADED);
+                setUploadProgress(0);
+                setUploadAlert({message: "Upload cancelled", severity: "error"});
+                return;
+            }
+            setHiddenTestsStatus(HiddenTestsStatus.UPLOAD_FAILED);
             setUploadProgress(0);
             setUploadAlert({message: "Error uploading hidden test cases", severity: "error"});
         }
 
-    }, [])
+    }, []);
+
+    const [clientId, setClientId] = React.useState<string>("");
+    const [processHiddenTests, {isLoading: isProcessing}] = useProcessHiddenTestsMutation();
+
+    const handleProcessHiddenTests = async (clientId: string) => {
+        console.log("Processing hidden test cases");
+        try {
+            const req: ProcessHiddenTestsRequest = {
+                problemId: problemId,
+                clientId: clientId
+            }
+            const res = await processHiddenTests(req).unwrap();
+            console.log(res);
+            setHiddenTestsStatus(HiddenTestsStatus.PROCESSING);
+            setProcessLogs((prev) => [...prev, {status: "INFO", message: "✅ Queued for processing"}]);
+        } catch (e) {
+            console.error(e);
+            setHiddenTestsStatus(HiddenTestsStatus.PROCESS_FAILED);
+            dispatch(setIsHiddenTestsUploaded(false));
+            setUploadAlert({message: "Error processing hidden test cases", severity: "error"});
+        }
+    }
+
+    useEffect(() => {
+        (async (clientId: string) => {
+            if (hiddenTestsStatus === HiddenTestsStatus.UPLOADED && clientId.length > 0) {
+                await handleProcessHiddenTests(clientId);
+            }
+        })(clientId);
+    }, [hiddenTestsStatus, clientId]);
 
     const handleCancelUpload = () => {
         console.log("Cancelling upload");
         if (axiosControllerRef.current) {
             axiosControllerRef.current.abort();
         }
-        setIsUploading(false);
+        // setIsUploading(false);
+        setHiddenTestsStatus(HiddenTestsStatus.NOT_UPLOADED);
         setUploadProgress(0);
     }
 
-    const handleResetUpload = () => {
-        dispatch(setIsHiddenTestsUpload(false));
-        setUploadAlert(null);
+    const [deleteHiddenTests, {isLoading: isDeletingHiddenTests}] = useDeleteHiddenTestsMutation();
+
+    const handleResetUpload = async () => {
+
+        try {
+            const req: DeleteHiddenTestsRequest = {
+                problemId: problemId
+            }
+            await deleteHiddenTests(req);
+            dispatch(setIsHiddenTestsUploaded(false));
+            setUploadAlert(null);
+            setHiddenTestsStatus(HiddenTestsStatus.NOT_UPLOADED);
+            setHiddenTest(null);
+            setProcessLogs([]);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
@@ -312,19 +401,90 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
         }
     }
 
+    const obtainSSEClientID = async () => {
+        console.log("Obtaining client ID");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SSE_URL}/register/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include"
+        });
+        const data = await response.json();
+        console.log(data);
+        return data.clientId;
+    }
+
+    const [isLogsAccordionExpanded, setIsLogsAccordionExpanded] = React.useState<string | false>(false);
+
+    const handleLogsAccordionChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+        setIsLogsAccordionExpanded(isExpanded ? panel : false);
+    }
+
+    const [processLogs, setProcessLogs] = React.useState<{ status: string, message: string }[]>([]);
+    const logDetailsRef = useRef<HTMLDivElement>(null); // Ref to the LogAccordionDetails for auto-scrolling
+    const logStatusToColor = (status: string) => {
+        switch (status) {
+            case "ERROR":
+                return "error";
+            case "SUCCESS":
+                return "success";
+            default:
+                return "text.primary";
+        }
+    }
+
+    const handleSSERequest = async (clientId: string) => {
+        const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_SSE_URL}/events/${clientId}/hidden-tests/`, {
+            withCredentials: true
+        });
+        eventSource.onopen = (e) => {
+            console.log(`Connection opened: ${e}`);
+        }
+        eventSource.onmessage = (e) => {
+            const jsonData = JSON.parse(e.data);
+            console.log(jsonData);
+            if (jsonData.message === "FINISHED_SUCCESS") {
+                setHiddenTestsStatus(HiddenTestsStatus.PROCESSED);
+                setUploadAlert({message: "Hidden test cases processed successfully", severity: "success"});
+                return;
+            }
+            if (jsonData.message === "FINISHED_ERROR") {
+                console.log("Error processing hidden test cases");
+                setHiddenTestsStatus(HiddenTestsStatus.PROCESS_FAILED);
+                setUploadAlert({message: "Error processing hidden test cases", severity: "error"});
+                return;
+            }
+            setHiddenTestsStatus(HiddenTestsStatus.PROCESSING);
+            setProcessLogs((prev) => [...prev, jsonData]);
+            logDetailsRef.current?.scrollTo(0, logDetailsRef.current.scrollHeight);
+        }
+        eventSource.onerror = (e) => {
+            console.error(e);
+            // close the connection
+            eventSource.close();
+        }
+    }
+
+    const hasMounted = useRef(false);
+
     useEffect(() => {
-        dispatch(setCodesiriusLoading(false));
+        console.log(process.env.NEXT_PUBLIC_SSE_URL);
+        if (hasMounted.current) return;
+        hasMounted.current = true;
+        (async () => {
+            const clientId = await obtainSSEClientID();
+            setClientId(clientId);
+            await handleSSERequest(clientId);
+            dispatch(setCodesiriusLoading(false));
+        })()
     }, []);
+
 
     return (
         <Box m={2}>
-            <Accordion expanded>
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon/>}
-                    aria-controls="panel1-content"
-                    id="panel1-header"
-                    sx={{backgroundColor: theme.palette.divider}}
-                >
+            <Accordion defaultExpanded elevation={1}>
+                <AccordionSummary>
                     <Typography component="span">Sample test</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -372,12 +532,12 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
                                             alignItems="center"
                                         >
                                             <IconButton size="small" color="error"
-                                                        disabled={isDeleting && index === deletingIndex}
+                                                        disabled={(isDeleting && index === deletingIndex) || sampleTests.length === 1}
                                                         onClick={() => handleRemoveTestCase(index)}>
                                                 {
                                                     isDeleting && index === deletingIndex ?
                                                         <CircularProgress size={20}/> :
-                                                        <Clear/>
+                                                        <Delete fontSize="small"/>
                                                 }
                                             </IconButton>
                                         </Grid>
@@ -421,70 +581,73 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
                     </Grid>
                 </AccordionDetails>
             </Accordion>
-            <Accordion expanded>
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon/>}
-                    aria-controls="panel1-content"
-                    id="panel1-header"
-                    sx={{backgroundColor: theme.palette.divider}}
-                >
+            <Accordion defaultExpanded elevation={1}>
+                <AccordionSummary>
                     <Typography component="span">Hidden test</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Grid container spacing={2}
-                          sx={{p: 2, border: `1px solid ${theme.palette.divider}`, borderRadius: 4}}>
-                        <Grid size={6}>
-                            <Typography variant="subtitle1">
+                    <Grid container spacing={2}>
+                        {
+                            hiddenTestsStatus !== HiddenTestsStatus.PROCESSED &&
+                          <>
+                            <Grid size={6}>
+                              <Typography variant="subtitle1">
                                 Instructions:
-                            </Typography>
-                            <ol>
+                              </Typography>
+                              <ol>
                                 <li>
-                                    <Typography variant="body2">
-                                        The zip file should contain two folders
-                                        named <code>input</code> and <code>output</code>.
-                                    </Typography>
+                                  <Typography variant="body2">
+                                    The zip file should contain two folders
+                                    named <code>input</code> and <code>output</code>.
+                                  </Typography>
                                 </li>
                                 <li>
-                                    <Typography variant="body2">
-                                        The <code>input</code> folder should contain the input
-                                        files <code>input1.txt</code>, <code>input2.txt</code> etc.
-                                    </Typography>
+                                  <Typography variant="body2">
+                                    The <code>input</code> folder should contain the input
+                                    files <code>input1.txt</code>, <code>input2.txt</code> etc.
+                                  </Typography>
                                 </li>
                                 <li>
-                                    <Typography variant="body2">
-                                        The <code>output</code> folder should contain the output
-                                        files <code>output1.txt</code>, <code>output2.txt</code> etc.
-                                    </Typography>
+                                  <Typography variant="body2">
+                                    The <code>output</code> folder should contain the output
+                                    files <code>output1.txt</code>, <code>output2.txt</code> etc.
+                                  </Typography>
                                 </li>
-                            </ol>
-                            <Typography variant="body2">
+                              </ol>
+                              <Typography variant="body2">
                                 Check the format to the right
-                            </Typography>
-                        </Grid>
-                        <Grid size={6}>
-                            <SimpleTreeView defaultExpandedItems={["root", "input", "output"]} sx={{
-                                border: `1px solid ${theme.palette.divider}`,
-                                borderRadius: 4,
-                                p: 2
-                            }} disableSelection disabledItemsFocusable>
+                              </Typography>
+                            </Grid>
+                            <Grid size={6}>
+                              <SimpleTreeView defaultExpandedItems={["root", "input", "output"]} sx={{
+                                  border: `1px solid ${theme.palette.divider}`,
+                                  borderRadius: 4,
+                                  p: 2,
+                              }} disableSelection disabledItemsFocusable>
                                 <TreeItem itemId="root" label="your-zip-file.zip">
-                                    <TreeItem itemId="input" label="input">
-                                        <TreeItem itemId="input1" label="input1.txt"/>
-                                        <TreeItem itemId="input2" label="input2.txt"/>
-                                    </TreeItem>
-                                    <TreeItem itemId="output" label="output">
-                                        <TreeItem itemId="output1" label="output1.txt"/>
-                                        <TreeItem itemId="output2" label="output2.txt"/>
-                                    </TreeItem>
+                                  <TreeItem itemId="input" label="input">
+                                    <TreeItem itemId="input1" label="input1.txt"/>
+                                    <TreeItem itemId="input2" label="input2.txt"/>
+                                    <TreeItem itemId="rest-inputs" label="..." disabled/>
+                                  </TreeItem>
+                                  <TreeItem itemId="output" label="output">
+                                    <TreeItem itemId="output1" label="output1.txt"/>
+                                    <TreeItem itemId="output2" label="output2.txt"/>
+                                    <TreeItem itemId="rest-outputs" label="..." disabled/>
+                                  </TreeItem>
                                 </TreeItem>
                                 <Typography align="right" variant="subtitle2" fontWeight={500} color="text.secondary">
-                                    Sample file structure
+                                  Sample directory structure
                                 </Typography>
-                            </SimpleTreeView>
-                        </Grid>
+                              </SimpleTreeView>
+                            </Grid>
+                          </>
+                        }
                         <Grid size={12}>
                             {
-                                !isUploading && !isHiddenTestsUploaded &&
+                                (hiddenTestsStatus === HiddenTestsStatus.NOT_UPLOADED ||
+                                    hiddenTestsStatus === HiddenTestsStatus.PROCESS_FAILED ||
+                                    hiddenTestsStatus === HiddenTestsStatus.UPLOAD_FAILED) &&
                               <>
                                 <Box
                                     {...getRootProps()}
@@ -521,20 +684,27 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
                               </>
                             }
                             {
-                                uploadAlert &&
+                                uploadAlert && hiddenTestsStatus !== HiddenTestsStatus.PROCESSING &&
                               <Alert severity={uploadAlert.severity} variant="outlined" sx={{mt: 2}}>
                                   {uploadAlert.message}
                               </Alert>
                             }
-
                             {
-                                isHiddenTestsUploaded &&
+                                hiddenTest && hiddenTestsStatus === HiddenTestsStatus.PROCESSED &&
+                              <Alert severity="success" variant="outlined" sx={{mt: 2}}>
+                                A hidden test case bundle has already been uploaded. <br/>
+                                Number of test cases: {hiddenTest?.test_count}
+                              </Alert>
+                            }
+                            {
+                                hiddenTestsStatus === HiddenTestsStatus.PROCESSED &&
                               <FormControl
                                 fullWidth>
                                 <Button
                                   color="error"
                                   size="small"
-                                  startIcon={<Replay/>}
+                                  startIcon={isDeletingHiddenTests ? <CircularProgress size={20} color="error"/> :
+                                      <Replay/>}
                                   onClick={handleResetUpload}
                                   sx={{
                                       mt: 1,
@@ -547,7 +717,7 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
                         </Grid>
                         <Grid size={12}>
                             <Box
-                                sx={{display: isUploading ? "block" : "none"}}>
+                                sx={{display: hiddenTestsStatus === HiddenTestsStatus.UPLOADING ? "block" : "none"}}>
                                 <LinearProgressWithLabel value={uploadProgress}/>
                                 <Typography variant="body2" letterSpacing={1} textAlign="center" p={1}>
                                     Uploading hidden test cases
@@ -563,6 +733,60 @@ const TestCases = ({problemId, sampleTests: _sampleTests, presignedUrl}: TestCas
                                 </Box>
                             </Box>
                         </Grid>
+                        <Grid size={12}>
+                            <LiveLogsContainer sx={{display: processLogs.length > 0 ? "block" : "none"}}>
+                                <LogAccordion onChange={handleLogsAccordionChange("panel1")}
+                                              expanded={isLogsAccordionExpanded === "panel1"}>
+                                    <LogAccordionSummary>
+                                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                                            {
+                                                isLogsAccordionExpanded ? (hiddenTestsStatus === HiddenTestsStatus.PROCESSING ? "Processing..." : "Logs") : processLogs?.[processLogs.length - 1]?.message
+                                            }
+                                            {
+                                                hiddenTestsStatus === HiddenTestsStatus.PROCESSING && !isLogsAccordionExpanded &&
+                                              <CircularProgress size={20} sx={{ml: 2}} thickness={4}/>
+                                            }
+                                        </Box>
+                                    </LogAccordionSummary>
+                                    <LogAccordionDetails
+                                        ref={logDetailsRef}
+                                        sx={{minHeight: 300, maxHeight: 300, overflowY: "auto"}}>
+                                        {
+                                            processLogs.map((log, index) => {
+                                                return (
+                                                    <Typography
+                                                        key={index}
+                                                        component="pre"
+                                                        variant="body2"
+                                                        color={logStatusToColor(log.status)}
+                                                        fontWeight={log.status === "ERROR" ? 500 : 400}
+                                                        sx={{
+                                                            whiteSpace: "pre-wrap",
+                                                            fontFamily: "monospace"
+                                                        }}>
+                                                        {log.message}
+                                                    </Typography>
+                                                );
+                                            })
+                                        }
+                                        <div style={{display: 'flex', justifyContent: 'center', padding: '10px'}}>
+                                            {
+                                                hiddenTestsStatus === HiddenTestsStatus.PROCESSING &&
+                                              <BufferingDots size="small"/>
+                                            }
+                                        </div>
+                                    </LogAccordionDetails>
+                                </LogAccordion>
+                            </LiveLogsContainer>
+                        </Grid>
+                        {/*<Grid size={6}></Grid>*/}
+                        {/*<Grid size={12}>*/}
+                        {/*    <Stack direction="row" spacing={2} justifyContent="flex-end">*/}
+                        {/*        <Button variant="contained" size="small">*/}
+                        {/*            Next*/}
+                        {/*        </Button>*/}
+                        {/*    </Stack>*/}
+                        {/*</Grid>*/}
                     </Grid>
                     <Snackbar
                         sx={{pb: 10, pl: 3}}

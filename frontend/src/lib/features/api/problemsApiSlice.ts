@@ -1,16 +1,17 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {
     CreateUpdateRequest,
-    CreateUpdateResponse,
+    CreateUpdateResponse, DeleteHiddenTestsRequest, DeleteHiddenTestsResponse,
     DeleteSampleTestRequest,
     DeleteSampleTestResponse,
+    ProcessHiddenTestsRequest,
+    ProcessHiddenTestsResponse,
     UpsertExecutionConstraintRequest,
     UpsertExecutionConstraintResponse,
     UpsertSampleTestsRequest,
     UpsertSampleTestsResponse
 } from "@/lib/features/api/types";
 import {NEXTJS_BACKEND_URL} from "@/lib/constants";
-import {fit} from "sharp";
 
 
 export const problemsApiSlice = createApi({
@@ -71,6 +72,27 @@ export const problemsApiSlice = createApi({
                 }
             })
         }),
+        processHiddenTests: builder.mutation<ProcessHiddenTestsResponse, ProcessHiddenTestsRequest>({
+            query: ({problemId, ...data}) => ({
+                url: `/${problemId}/hidden-tests/process/`,
+                method: 'POST',
+                body: data,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+        }),
+        deleteHiddenTests: builder.mutation<DeleteHiddenTestsResponse, DeleteHiddenTestsRequest>({
+            query: ({problemId}) => ({
+                url: `/${problemId}/hidden-tests/`,
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+        }),
     })
 });
 
@@ -81,5 +103,7 @@ export const {
     useUpsertExecutionConstraintsMutation,
     useUpsertSampleTestsMutation,
     useDeleteSampleTestMutation,
+    useProcessHiddenTestsMutation,
+    useDeleteHiddenTestsMutation
 } = problemsApiSlice;
 

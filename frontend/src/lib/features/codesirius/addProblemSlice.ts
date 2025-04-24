@@ -10,7 +10,7 @@ interface AddProblemState {
     failedSteps: number[]; // for stepper
     progress: number; // for stepper
     unsavedSteps: number[]; // for stepper
-    isHiddenTestsUpload: boolean; // for reference solution
+    isHiddenTestsUploaded: boolean; // for reference solution
 }
 
 const initialState: AddProblemState = {
@@ -22,7 +22,7 @@ const initialState: AddProblemState = {
     failedSteps: [],
     progress: 0,
     unsavedSteps: [],
-    isHiddenTestsUpload: false
+    isHiddenTestsUploaded: false
 }
 
 const addProblemSlice = createSlice({
@@ -62,8 +62,8 @@ const addProblemSlice = createSlice({
         removeUnsavedStep: (state, action: PayloadAction<number>) => {
             state.unsavedSteps = state.unsavedSteps.filter(step => step !== action.payload);
         },
-        setIsHiddenTestsUpload: (state, action: PayloadAction<boolean>) => {
-            state.isHiddenTestsUpload = action.payload;
+        setIsHiddenTestsUploaded: (state, action: PayloadAction<boolean>) => {
+            state.isHiddenTestsUploaded = action.payload;
         }
     }
 });
@@ -78,7 +78,7 @@ export const {
     incrementProgress,
     addUnsavedStep,
     removeUnsavedStep,
-    setIsHiddenTestsUpload
+    setIsHiddenTestsUploaded
 } = addProblemSlice.actions;
 
 export default addProblemSlice.reducer;
