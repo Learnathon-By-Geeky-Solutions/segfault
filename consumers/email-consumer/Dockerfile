@@ -13,15 +13,18 @@ ENV POETRY_NO_INTERACTION=1 \
 # add poetry to PATH
 ENV PATH="${PATH}:${POETRY_HOME}/bin"
 
-# create a non-root user
-RUN adduser --disabled-password codesirius
+ARG DEV=false
+ARG GID=1000
+ARG UID=1000
 
-# install poetry
+# install poetry and create user
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
     curl -sSL https://install.python-poetry.org | python3 - && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
+    groupadd -g $GID codesirius || true && \
+    useradd -u $UID -g $GID -m codesirius && \
     chown -R codesirius:codesirius $POETRY_HOME
 
 USER codesirius
@@ -29,7 +32,6 @@ WORKDIR /home/codesirius/app
 
 COPY . .
 
-ARG DEV=false
 RUN poetry install --without dev && \
     if [ "$DEV" = "true" ]; then poetry install --only dev; fi
 

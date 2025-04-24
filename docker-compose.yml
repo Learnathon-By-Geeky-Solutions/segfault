@@ -102,6 +102,8 @@ services:
       dockerfile: Dockerfile
       args:
         - DEV=true
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     env_file:
       - ./consumers/email-consumer/.env
     volumes:
