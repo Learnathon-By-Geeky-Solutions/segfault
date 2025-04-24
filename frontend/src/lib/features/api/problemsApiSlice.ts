@@ -11,12 +11,12 @@ import {
     UpsertSampleTestsRequest,
     UpsertSampleTestsResponse
 } from "@/lib/features/api/types";
-import {NEXTJS_BACKEND_URL} from "@/lib/constants";
+const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_NEXTJS_BACKEND_URL;
 
 
 export const problemsApiSlice = createApi({
     reducerPath: 'problemsApi',
-    baseQuery: fetchBaseQuery({baseUrl: `${NEXTJS_BACKEND_URL}/api/problems`}),
+    baseQuery: fetchBaseQuery({baseUrl: `${NEXT_PUBLIC_BACKEND_URL}/api/problems`}),
     endpoints: (builder) => ({
         createProblem: builder.mutation<CreateUpdateResponse, CreateUpdateRequest>({
             query: (data) => ({
