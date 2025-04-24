@@ -11,6 +11,7 @@ from codesirius.codesirius_api_response import CodesiriusAPIResponse
 from codesirius.kafa_producer import KafkaProducerSingleton
 from codesirius.redis_client import RedisClientSingleton
 from problems.models import Problem
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +118,7 @@ class HiddenTestInitiateProcessAPIView(APIView):
                         "problem_id": problem_pk,
                         "client_id": client_id,
                         "bucket_name": "codesirius-tests-data",
-                        "grpc_server": "sse-server-dev:50051",  # same as SSE URL
+                        "grpc_server": settings.GRPC_SERVER,
                         "user_id": request.user.id,
                     }
                 ),
