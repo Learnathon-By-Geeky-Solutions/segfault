@@ -18,8 +18,22 @@ export async function POST(req: Request) {
             // extract token from response
             const {access, refresh} = drfResponseJson.data;
             const cookieStore = await cookies();
-            cookieStore.set("access", access, {path: "/", sameSite: "none", secure: true});
-            cookieStore.set("refresh", refresh, {path: "/", sameSite: "none", secure: true});
+            cookieStore.set("access", access, {
+                path: "/",
+                sameSite: "none",
+                secure: true,
+                domain: ".codesirius.tech", // required to set cookie for subdomains (like sse)
+                httpOnly: true,
+            });
+
+            cookieStore.set("refresh", refresh, {
+                path: "/",
+                sameSite: "none",
+                secure: true,
+                domain: ".codesirius.tech",
+                httpOnly: true,
+            });
+
             // use httpOnly: true, secure: true in production
 
             // remove token from response and add redirect url
