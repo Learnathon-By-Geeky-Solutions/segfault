@@ -64,6 +64,9 @@ services:
     build:
       context: backend/sse
       dockerfile: Dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     ports:
       - "4000:4000"
       - "50051:50051"
@@ -82,6 +85,9 @@ services:
     build:
       context: backend/sse
       dockerfile: Dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     ports:
       - "4000:4000"
       - "50051:50051"
@@ -123,6 +129,8 @@ services:
       dockerfile: Dockerfile
       args:
         - DEV=true
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     env_file:
       - ./consumers/hidden-test-consumer/.env
     volumes:
@@ -232,7 +240,7 @@ services:
       - ./loki/data:/loki
     command: -config.file=/etc/loki/config/loki-config.yml
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3100/ready" ]
       interval: 10s
       timeout: 5s
       retries: 5
