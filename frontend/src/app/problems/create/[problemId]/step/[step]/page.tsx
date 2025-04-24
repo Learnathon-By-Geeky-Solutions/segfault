@@ -4,7 +4,6 @@ import ProblemMetaData from "@/app/problems/create/problem-meta-data";
 import {headers} from "next/headers";
 import {User} from "@/lib/features/api/types";
 import {redirect} from "next/navigation";
-import {DJANGO_BACKEND_URL} from "@/lib/constants";
 import SplitPane from "@/components/SplitPane";
 import LivePreview from "@/components/live-preview";
 import {Language, Tag} from "@/app/problems/create/types";
@@ -13,6 +12,8 @@ import Dispatcher from "@/app/problems/create/dispatcher";
 import ExecutionConstraints from "@/app/problems/create/execution-constraints";
 import TestCases from "@/app/problems/create/test-cases";
 import ReferenceSolution from "@/app/problems/create/reference-solution";
+
+const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
 
 const getExecutionConstraints = async (problemId: number) => {
     console.log("fetching execution constraints");
