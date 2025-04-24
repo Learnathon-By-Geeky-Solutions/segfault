@@ -32,9 +32,7 @@ import {useAppDispatch} from "@/lib/hooks/hooks";
 import {
     addCompletedStep,
     addFailedStep,
-    addUnsavedStep,
     incrementProgress,
-    removeUnsavedStep,
     setIsSnackbarOpen,
     setSnackbarMessage,
     setTitle as setProblemTitle
@@ -133,7 +131,7 @@ const ProblemMetaData = ({
 
     const fieldValidator = {
         title: () => {
-            if (title && title.length === 0) {
+            if (title.length === 0) {
                 setTitleError("Title is required");
             }
         },

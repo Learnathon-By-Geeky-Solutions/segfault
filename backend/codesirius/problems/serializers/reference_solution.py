@@ -3,15 +3,16 @@ from typing import Dict
 
 from rest_framework import serializers
 
-from problems.models import ReferenceSolution, Language
+from problems.models import ReferenceSolution, Language, Problem
 
 logger = logging.getLogger(__name__)
 
 
-class ReferenceSolutionSerializer(serializers.Serializer):
+class ReferenceSolutionSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    problem = serializers.PrimaryKeyRelatedField(
-        read_only=True,
+    problemId = serializers.PrimaryKeyRelatedField(
+        queryset=Problem.objects.only("id"),
+        source="problem",
     )
     code = serializers.CharField(
         max_length=10000,
@@ -38,26 +39,31 @@ class ReferenceSolutionSerializer(serializers.Serializer):
         default=ReferenceSolution.Verdict.PENDING,
     )
 
-    def create(self, validated_data: Dict) -> ReferenceSolution:
-        try:
-            logger.info(
-                f"Creating a new reference solution with data: {validated_data}"
-            )
-            return ReferenceSolution.objects.create(
-                **validated_data, problem=self.context["problem"]
-            )
-        except Exception as e:
-            logger.error(f"Failed to create a new reference solution: {e}")
-            raise serializers.ValidationError(
-                "Failed to create a new reference solution"
-            )
+    class Meta:
+        model = ReferenceSolution
+        fields = ["id", "problemId", "code", "languageId", "verdict"]
+        extra_kwargs = {"id": {"read_only": True}}
 
-    def update(
-        self, instance: ReferenceSolution, validated_data: Dict
-    ) -> ReferenceSolution:
-        instance.problem = validated_data.get("problem", instance.problem)
-        instance.code = validated_data.get("code", instance.code)
-        instance.language = validated_data.get("language", instance.language)
-        instance.verdict = validated_data.get("verdict", instance.verdict)
-        instance.save()
-        return instance
+    # def create(self, validated_data: Dict) -> ReferenceSolution:
+    #     try:
+    #         logger.info(
+    #             f"Creating a new reference solution with data: {validated_data}"
+    #         )
+    #         return ReferenceSolution.objects.create(
+    #             **validated_data, problem=self.context["problem"]
+    #         )
+    #     except Exception as e:
+    #         logger.error(f"Failed to create a new reference solution: {e}")
+    #         raise serializers.ValidationError(
+    #             "Failed to create a new reference solution"
+    #         )
+    #
+    # def update(
+    #     self, instance: ReferenceSolution, validated_data: Dict
+    # ) -> ReferenceSolution:
+    #     instance.problem = validated_data.get("problem", instance.problem)
+    #     instance.code = validated_data.get("code", instance.code)
+    #     instance.language = validated_data.get("language", instance.language)
+    #     instance.verdict = validated_data.get("verdict", instance.verdict)
+    #     instance.save()
+    #     return instance

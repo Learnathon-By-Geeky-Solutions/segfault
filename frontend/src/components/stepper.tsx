@@ -60,9 +60,9 @@ const ProblemCreateStepper = ({problemId, step = 0}: CreateProblemStepperProps) 
                 </Box>
                 <Divider sx={{mb: 1, borderBottomWidth: 3}}/>
                 <Snackbar
-                    sx={{pb: 10, pl: 3}}
                     open={isSnackbarOpen}
                     autoHideDuration={6000}
+                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
                     onClose={() => dispatch(setIsSnackbarOpen(false))}
                 >
                     <Alert

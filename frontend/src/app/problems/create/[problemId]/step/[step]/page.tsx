@@ -26,12 +26,13 @@ const getExecutionConstraints = async (problemId: number) => {
     return await res.json();
 }
 
-const getPresigendUrl = async (problemId: number) => {
+const getPresignedUrl = async (problemId: number, authorization: string) => {
     console.log("fetching presigned url");
     const res = await fetch(`${DJANGO_BACKEND_URL}/api/v1/problems/${problemId}/hidden-tests/presigned-url/`, {
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Authorization': authorization
         }
     });
 
@@ -121,8 +122,16 @@ const Page = async ({params}: { params: Promise<{ problemId: string, step: strin
                                              executionConstraints={problemData.data.executionConstraints}
                 />
             case 3:
-                return <ReferenceSolution problemId={problemId}
-                                          languages={problemData.data.languages}/>
+                const presignedUrlResponse = await getPresignedUrl(problemId,
+                    headersList.get('Authorization') || "");
+                if (!presignedUrlResponse.data) {
+                    return <div>Failed to get presigned url</div>
+                }
+                return <TestCases problemId={problemId}
+                                  sampleTests={problemData.data.sampleTests}
+                                  presignedUrl={presignedUrlResponse.data}
+                                  hiddenTest={problemData.data.hiddenTestBundle}
+                />
             case 4:
                 return <>Review</>
         }
@@ -137,13 +146,8 @@ const Page = async ({params}: { params: Promise<{ problemId: string, step: strin
             case 2:
                 return <LivePreview/>
             case 3:
-                const presignedUrlResponse = await getPresigendUrl(problemId);
-                if (!presignedUrlResponse.data) {
-                    return <div>Failed to get presigned url</div>
-                }
-                return <TestCases problemId={problemId}
-                                  sampleTests={problemData.data.sampleTests}
-                                  presignedUrl={presignedUrlResponse.data}/>
+                return <ReferenceSolution problemId={problemId}
+                                          languages={problemData.data.languages}/>
             case 4:
                 return <>Review</>
         }

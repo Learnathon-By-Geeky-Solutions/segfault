@@ -30,7 +30,7 @@ const BufferingDots: React.FC<BufferingDotsProps> = ({ size = 'medium' }) => {
 const dotStyle = (delay: number, color: string, size: number) => ({
     width: size,
     height: size,
-    margin: '0 5px',
+    margin: '0 2px',
     borderRadius: '50%',
     backgroundColor: color, // Apply the dynamic color
     animation: `dotAnimation 1.5s infinite ${delay * 0.3}s`,

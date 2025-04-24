@@ -8,9 +8,11 @@ logger = logging.getLogger(__name__)
 
 
 class APIKeySerializer(serializers.ModelSerializer):
+    expiresAt = serializers.DateTimeField(source="expires_at", required=False)
+
     class Meta:
         model = APIKey
-        fields = ["id", "name", "key", "is_active", "expires_at"]
+        fields = ["id", "name", "key", "is_active", "expiresAt"]
         read_only_fields = ["id", "key"]
 
     def create(self, validated_data) -> APIKey:

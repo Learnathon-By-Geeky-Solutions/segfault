@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import status
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
@@ -35,6 +36,3 @@ class ProblemRetrieveUpdateAPIView(APIView):
 
         logger.info(f"Problem fetched successfully with ID: {problem.id}")
         return CodesiriusAPIResponse(data=ProblemSerializer(problem).data)
-
-    def patch(self, request, pk):
-        logger.info(f"Updating problem with ID: {pk}")

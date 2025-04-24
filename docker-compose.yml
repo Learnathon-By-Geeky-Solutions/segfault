@@ -60,6 +60,42 @@ services:
     networks:
       - shared
 
+  sse-server-dev:
+    build:
+      context: backend/sse
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+      - "50051:50051"
+    volumes:
+      - ./backend/sse:/app
+      - /app/node_modules
+    working_dir: /app
+    command: >
+      sh -c "npm run dev"
+    profiles:
+      - development
+    networks:
+      - shared
+
+  sse-server-prod:
+    build:
+      context: backend/sse
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+      - "50051:50051"
+    env_file:
+      - ./backend/sse/.env
+    working_dir: /app
+    command: >
+      sh -c "npm run start"
+    profiles:
+      - production
+    networks:
+      - shared
+
+
   email-consumer:
     build:
       context: consumers/email-consumer
@@ -74,6 +110,26 @@ services:
     working_dir: /home/codesirius/app
     command: >
       sh -c "poetry run email-consumer"
+    profiles:
+      - production
+    networks:
+      - shared
+
+  hidden-test-consumer:
+    build:
+      context: consumers/hidden-test-consumer
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+    env_file:
+      - ./consumers/hidden-test-consumer/.env
+    volumes:
+      - ./consumers/hidden-test-consumer:/home/codesirius/app
+      - /home/codesirius/app/.venv
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /home/codesirius/app
+    command: >
+      sh -c "poetry run python3 src/main.py"
     profiles:
       - production
     networks:

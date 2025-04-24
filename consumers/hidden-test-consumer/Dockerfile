@@ -16,9 +16,11 @@ ENV PATH="${PATH}:${POETRY_HOME}/bin"
 # create a non-root user
 RUN adduser --disabled-password codesirius
 
-# install poetry
+# setup the environment
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
+    curl -sSL https://get.docker.com/ | sh && \
+    usermod -aG docker codesirius && \
     curl -sSL https://install.python-poetry.org | python3 - && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \

@@ -1,5 +1,3 @@
-import exp from "node:constants";
-
 export interface FieldError {
     index?: number;  // for bulk operations
     field: string;
@@ -141,6 +139,27 @@ export interface DeleteSampleTestRequest {
 }
 
 export interface DeleteSampleTestResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+}
+
+export interface ProcessHiddenTestsRequest {
+    problemId: number;
+    clientId: string;
+}
+
+export interface ProcessHiddenTestsResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+}
+
+export interface DeleteHiddenTestsRequest {
+    problemId: number;
+}
+
+export interface DeleteHiddenTestsResponse {
     status: number;
     message: string;
     timestamp: string;
