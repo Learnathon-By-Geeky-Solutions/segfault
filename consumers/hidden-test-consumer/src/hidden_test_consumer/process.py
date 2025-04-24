@@ -80,18 +80,23 @@ class HiddenTestProcessor:
         """
 
         aws_client = AWSClient("s3").get_client()
+        self.logger.info(f"AWS Client: {aws_client}")
 
         try:
             yield ProcessRequest(
                 status=Status.INFO, message="📥 Collecting hidden test data..."
             )
+            path = os.path.join(self.download_dir, "hidden-tests.zip")
             # clear from local if exists
-            if os.path.exists(f"{self.download_dir}/hidden-tests.zip"):
-                os.remove(f"{self.download_dir}/hidden-tests.zip")
+            if os.path.exists(path):
+                self.logger.info("Removing existing hidden-tests.zip")
+                os.remove(path)
+
+            self.logger.info(f"Downloading hidden test into {path}")
             aws_client.download_file(
                 Bucket=self.bucket_name,
                 Key=f"unprocessed/{self.problem_id}/hidden-tests.zip",
-                Filename=f"{self.download_dir}/hidden-tests.zip",
+                Filename=path,
             )
             yield ProcessRequest(
                 status=Status.INFO, message="✔️ Hidden test data collected"
@@ -312,8 +317,9 @@ class HiddenTestProcessor:
             status=Status.INFO, message="⚙️ Started processing hidden test data"
         )
 
-        for step in steps:
+        for idx, step in enumerate(steps, start=1):
             try:
+                self.logger.info(f"Processing step {idx}/{len(steps)}")
                 yield from step()
                 sleep(randint(1, 3))
             except Exception as e:
