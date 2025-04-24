@@ -12,7 +12,7 @@ import cookieParser from "cookie-parser";
 /******************** Load proto files and prepare service definitions *********************/
 const PROTO_PATHS = [
 	path.join(__dirname, "../src/proto/hidden_test_process.proto"),
-	path.join(__dirname, "../src/proto/reference_solution.proto"),
+	path.join(__dirname, "../src/proto/ref_sol_validation_process.proto"),
 ];
 
 
@@ -32,10 +32,10 @@ const loadProtos = (protoPaths: string[]) => {
 };
 
 // destructuring the service definitions
-const [hiddenTestProcessProto, referenceSolution] = loadProtos(PROTO_PATHS);
+const [hiddenTestProcessProto, referenceSolutionValidationProcessProto] = loadProtos(PROTO_PATHS);
 
 const hiddenTestProcessService = hiddenTestProcessProto.hidden_test_process.HiddenTestProcess.service;
-const referenceSolutionService = referenceSolution.reference_solution.ReferenceSolution.service;
+const referenceSolutionValidationProcessProtoService = referenceSolutionValidationProcessProto.ref_sol_validation_process.RefSolValidationProcess.service;
 
 /******************** Redis Connection ********************/
 const redis = new Redis({
@@ -73,14 +73,33 @@ const streamHiddenTestProcess = async (call: any, callback: Function) => {
 	});
 
 	call.on("end", () => {
-		console.log(`submission-consumer stopped streaming for client ${clientId}`);
+		console.log(`hidden-test-consumer stopped streaming for client ${clientId}`);
 		// drop the connection
 		call.end();
 	});
 }
 
-const streamReferenceSolution = async (call: any, callback: Function) => {
-	// TODO: Implement the streaming service
+const streamReferenceSolutionValidationProcessProto = async (call: any, callback: Function) => {
+	console.log(`Metadata: ${JSON.stringify(call.metadata)}`);
+	const clientId = call.metadata.get("client_id")[0];
+	console.log(`reference-solution-consumer started streaming for client ${clientId}`);
+
+	call.on("data", async (data: { status: string, message: string }) => {
+		console.log(`Received data: ${JSON.stringify(data)}`);
+		const response = clients.get(clientId);
+		if (response) {
+			console.log(`Sending data to client ${clientId}`);
+			response.write(`data: ${JSON.stringify(data)}\n\n`);
+		} else {
+			console.log(`Stale client ${clientId}`);
+		}
+	});
+
+	call.on("end", () => {
+		console.log(`reference-solution-consumer stopped streaming for client ${clientId}`);
+		// drop the connection
+		call.end();
+	});
 }
 
 
@@ -88,7 +107,8 @@ const streamReferenceSolution = async (call: any, callback: Function) => {
 const server = new grpc.Server();
 // Add the service to the server
 server.addService(hiddenTestProcessService, { streamHiddenTestProcess });
-server.addService(referenceSolutionService, { streamReferenceSolution });
+server.addService(referenceSolutionValidationProcessProtoService,
+	{ streamRefSolValidationProcess: streamReferenceSolutionValidationProcessProto });
 // Start the server
 const address = "0.0.0.0:50051";
 server.bindAsync(address, grpc.ServerCredentials.createInsecure(), (error, port) => {
