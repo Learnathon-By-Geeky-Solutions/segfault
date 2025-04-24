@@ -7,7 +7,7 @@ import {
     VerificationRequest,
     VerificationResponse
 } from "@/lib/features/api/types";
-const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_NEXTJS_BACKEND_URL || "http://localhost:3000";
+const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
 export const authApiSlice = createApi({
     reducerPath: 'authApi',

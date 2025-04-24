@@ -3,7 +3,7 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {themeType} from "@/types";
 import {CodesiriusState} from "@/lib/features/codesirius/types";
 import {User} from "@/lib/features/api/types";
-const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_NEXTJS_BACKEND_URL || "http://localhost:3000";
+const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
 
 
