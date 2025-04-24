@@ -17,6 +17,19 @@ RUN if [ "$NODE_ENV" = "production" ]; then \
 FROM builder AS final
 WORKDIR /app
 
+# Add build arguments for UID and GID with defaults
+ARG UID=1000
+ARG GID=1000
+ARG USERNAME=codesirius
+
+# Delete the existing node user and group first
+RUN deluser --remove-home node && \
+    delgroup node || true
+
+# Create group and user with specified GID and UID
+RUN addgroup -g $GID $USERNAME && \
+    adduser -D -u $UID -G $USERNAME $USERNAME
+
 EXPOSE 4000
 EXPOSE 50051
 
@@ -24,12 +37,8 @@ COPY package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
-RUN chown -R node /app
-USER node
+# Set ownership to the new user
+RUN chown -R $USERNAME:$USERNAME /app
+USER $USERNAME
 
 CMD ["node", "dist/server.js"]
-
-
-
-
-
