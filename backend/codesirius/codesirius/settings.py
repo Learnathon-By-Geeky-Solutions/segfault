@@ -32,7 +32,7 @@ SECRET_KEY = environ.get("DJANGO_SECRET_KEY")
 # check if DJANGO_DEBUG is set to True (default is False)
 DEBUG = environ.get("DJANGO_DEBUG", "False") == "True"
 
-GRPC_SERVER = environ.get("GRPC_SERVER", "False") == "True"
+GRPC_SERVER = environ.get("GRPC_SERVER", "localhost:50051")
 
 AWS_ACCESS_KEY_ID = environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = environ.get("AWS_SECRET_ACCESS_KEY")
