@@ -22,15 +22,15 @@ export async function POST(req: Request) {
 			const cookieStore = await cookies();
 			cookieStore.set("access", access, {
 				path: "/",
-				sameSite: "none",
-				secure: true,
+				sameSite: PRODUCTION ? "none" : "lax",
+				secure: PRODUCTION ? true : false,
 				...(PRODUCTION ? { domain: ".codesirius.tech" } : {}),
 			});
 
 			cookieStore.set("refresh", refresh, {
 				path: "/",
-				sameSite: "none",
-				secure: true,
+				sameSite: PRODUCTION ? "none" : "lax",
+				secure: PRODUCTION ? true : false,
 				...(PRODUCTION ? { domain: ".codesirius.tech" } : {}),
 			});
 
