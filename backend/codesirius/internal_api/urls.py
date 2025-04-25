@@ -34,7 +34,7 @@ urlpatterns = [
         name="hidden-test-bundle",
     ),
     path(
-        "problems/<int:problem_pk>/reference-solutions/<int:pk>/",
+        "problems/<int:problem_pk>/reference-solutions/",
         ReferenceSolutionRetrieveAPIView.as_view(),
         name="reference-solution-retrieve",
     ),
