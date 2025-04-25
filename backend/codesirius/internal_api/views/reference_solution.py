@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReferenceSolutionRetrieveAPIView(APIView):
-    def get(self, request, problem_pk, pk):
+    def get(self, request, problem_pk):
         try:
             reference_solution = (
                 ReferenceSolution.objects.select_related(
@@ -29,11 +29,11 @@ class ReferenceSolutionRetrieveAPIView(APIView):
                     "problem__hidden_test_bundle__s3_path",
                     "problem__hidden_test_bundle__test_count",
                 )
-                .get(problem_id=problem_pk, id=pk)
+                .filter(problem_id=problem_pk)
             )
         except ReferenceSolution.DoesNotExist:
             raise NotFound("Reference solution not found")
-        serializer = ReferenceSolutionSerializer(reference_solution)
+        serializer = ReferenceSolutionSerializer(reference_solution, many=True)
         return CodesiriusAPIResponse(
             message="Reference solution fetched successfully", data=serializer.data
         )
