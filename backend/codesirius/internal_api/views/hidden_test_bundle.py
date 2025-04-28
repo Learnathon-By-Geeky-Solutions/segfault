@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from codesirius.codesirius_api_response import CodesiriusAPIResponse
 from internal_api.auth import APIAuthentication
 from internal_api.serializers.hidden_test_bundle import HiddenTestBundleSerializer
-from problems.models import HiddenTestBundle, Problem
+from problems.models import Problem
 
 logger = logging.getLogger(__name__)
 
@@ -39,19 +39,21 @@ class HiddenTestBundleAPIView(APIView):
             )
 
 
-class HiddenTestBundleRetrieveUpdateAPIView(APIView):
-    def get_object(self, bundle_pk: int, problem_pk: int) -> HiddenTestBundle:
-        try:
-            return HiddenTestBundle.objects.get(id=bundle_pk, problem_id=problem_pk)
-        except HiddenTestBundle.DoesNotExist:
-            raise NotFound("Hidden test bundle not found")
-        except Exception as e:
-            logger.exception(e)
-            raise NotFound("Failed to retrieve hidden test bundle")
-
-    def get(
-        self, request: Request, problem_pk: int, bundle_pk: int
-    ) -> CodesiriusAPIResponse:
-        hidden_test_bundle = self.get_object(bundle_pk, problem_pk)
-        serializer = HiddenTestBundleSerializer(hidden_test_bundle)
-        return CodesiriusAPIResponse(serializer.data)
+#
+#
+# class HiddenTestBundleRetrieveUpdateAPIView(APIView):
+#     def get_object(self, bundle_pk: int, problem_pk: int) -> HiddenTestBundle:
+#         try:
+#             return HiddenTestBundle.objects.get(id=bundle_pk, problem_id=problem_pk)
+#         except HiddenTestBundle.DoesNotExist:
+#             raise NotFound("Hidden test bundle not found")
+#         except Exception as e:
+#             logger.exception(e)
+#             raise NotFound("Failed to retrieve hidden test bundle")
+#
+#     def get(
+#         self, request: Request, problem_pk: int, bundle_pk: int
+#     ) -> CodesiriusAPIResponse:
+#         hidden_test_bundle = self.get_object(bundle_pk, problem_pk)
+#         serializer = HiddenTestBundleSerializer(hidden_test_bundle)
+#         return CodesiriusAPIResponse(serializer.data)
