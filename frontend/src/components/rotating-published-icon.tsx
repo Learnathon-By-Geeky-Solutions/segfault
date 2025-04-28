@@ -1,0 +1,46 @@
+import {SvgIcon} from "@mui/material";
+import React from "react";
+
+export interface RotatingPublishedIconProps {
+    isLoading: boolean;
+}
+
+export const RotatingPublishedIcon = ({isLoading}: RotatingPublishedIconProps) => {
+    return (
+        <SvgIcon
+            viewBox="0 0 24 24"
+            sx={{
+                transition: 'transform 0.3s ease-in-out',
+                transform: isLoading ? 'none' : 'scale(1.1)',
+                '& path': {
+                    transition: 'fill 0.3s ease-in-out',
+                    fill: 'currentColor'
+                }
+            }}
+        >
+            <g>
+                {isLoading && (
+                    <animateTransform
+                        attributeType="XML"
+                        attributeName="transform"
+                        type="rotate"
+                        from="0 12 12"
+                        to="360 12 12"
+                        dur="1s"
+                        repeatCount="indefinite"
+                    />
+                )}
+                <path
+                    d="M4 12c0-2.33 1.02-4.42 2.62-5.88L9 8.5v-6H3l2.2 2.2C3.24 6.52 2 9.11 2 12c0 5.19 3.95 9.45 9 9.95v-2.02c-3.94-.49-7-3.86-7-7.93zm18 0c0-5.19-3.95-9.45-9-9.95v2.02c3.94.49 7 3.86 7 7.93 0 2.33-1.02 4.42-2.62 5.88L15 15.5v6h6l-2.2-2.2c1.96-1.82 3.2-4.41 3.2-7.3z"
+                />
+            </g>
+            <path
+                d="M17.66 9.53l-7.07 7.07-4.24-4.24 1.41-1.41 2.83 2.83 5.66-5.66 1.41 1.41z"
+                style={{
+                    opacity: isLoading ? 0.5 : 1,
+                    transition: 'opacity 0.3s ease-in-out'
+                }}
+            />
+        </SvgIcon>
+    );
+};
