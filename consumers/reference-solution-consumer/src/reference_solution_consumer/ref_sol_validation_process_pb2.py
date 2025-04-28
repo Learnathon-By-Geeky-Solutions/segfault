@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n ref_sol_validation_process.proto\x12\x1aref_sol_validation_process\"U\n\x0eProcessRequest\x12\x32\n\x06status\x18\x01 \x01(\x0e\x32\".ref_sol_validation_process.Status\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x11\n\x0fProcessResponse*[\n\x06Status\x12\x08\n\x04INFO\x10\x00\x12\x08\n\x04WARN\x10\x01\x12\t\n\x05\x45RROR\x10\x02\x12\x0b\n\x07SUCCESS\x10\x03\x12\x0b\n\x07\x46\x41ILURE\x10\x04\x12\x0b\n\x07UNKNOWN\x10\x05\x12\x0b\n\x07VERDICT\x10\x06\x32\x97\x01\n\x17RefSolValidationProcess\x12|\n\x1dstreamRefSolValidationProcess\x12*.ref_sol_validation_process.ProcessRequest\x1a+.ref_sol_validation_process.ProcessResponse\"\x00(\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n ref_sol_validation_process.proto\x12\x1aref_sol_validation_process\"U\n\x0eProcessRequest\x12\x32\n\x06status\x18\x01 \x01(\x0e\x32\".ref_sol_validation_process.Status\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x11\n\x0fProcessResponse*n\n\x06Status\x12\x08\n\x04INFO\x10\x00\x12\x08\n\x04WARN\x10\x01\x12\t\n\x05\x45RROR\x10\x02\x12\x0b\n\x07SUCCESS\x10\x03\x12\x0b\n\x07\x46\x41ILURE\x10\x04\x12\x0b\n\x07UNKNOWN\x10\x05\x12\x0b\n\x07VERDICT\x10\x06\x12\x11\n\rFINAL_VERDICT\x10\x07\x32\x97\x01\n\x17RefSolValidationProcess\x12|\n\x1dstreamRefSolValidationProcess\x12*.ref_sol_validation_process.ProcessRequest\x1a+.ref_sol_validation_process.ProcessResponse\"\x00(\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,11 +32,11 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ref_sol_validation_process_
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_STATUS']._serialized_start=170
-  _globals['_STATUS']._serialized_end=261
+  _globals['_STATUS']._serialized_end=280
   _globals['_PROCESSREQUEST']._serialized_start=64
   _globals['_PROCESSREQUEST']._serialized_end=149
   _globals['_PROCESSRESPONSE']._serialized_start=151
   _globals['_PROCESSRESPONSE']._serialized_end=168
-  _globals['_REFSOLVALIDATIONPROCESS']._serialized_start=264
-  _globals['_REFSOLVALIDATIONPROCESS']._serialized_end=415
+  _globals['_REFSOLVALIDATIONPROCESS']._serialized_start=283
+  _globals['_REFSOLVALIDATIONPROCESS']._serialized_end=434
 # @@protoc_insertion_point(module_scope)

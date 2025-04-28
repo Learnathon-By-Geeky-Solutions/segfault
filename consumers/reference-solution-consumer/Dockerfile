@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # poetry env vars
 ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_VIRTUALENVS_IN_PROJECT=false \
     POETRY_HOME=/opt/poetry
 
 # add poetry to PATH
@@ -18,7 +18,7 @@ RUN mkdir -p ${POETRY_HOME}
 
 # install poetry - do this before user creation
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends curl docker.io && \
     curl -sSL https://install.python-poetry.org | python3 - && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -29,6 +29,7 @@ ARG UID=1000
 RUN groupadd -g $GID codesirius || true && \
     useradd -u $UID -g $GID -m codesirius && \
     mkdir -p /home/codesirius/app && \
+    mkdir -p /home/codesirius/downloads && \
     chown -R codesirius:codesirius /home/codesirius && \
     chmod -R 755 ${POETRY_HOME}
 

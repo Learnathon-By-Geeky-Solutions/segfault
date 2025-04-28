@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import ref_sol_validation_process_pb2 as ref__sol__validation__process__pb2
+import reference_solution_consumer.ref_sol_validation_process_pb2 as ref__sol__validation__process__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__

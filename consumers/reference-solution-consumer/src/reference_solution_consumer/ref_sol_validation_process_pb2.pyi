@@ -14,6 +14,7 @@ class Status(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     FAILURE: _ClassVar[Status]
     UNKNOWN: _ClassVar[Status]
     VERDICT: _ClassVar[Status]
+    FINAL_VERDICT: _ClassVar[Status]
 INFO: Status
 WARN: Status
 ERROR: Status
@@ -21,6 +22,7 @@ SUCCESS: Status
 FAILURE: Status
 UNKNOWN: Status
 VERDICT: Status
+FINAL_VERDICT: Status
 
 class ProcessRequest(_message.Message):
     __slots__ = ("status", "message")
