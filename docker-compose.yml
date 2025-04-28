@@ -136,7 +136,28 @@ services:
     volumes:
       - ./consumers/hidden-test-consumer:/home/codesirius/app
       - /home/codesirius/app/.venv
+    working_dir: /home/codesirius/app
+    command: >
+      sh -c "poetry run python3 src/main.py"
+    profiles:
+      - production
+    networks:
+      - shared
+
+  ref-sol-consumer:
+    build:
+      context: consumers/reference-solution-consumer
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    env_file:
+      - ./consumers/reference-solution-consumer/.env
+    volumes:
+      - ./consumers/reference-solution-consumer:/home/codesirius/app
       - /var/run/docker.sock:/var/run/docker.sock
+      - submission_data:/home/codesirius/downloads:rw
     working_dir: /home/codesirius/app
     command: >
       sh -c "poetry run python3 src/main.py"
@@ -303,6 +324,7 @@ volumes:
   grafana_data:
   redis_data:
     driver: local
+  submission_data:
 
 networks:
   shared:
