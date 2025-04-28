@@ -49,10 +49,11 @@ export async function GET(request: NextRequest) {
             queryParams.append('tags', tags);
         }
 
+        const headersList = await headers();
         const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/problems/?${queryParams.toString()}`, {
             headers: {
                 'Accept': 'application/json',
-                'Authorization': headers().get('Authorization') || ''
+                'Authorization': headersList.get('Authorization') || ''
             }
         });
 
