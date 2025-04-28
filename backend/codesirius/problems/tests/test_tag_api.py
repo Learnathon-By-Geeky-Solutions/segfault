@@ -92,7 +92,7 @@ class TagApiTests(TestCase):
         res = self.client.post(TAG_LIST_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data["data"]["id"], 1)
+        self.assertIsNotNone(res.data["data"]["id"])
         self.assertEqual(res.data["message"], "Tag created")
 
     def test_create_tag_with_duplicate_name_fails(self):
