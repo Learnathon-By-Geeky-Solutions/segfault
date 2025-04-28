@@ -126,6 +126,7 @@ const PORT = 4000;
 
 const allowedOrigins = [
 	"http://localhost:3000",
+	"http://100.64.65.67:3000",
 	"https://codesirius.tech"
 ];
 
