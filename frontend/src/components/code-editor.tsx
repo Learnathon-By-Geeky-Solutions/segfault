@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import {FormControl, IconButton, MenuItem, Select, SelectChangeEvent, Tooltip} from "@mui/material";
 import * as monaco from "monaco-editor";
 import {useAppDispatch, useAppSelector} from "@/lib/hooks/hooks";
-import Grid from "@mui/material/Grid2";
+import Grid from '@mui/material/Grid';
 import {Language} from "@/app/problems/create/types";
 import {setCodesiriusLoading, setTheme} from "@/lib/features/codesirius/codesiriusSlice";
 import FormatPaintIcon from '@mui/icons-material/FormatPaint';
@@ -34,6 +34,13 @@ interface CodeEditorProps {
     };
 }
 
+// Add type declaration for window.monaco
+declare global {
+    interface Window {
+        monaco: typeof monaco;
+    }
+}
+
 const CodeEditor = ({
                         code,
                         languages,
@@ -53,12 +60,19 @@ const CodeEditor = ({
 
     const handleEditorMount: OnMount = (editor, monaco) => {
         editorRef.current = editor;
-
-        // Listen for language changes
-        monaco.editor.onDidChangeModelLanguage(() => {
-            if (!editorRef.current) return;
-        });
+        // Set the theme based on the current mode
+        monaco.editor.setTheme(theme === 'dark' ? 'vs-dark' : 'vs');
     };
+
+    // Update editor theme when theme changes
+    useEffect(() => {
+        if (editorRef.current) {
+            const monacoInstance = window.monaco;
+            if (monacoInstance) {
+                monacoInstance.editor.setTheme(theme === 'dark' ? 'vs-dark' : 'vs');
+            }
+        }
+    }, [theme]);
 
     // Update editor content when language or code changes
     useEffect(() => {
@@ -151,18 +165,16 @@ const CodeEditor = ({
     };
 
     return (
-        <Grid container>
-            <Grid size={12}>
+        <Grid container spacing={0}>
+            <Grid item xs={12}>
                 <Box 
                     display="flex" 
                     flexDirection="column" 
-                    height="72vh"
-                    m={1} 
-                    mb={3}
+                    height="75vh"
                     borderBottom={1}
                     sx={{
                         position: 'relative',
-                        backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff',
+                        backgroundColor: theme === 'dark' ? '#1E1E1E' : '#FFFFFF',
                         borderRadius: '2px',
                         overflow: 'hidden',
                         borderColor: (theme) => alpha(theme.palette.divider, 0.3)
@@ -177,7 +189,7 @@ const CodeEditor = ({
                             padding: '4px 8px',
                             borderBottom: '1px solid',
                             borderColor: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                            backgroundColor: theme === 'dark' ? '#252526' : '#f3f3f3'
+                            backgroundColor: theme === 'dark' ? '#1E1E1E' : '#FFFFFF'
                         }}
                     >
                         <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -307,14 +319,25 @@ const CodeEditor = ({
                                 useShadows: false,
                                 verticalScrollbarSize: 10,
                                 horizontalScrollbarSize: 10
+                            },
+                            bracketPairColorization: {
+                                enabled: true
+                            },
+                            guides: {
+                                bracketPairs: true,
+                                indentation: true
+                            },
+                            suggest: {
+                                preview: true,
+                                showStatusBar: true
                             }
                         }}
-                        theme={theme === "dark" ? "vs-dark" : "vs-light"}
+                        theme={theme === "dark" ? "vs-dark" : "vs"}
                         onChange={onSourceCodeChange}
                     />
                 </Box>
             </Grid>
-            <Grid size={12} mt={2}>
+            <Grid item xs={12} sx={{ mt: 2 }}>
                 {children}
             </Grid>
         </Grid>
