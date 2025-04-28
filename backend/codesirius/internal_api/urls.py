@@ -6,7 +6,7 @@ from internal_api.views.apikey import (
 )
 from internal_api.views.hidden_test_bundle import (
     HiddenTestBundleAPIView,
-    HiddenTestBundleRetrieveUpdateAPIView,
+    # HiddenTestBundleRetrieveUpdateAPIView,
 )
 from internal_api.views.problem import ProblemRetrieveUpdateAPIView
 from internal_api.views.reference_solution import ReferenceSolutionVerdictUpdateAPIView
@@ -28,11 +28,11 @@ urlpatterns = [
         HiddenTestBundleAPIView.as_view(),
         name="hidden-test-bundle",
     ),
-    path(
-        "problems/<int:problem_pk>/hidden-test-bundle/<int:bundle_pk>/",
-        HiddenTestBundleRetrieveUpdateAPIView.as_view(),
-        name="hidden-test-bundle",
-    ),
+    # path(
+    #     "problems/<int:problem_pk>/hidden-test-bundle/<int:bundle_pk>/",
+    #     HiddenTestBundleRetrieveUpdateAPIView.as_view(),
+    #     name="hidden-test-bundle",
+    # ),
     path(
         "problems/<int:problem_pk>/reference-solutions/<int:pk>/",
         ReferenceSolutionVerdictUpdateAPIView.as_view(),
