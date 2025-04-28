@@ -38,6 +38,8 @@ class BaseSubmission(BaseModel):
     verdict = models.CharField(
         max_length=128, choices=Verdict.choices, default=Verdict.PENDING
     )
+    memory_usage = models.FloatField(null=True, blank=True)
+    execution_time = models.FloatField(null=True, blank=True)
 
     class Meta:
         abstract = True
