@@ -15,7 +15,6 @@ const roboto = Roboto({
     variable: '--font-roboto',
 });
 
-
 export default async function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
     const cookieStore = await cookies();
     const theme = cookieStore.get('theme')?.value as themeType || 'light';
@@ -31,16 +30,20 @@ export default async function RootLayout({children}: Readonly<{ children: React.
 
     return (
         <html lang="en">
-        <body className={roboto.variable}>
+        <body className={roboto.variable} style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
         <StoreProvider initialTheme={theme}>
             <CodesiriusApp user={user}>
-                <Box component="main" sx={{p: 3}}>
+                <Box component="main" sx={{
+                    height: '100vh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden'
+                }}>
                     <Toolbar/>
                     {children}
                 </Box>
             </CodesiriusApp>
         </StoreProvider>
-
         </body>
         </html>
     );
