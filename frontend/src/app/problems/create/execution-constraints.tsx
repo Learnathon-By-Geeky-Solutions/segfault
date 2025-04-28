@@ -100,7 +100,10 @@ const ExecutionConstraints = ({
         e.preventDefault();
         let hasError = false;
         executionConstraints.forEach((constraint) => {
-            if (constraint.timeLimit <= 0) {
+            const timeLimit = Number(constraint.timeLimit);
+            const memoryLimit = Number(constraint.memoryLimit);
+            
+            if (isNaN(timeLimit) || timeLimit <= 0) {
                 setExecutionConstraintsError((prev) => {
                     const newErrors = [...prev];
                     newErrors[selectedLanguages.findIndex((l) => l.id === constraint.languageId)] = {
@@ -112,7 +115,7 @@ const ExecutionConstraints = ({
                 showNotification("Time limit must be greater than 0", "error", "Time Limit Error");
                 hasError = true;
             }
-            if (constraint.memoryLimit <= 0) {
+            if (isNaN(memoryLimit) || memoryLimit <= 0) {
                 setExecutionConstraintsError((prev) => {
                     const newErrors = [...prev];
                     newErrors[selectedLanguages.findIndex((l) => l.id === constraint.languageId)] = {
