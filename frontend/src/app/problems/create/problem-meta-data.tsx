@@ -4,27 +4,28 @@ import Box from "@mui/material/Box";
 import {
     Autocomplete,
     ButtonGroup,
+    Card,
+    CardContent,
     Checkbox,
     Chip,
     CircularProgress,
-    Dialog,
-    DialogTitle,
     FormControl,
     FormControlLabel,
     ListItemText,
     MenuItem,
+    Paper,
+    Stack,
     TextField,
-    Tooltip
+    Tooltip,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import {Cancel, Create, Edit, HelpOutline, NavigateNext} from "@mui/icons-material";
+import {Edit, NavigateNext} from "@mui/icons-material";
 import {Language, Tag} from "@/app/problems/create/types";
 import AddIcon from '@mui/icons-material/Add';
 import Link from "@mui/material/Link";
-import {Stack} from "@mui/system";
 import {APIError, CreateUpdateRequest, CreateUpdateResponse, FieldError} from "@/lib/features/api/types";
 import {isFetchBaseQueryError} from "@/lib/utils/isFetchBaseQueryError";
 import {useCreateProblemMutation, useUpdateProblemMutation} from "@/lib/features/api/problemsApiSlice";
@@ -33,12 +34,15 @@ import {
     addCompletedStep,
     addFailedStep,
     incrementProgress,
-    setIsSnackbarOpen,
-    setSnackbarMessage,
     setTitle as setProblemTitle
 } from "@/lib/features/codesirius/addProblemSlice";
 import {setCodesiriusLoading} from "@/lib/features/codesirius/codesiriusSlice";
 import {useRouter} from "next/navigation";
+import {SiCoder, SiCplusplus, SiPython} from 'react-icons/si';
+import {DiJava} from 'react-icons/di';
+import CodeIcon from '@mui/icons-material/Code';
+import {alpha} from '@mui/material/styles';
+import {useNotification} from '@/contexts/NotificationContext';
 
 
 interface ProblemMetaDataProps {
@@ -48,6 +52,7 @@ interface ProblemMetaDataProps {
     title?: string;
     selectedLanguages?: number[];
     selectedTags?: number[];
+    difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
 }
 
 function getNewResourceLink(resource: string, onClick?: () => void): ReactNode {
@@ -104,20 +109,49 @@ function getFooterOption(resource: string, allowCreate: boolean = false, onClick
     )
 }
 
+const getLanguageIcon = (lang: Language) => {
+    switch (lang.name) {
+        case "Python":
+            return <SiPython size={16} />;
+        case "Java":
+            return <DiJava size={16} />;
+        case "C++":
+            return <SiCplusplus size={16} />;
+        default:
+            return <SiCoder size={16} />;
+    }
+};
+
+const getDifficultyColor = (difficulty: 'EASY' | 'MEDIUM' | 'HARD') => {
+    switch (difficulty) {
+        case 'EASY':
+            return '#4CAF50'; // Green
+        case 'MEDIUM':
+            return '#FF9800'; // Orange
+        case 'HARD':
+            return '#F44336'; // Red
+        default:
+            return '#9E9E9E'; // Grey
+    }
+};
+
 const ProblemMetaData = ({
                              problemId,
                              availableLanguages,
                              availableTags,
                              title: _title,
                              selectedLanguages: _selectedLanguages,
-                             selectedTags: _selectedTags
+                             selectedTags: _selectedTags,
+                             difficulty: _difficulty
                          }: ProblemMetaDataProps) => {
     const dispatch = useAppDispatch();
+    const { showNotification } = useNotification();
 
     // global state
     const [title, setTitle] = useState<string>(_title || "");
     const [selectedLanguages, setSelectedLanguages] = useState<number[]>(_selectedLanguages || []);
     const [selectedTags, setSelectedTags] = useState<number[]>(_selectedTags || []);
+    const [difficulty, setDifficulty] = useState<'EASY' | 'MEDIUM' | 'HARD' | undefined>(_difficulty);
 
 
     // // local state
@@ -128,6 +162,7 @@ const ProblemMetaData = ({
     const [titleError, setTitleError] = React.useState<string>("");
     const [languageError, setLanguageError] = React.useState<string>("");
     const [tagError, setTagError] = React.useState<string>("");
+    const [difficultyError, setDifficultyError] = React.useState<string>("");
 
     const fieldValidator = {
         title: () => {
@@ -143,6 +178,11 @@ const ProblemMetaData = ({
         tags: () => {
             if (selectedTags?.length === 0) {
                 setTagError("At least one tag is required");
+            }
+        },
+        difficulty: () => {
+            if (!difficulty) {
+                setDifficultyError("Difficulty level is required");
             }
         }
     }
@@ -198,7 +238,10 @@ const ProblemMetaData = ({
         for (const field in fieldValidator) {
             fieldValidator[field as keyof typeof fieldValidator]();
         }
-        if (title && title.length > 0 && selectedLanguages && selectedLanguages.length > 0 && selectedTags && selectedTags.length > 0) {
+        if (title && title.length > 0 && 
+            selectedLanguages && selectedLanguages.length > 0 && 
+            selectedTags && selectedTags.length > 0 &&
+            difficulty) {
             let problem: CreateUpdateRequest;
 
             try {
@@ -208,14 +251,14 @@ const ProblemMetaData = ({
                     problem = {
                         title: title,
                         languageIds: selectedLanguages,
-                        tagIds: selectedTags
+                        tagIds: selectedTags,
+                        difficulty: difficulty
                     }
                     res = await createProblem(problem).unwrap();
                     if (res.status === 201) {
                         console.log("Problem created successfully");
                         dispatch(setCodesiriusLoading(true));
-                        dispatch(setSnackbarMessage("Problem metadata saved successfully"));
-                        dispatch(setIsSnackbarOpen(true));
+                        showNotification("Problem metadata saved successfully", "success");
                         dispatch(addCompletedStep(0));
                         dispatch(incrementProgress(20));
                         router.push(`/problems/create/${res.data.id}/step/2`);
@@ -226,14 +269,14 @@ const ProblemMetaData = ({
                         id: problemId,  // will be used in request url
                         title: title,
                         languageIds: selectedLanguages,
-                        tagIds: selectedTags
+                        tagIds: selectedTags,
+                        difficulty: difficulty
                     }
                     res = await updateProblem(problem).unwrap();
                     if (res.status === 200) {
                         console.log("Problem updated successfully")
                         dispatch(setCodesiriusLoading(true));
-                        dispatch(setSnackbarMessage("Problem metadata updated successfully"));
-                        dispatch(setIsSnackbarOpen(true));
+                        showNotification("Problem metadata updated successfully", "success");
                         dispatch(addCompletedStep(0));
                         router.push(`/problems/create/${res.data.id}/step/2`);
                     }
@@ -251,12 +294,15 @@ const ProblemMetaData = ({
                         errors.forEach(error => {
                             if (error.field === "title") {
                                 setTitleError(error.message);
+                                showNotification(error.message, "error", "Title Error");
                             }
                             if (error.field === "languages") {
                                 setLanguageError(error.message);
+                                showNotification(error.message, "error", "Language Error");
                             }
                             if (error.field === "tags") {
                                 setTagError(error.message);
+                                showNotification(error.message, "error", "Tag Error");
                             }
                         })
                     }
@@ -329,152 +375,302 @@ const ProblemMetaData = ({
 
 
     return (
-        <Box p={2}>
-            <Grid component="form" container spacing={2} m={1}>
-                <Grid size={12}>
-                    <Typography variant="h6">Problem Meta Data</Typography>
-                    <Divider/>
-                </Grid>
-                <Grid size={12}>
-                    <Typography variant="body1" fontWeight={500} color="textSecondary">
-                        What is the title of your problem?
-                    </Typography>
-                </Grid>
-                <Grid size={12}>
-                    <FormControl fullWidth>
-                        <TextField
-                            value={title}
-                            fullWidth
-                            id="title"
-                            label="Title"
-                            variant="outlined"
-                            placeholder="Problem Title"
-                            onChange={handleTitleChange}
-                            error={titleError.length > 0}
-                            helperText={titleError || "Keep it short and sweet"}
-                            onBlur={handleTitleBlur}
-                        />
-                    </FormControl>
-                </Grid>
-                <Grid size={12}>
-                    <Typography variant="body1" fontWeight={500} color="textSecondary">
-                        Language and Tags
-                    </Typography>
-                </Grid>
-                <Grid size={12}>
-                    <FormControl fullWidth>
-                        <Autocomplete
-                            multiple
-                            id="languages"
-                            options={[
-                                ...availableLanguages.toSorted((a, b) => -b.name.localeCompare(a.name)),
-                                {
-                                    id: -1,
-                                    name: "Escape",
-                                    version: ""
-                                }]}
-                            getOptionLabel={(option) => `${option.name} ${option.version}`}
-                            defaultValue={[]}
-                            filterSelectedOptions
-                            autoHighlight
-                            disableCloseOnSelect
-                            value={availableLanguages.filter(l => selectedLanguages?.includes(l.id))}
-                            groupBy={(option) => option.id === -1 ? "" : option.name}
-                            // renderGroup={(params) => (
-                            //     <li key={params.key}>
-                            //         <GroupHeader>{params.group}</GroupHeader>
-                            //         <GroupItems>{params.children}</GroupItems>
-                            //     </li>
-                            // )}
-                            onChange={handleLanguageChange}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    variant="outlined"
-                                    label="Languages"
-                                    placeholder="Languages"
-                                    error={languageError.length > 0}
-                                    helperText={languageError || "Select the languages you want to support"}
-                                    onBlur={handleLanguageBlur}
-                                />
-                            )}
-                            noOptionsText={getNoOptionsText("language")}
-                            renderOption={(props, option) => {
-                                if (option.id === -1) {
-                                    return getFooterOption("language");
-                                }
-                                return (
-                                    <MenuItem {...props} key={props.key}>
-                                        <ListItemText
-                                            primary={`${option.name} ${option.version}`}/>
-                                    </MenuItem>
-                                )
-                            }}
-                        />
-                    </FormControl>
-                </Grid>
+        <Card elevation={0} sx={{ 
+            borderRadius: 2,
+            background: 'transparent',
+            '& .MuiTableCell-root': {
+                borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+            }
+        }}>
+            <CardContent>
+                <Stack spacing={3}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <CodeIcon sx={{ color: 'primary.main' }} />
+                        <Typography variant="h5" fontWeight="600">
+                            Problem Meta Data
+                        </Typography>
+                    </Stack>
 
-                <Grid size={12}>
-                    <FormControl fullWidth>
-                        <Autocomplete
-                            multiple
-                            id="tags"
-                            options={[
-                                ...availableTags.sort((a, b) => -b.name.localeCompare(a.name)),
-                                {
-                                    id: -1,
-                                    name: "New Tag",
-                                    description: ""
-                                }]}
-                            groupBy={(option) => option.id === -1 ? "" : option.name[0]}
-                            getOptionLabel={(option) => option.name}
-                            defaultValue={[]}
-                            filterSelectedOptions
-                            autoHighlight
-                            disableCloseOnSelect
-                            value={availableTags.filter(t => selectedTags?.includes(t.id))}
-                            onChange={handleTagChange}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    variant="outlined"
-                                    label="Tags"
-                                    placeholder="Tags"
-                                    error={tagError.length > 0}
-                                    helperText={tagError || "Select the tags that best describe the problem"}
-                                    onBlur={handleTagBlur}
-                                />
-                            )}
-                            renderTags={(value: Tag[], getTagProps) => {
-                                return value.map((option, index) => (
-                                    <Tooltip arrow placement="top"
-                                             title={option.description} key={index}>
-                                        <Chip
-                                            label={option.name} {...getTagProps({index})}
-                                            key={undefined}/>
-                                    </Tooltip>
-                                ))
-                            }}
-                            noOptionsText={getNoOptionsText("tag")}
-                            renderOption={(props, option) => {
-                                if (option.id === -1) {
-                                    return getFooterOption("tag", true, () => setTagCreationDialogOpen(true));
-                                }
-                                return (
-                                    <MenuItem {...props} key={props.key}>
-                                        <ListItemText primary={option.name}/>
-                                    </MenuItem>
-                                )
-                            }}
-                        />
-                    </FormControl>
-                </Grid>
+                    <Paper elevation={0} sx={{ 
+                        p: 3,
+                        borderRadius: 2,
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        backdropFilter: 'blur(10px)',
+                    }}>
+                        <Stack spacing={3}>
+                            <Stack spacing={1}>
+                                <Typography variant="body1" fontWeight={500} color="text.secondary">
+                                    What is the title of your problem?
+                                </Typography>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        value={title}
+                                        fullWidth
+                                        id="title"
+                                        label="Title"
+                                        variant="outlined"
+                                        placeholder="Problem Title"
+                                        onChange={handleTitleChange}
+                                        error={titleError.length > 0}
+                                        helperText={titleError || "Keep it short and sweet"}
+                                        onBlur={handleTitleBlur}
+                                        size="small"
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 1.5,
+                                            }
+                                        }}
+                                    />
+                                </FormControl>
+                            </Stack>
 
-                <Grid size={12}>
-                    <FormControlLabel disabled control={<Checkbox defaultChecked/>}
-                                      label="Private Problem"/>
-                </Grid>
-                <Grid size={12}>
+                            <Stack spacing={1}>
+                                <Typography variant="body1" fontWeight={500} color="text.secondary">
+                                    Language and Tags
+                                </Typography>
+                                <FormControl fullWidth>
+                                    <Autocomplete
+                                        multiple
+                                        id="languages"
+                                        options={[
+                                            ...availableLanguages.toSorted((a, b) => -b.name.localeCompare(a.name)),
+                                            {
+                                                id: -1,
+                                                name: "Escape",
+                                                version: ""
+                                            }]}
+                                        getOptionLabel={(option) => `${option.name} ${option.version}`}
+                                        defaultValue={[]}
+                                        filterSelectedOptions
+                                        autoHighlight
+                                        disableCloseOnSelect
+                                        value={availableLanguages.filter(l => selectedLanguages?.includes(l.id))}
+                                        groupBy={(option) => option.id === -1 ? "" : option.name}
+                                        onChange={handleLanguageChange}
+                                        sx={{
+                                            '& .MuiAutocomplete-listbox': {
+                                                bgcolor: (theme) => theme.palette.mode === 'dark' 
+                                                    ? alpha(theme.palette.background.paper, 0.95)
+                                                    : alpha(theme.palette.background.paper, 0.98),
+                                                border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                                                borderRadius: 1,
+                                                boxShadow: (theme) => `0 4px 20px ${alpha(theme.palette.common.black, 0.15)}`,
+                                                '& .MuiAutocomplete-option': {
+                                                    py: 1,
+                                                    px: 2,
+                                                    bgcolor: (theme) => theme.palette.mode === 'dark'
+                                                        ? alpha(theme.palette.background.paper, 0.7)
+                                                        : alpha(theme.palette.background.paper, 0.8),
+                                                    '&:hover': {
+                                                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08)
+                                                    },
+                                                    '&[aria-selected="true"]': {
+                                                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12)
+                                                    }
+                                                },
+                                                '& .MuiAutocomplete-groupLabel': {
+                                                    py: 1,
+                                                    px: 2,
+                                                    bgcolor: (theme) => theme.palette.mode === 'dark'
+                                                        ? alpha(theme.palette.background.paper, 0.8)
+                                                        : alpha(theme.palette.background.paper, 0.9),
+                                                    fontWeight: 600,
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                    borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.1)}`
+                                                }
+                                            }
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                variant="outlined"
+                                                label="Languages"
+                                                placeholder="Languages"
+                                                error={languageError.length > 0}
+                                                helperText={languageError || "Select the languages you want to support"}
+                                                onBlur={handleLanguageBlur}
+                                                size="small"
+                                                sx={{
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: 1.5,
+                                                    }
+                                                }}
+                                            />
+                                        )}
+                                        renderTags={(value: Language[], getTagProps) => {
+                                            return value.map((option, index) => {
+                                                const { key, ...chipProps } = getTagProps({ index });
+                                                return (
+                                                    <Chip
+                                                        key={key}
+                                                        label={
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                                {getLanguageIcon(option)}
+                                                                <span>{option.name} {option.version}</span>
+                                                            </Box>
+                                                        }
+                                                        {...chipProps}
+                                                        sx={{
+                                                            '& .MuiChip-label': {
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: 0.5,
+                                                                px: 0.5,
+                                                                pr: 1
+                                                            },
+                                                            '& .MuiChip-deleteIcon': {
+                                                                margin: '0 2px 0 -6px'
+                                                            }
+                                                        }}
+                                                    />
+                                                );
+                                            });
+                                        }}
+                                        noOptionsText={getNoOptionsText("language")}
+                                        renderOption={(props: React.HTMLAttributes<HTMLLIElement> & { key?: string }, option: Language) => {
+                                            if (option.id === -1) {
+                                                return getFooterOption("language");
+                                            }
+                                            const { key, ...otherProps } = props;
+                                            return (
+                                                <MenuItem key={key} {...otherProps}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                        {getLanguageIcon(option)}
+                                                        <ListItemText primary={`${option.name} ${option.version}`}/>
+                                                    </Box>
+                                                </MenuItem>
+                                            )
+                                        }}
+                                    />
+                                </FormControl>
+                            </Stack>
+
+                            <Stack spacing={1}>
+                                <FormControl fullWidth>
+                                    <Autocomplete
+                                        multiple
+                                        id="tags"
+                                        options={[
+                                            ...availableTags.sort((a, b) => -b.name.localeCompare(a.name)),
+                                            {
+                                                id: -1,
+                                                name: "New Tag",
+                                                description: ""
+                                            }]}
+                                        groupBy={(option) => option.id === -1 ? "" : option.name[0]}
+                                        getOptionLabel={(option) => option.name}
+                                        defaultValue={[]}
+                                        filterSelectedOptions
+                                        autoHighlight
+                                        disableCloseOnSelect
+                                        value={availableTags.filter(t => selectedTags?.includes(t.id))}
+                                        onChange={handleTagChange}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                variant="outlined"
+                                                label="Tags"
+                                                placeholder="Tags"
+                                                error={tagError.length > 0}
+                                                helperText={tagError || "Select the tags that best describe the problem"}
+                                                onBlur={handleTagBlur}
+                                                size="small"
+                                                sx={{
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: 1.5,
+                                                    }
+                                                }}
+                                            />
+                                        )}
+                                        renderTags={(value: Tag[], getTagProps) => {
+                                            return value.map((option, index) => (
+                                                <Tooltip arrow placement="top"
+                                                         title={option.description} key={index}>
+                                                    <Chip
+                                                        label={option.name} {...getTagProps({index})}
+                                                        key={undefined}
+                                                        sx={{
+                                                            '& .MuiChip-label': {
+                                                                px: 1,
+                                                            }
+                                                        }}
+                                                    />
+                                                </Tooltip>
+                                            ))
+                                        }}
+                                        noOptionsText={getNoOptionsText("tag")}
+                                        renderOption={(props: React.HTMLAttributes<HTMLLIElement> & { key?: string }, option) => {
+                                            if (option.id === -1) {
+                                                return getFooterOption("tag", true, () => setTagCreationDialogOpen(true));
+                                            }
+                                            const { key, ...otherProps } = props;
+                                            return (
+                                                <MenuItem key={key} {...otherProps}>
+                                                    <ListItemText primary={option.name}/>
+                                                </MenuItem>
+                                            )
+                                        }}
+                                    />
+                                </FormControl>
+                            </Stack>
+
+                            <Stack spacing={1}>
+                                <Typography variant="body1" fontWeight={500} color="text.secondary">
+                                    Difficulty Level
+                                </Typography>
+                                <ButtonGroup fullWidth>
+                                    {(['EASY', 'MEDIUM', 'HARD'] as const).map((level) => (
+                                        <Button
+                                            key={level}
+                                            variant={difficulty === level ? 'contained' : 'outlined'}
+                                            onClick={() => {
+                                                setDifficulty(level);
+                                                if (difficultyError) setDifficultyError("");
+                                            }}
+                                            sx={{
+                                                textTransform: 'none',
+                                                fontWeight: 600,
+                                                backgroundColor: difficulty === level ? getDifficultyColor(level) : 'transparent',
+                                                color: difficulty === level ? 'white' : 'text.primary',
+                                                borderColor: difficultyError ? 'error.main' : getDifficultyColor(level),
+                                                '&:hover': {
+                                                    backgroundColor: difficulty === level ? getDifficultyColor(level) : alpha(getDifficultyColor(level), 0.1),
+                                                    borderColor: getDifficultyColor(level),
+                                                }
+                                            }}
+                                        >
+                                            {level.charAt(0) + level.slice(1).toLowerCase()}
+                                        </Button>
+                                    ))}
+                                </ButtonGroup>
+                                {difficultyError && (
+                                    <Typography variant="caption" color="error">
+                                        {difficultyError}
+                                    </Typography>
+                                )}
+                            </Stack>
+
+                            <FormControlLabel 
+                                control={
+                                    <Checkbox 
+                                        defaultChecked
+                                        sx={{
+                                            '& .MuiSvgIcon-root': {
+                                                fontSize: 20,
+                                            }
+                                        }}
+                                    />
+                                }
+                                label={
+                                    <Typography variant="body2" color="text.secondary">
+                                        Private Problem
+                                    </Typography>
+                                }
+                            />
+                        </Stack>
+                    </Paper>
+
                     <Box display="flex" justifyContent="flex-end">
                         <FormControl>
                             {problemId === undefined ?
@@ -483,9 +679,15 @@ const ProblemMetaData = ({
                                     variant="contained"
                                     color="primary"
                                     onClick={handleSubmit}
-                                    endIcon={isLoading ? <CircularProgress size={20}/> :
-                                        <NavigateNext/>}
+                                    endIcon={isLoading ? <CircularProgress size={20}/> : <NavigateNext/>}
                                     disabled={isLoading}
+                                    sx={{
+                                        borderRadius: 2,
+                                        px: 4,
+                                        py: 1,
+                                        textTransform: 'none',
+                                        fontWeight: 600,
+                                    }}
                                 >
                                     Next
                                 </Button>
@@ -495,102 +697,24 @@ const ProblemMetaData = ({
                                     variant="contained"
                                     color="primary"
                                     onClick={handleSubmit}
-                                    startIcon={isUpdating ?
-                                        <CircularProgress size={20}/> : <Edit/>}
+                                    startIcon={isUpdating ? <CircularProgress size={20}/> : <Edit/>}
                                     disabled={isUpdating}
+                                    sx={{
+                                        borderRadius: 2,
+                                        px: 4,
+                                        py: 1,
+                                        textTransform: 'none',
+                                        fontWeight: 600,
+                                    }}
                                 >
                                     Update
                                 </Button>
-
                             }
                         </FormControl>
                     </Box>
-                </Grid>
-            </Grid>
-            <Dialog
-                open={isTagCreationDialogOpen}
-                onClose={() => setTagCreationDialogOpen(false)}
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle>Create a Tag</DialogTitle>
-                <Divider/>
-                <Grid container p={2} gap={2}>
-                    <Grid size={12}>
-                        <FormControl>
-                            <TextField
-                                value={tagName}
-                                onChange={handleTagTitleChange}
-                                onBlur={handleTagTitleBlur}
-                                error={tagTitleError.length > 0}
-                                helperText={tagTitleError || "Keep it short and sweet."}
-                                size="small"
-                                fullWidth
-                                id="tagName"
-                                label="Tag Name"
-                                variant="outlined"
-                                placeholder="Tag Name"
-                            />
-                        </FormControl>
-                        <Tooltip
-                            arrow
-                            placement="right"
-                            title={
-                                <>
-                                    <Typography variant="body2">
-                                        Tag name should be unique and descriptive. <br/>
-                                        For example:
-                                    </Typography>
-                                    <ul style={{margin: 0, paddingLeft: "20px"}}>
-                                        <li><code>dynamic-programming</code></li>
-                                        <li>binary-search</li>
-                                        <li>graph-theory</li>
-                                        <li>greedy</li>
-                                    </ul>
-                                </>
-                            }>
-                            <HelpOutline fontSize="small" cursor="pointer" style={{marginLeft: "8px", marginTop: 10}}/>
-                        </Tooltip>
-
-                    </Grid>
-                    <Grid size={12}>
-                        <FormControl fullWidth>
-                            <TextField
-                                value={tagDescription}
-                                onChange={handleTagDescriptionChange}
-                                onBlur={handleTagDescriptionBlur}
-                                error={tagDescriptionError.length > 0}
-                                helperText={tagDescriptionError || "This will appear as a tooltip on the tag"}
-                                size="small"
-                                fullWidth
-                                multiline
-                                minRows={3}
-                                id="tagDescription"
-                                label="Tag Description"
-                                variant="outlined"
-                                placeholder="Tag Description"
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid size={12}>
-                        <Box display="flex" justifyContent="flex-end" m={2}>
-                            <ButtonGroup size="small">
-                                <Button variant="contained" color="primary"
-                                        startIcon={<Create/>}
-                                        onClick={handleTagCreationSubmit}>Create</Button>
-                                <Button variant="contained" color="error"
-                                        startIcon={<Cancel/>}
-                                        onClick={() => setTagCreationDialogOpen(false)}>Cancel</Button>
-                            </ButtonGroup>
-                        </Box>
-                        <Typography variant="body2" color="textSecondary"
-                                    textAlign="right" mr={2}>
-                            Press ESC to cancel
-                        </Typography>
-                    </Grid>
-                </Grid>
-            </Dialog>
-        </Box>
+                </Stack>
+            </CardContent>
+        </Card>
     );
 };
 

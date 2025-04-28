@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {
+    CreateUpdateReferenceSolutionRequest, CreateUpdateReferenceSolutionResponse,
     CreateUpdateRequest,
     CreateUpdateResponse, DeleteHiddenTestsRequest, DeleteHiddenTestsResponse,
     DeleteSampleTestRequest,
@@ -9,7 +10,9 @@ import {
     UpsertExecutionConstraintRequest,
     UpsertExecutionConstraintResponse,
     UpsertSampleTestsRequest,
-    UpsertSampleTestsResponse
+    UpsertSampleTestsResponse,
+    ProblemsResponse,
+    Tag
 } from "@/lib/features/api/types";
 const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -18,6 +21,23 @@ export const problemsApiSlice = createApi({
     reducerPath: 'problemsApi',
     baseQuery: fetchBaseQuery({baseUrl: `${NEXT_PUBLIC_BACKEND_URL}/api/problems`}),
     endpoints: (builder) => ({
+        getProblems: builder.query<ProblemsResponse, { page?: number; title?: string; tags?: number[] }>({
+            query: (params) => ({
+                url: '/',
+                method: 'GET',
+                params: {
+                    page: params.page || 1,
+                    ...(params.title && { title: params.title }),
+                    ...(params.tags && params.tags.length > 0 && { tags: params.tags.join(',') })
+                }
+            })
+        }),
+        getTags: builder.query<{ data: Tag[] }, void>({
+            query: () => ({
+                url: '/tags/',
+                method: 'GET'
+            })
+        }),
         createProblem: builder.mutation<CreateUpdateResponse, CreateUpdateRequest>({
             query: (data) => ({
                 url: '/',
@@ -93,17 +113,54 @@ export const problemsApiSlice = createApi({
                 }
             })
         }),
+        createReferenceSolution: builder.mutation<CreateUpdateReferenceSolutionResponse, CreateUpdateReferenceSolutionRequest>({
+            query: ({problemId, ...data}) => ({
+                url: `/${problemId}/reference-solutions/`,
+                method: 'POST',
+                body: data,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+        }),
+        updateReferenceSolution: builder.mutation<CreateUpdateReferenceSolutionResponse, CreateUpdateReferenceSolutionRequest>({
+            query: ({id, problemId, ...data}) => ({
+                url: `/${problemId}/reference-solutions/${id}`,
+                method: 'PATCH',
+                body: data,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+        }),
+        publishProblem: builder.mutation<{ status: number; message: string; timestamp: string }, { problemId: number }>({
+            query: ({ problemId }) => ({
+                url: `/${problemId}/publish/`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+        }),
     })
 });
 
 
 export const {
+    useGetProblemsQuery,
+    useGetTagsQuery,
     useCreateProblemMutation,
     useUpdateProblemMutation,
     useUpsertExecutionConstraintsMutation,
     useUpsertSampleTestsMutation,
     useDeleteSampleTestMutation,
     useProcessHiddenTestsMutation,
-    useDeleteHiddenTestsMutation
+    useDeleteHiddenTestsMutation,
+    useCreateReferenceSolutionMutation,
+    useUpdateReferenceSolutionMutation,
+    usePublishProblemMutation
 } = problemsApiSlice;
 

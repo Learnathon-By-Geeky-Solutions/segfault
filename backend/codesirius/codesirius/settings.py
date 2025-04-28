@@ -43,9 +43,9 @@ ALLOWED_HOSTS = [
     "0.0.0.0",
     "localhost",  # localhost for development
     "backend",  # Docker container name (for internal communication)
-    "100.64.65.67",
     environ.get("TAILSCALE_VPN_IP"),  # Tailscale VPN IP for development
     environ.get("TAILSCALE_MAGICDNS"),  # Tailscale MagicDNS for development
+    "100.64.65.66",  # Tailscale IP for development
 ]
 
 

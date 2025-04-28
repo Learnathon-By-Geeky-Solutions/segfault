@@ -6,6 +6,7 @@ import {User} from "@/lib/features/api/types";
 import {redirect} from "next/navigation";
 import SplitPane from "@/components/SplitPane";
 import LivePreview from "@/components/live-preview";
+import { Box } from '@mui/material';
 
 const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
 
@@ -41,16 +42,35 @@ const Page = async () => {
 
     const tags = await tagsRes.json();
     return (
-        <div>
+        <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            flex: 1,
+            overflow: 'hidden',
+            p: 2
+        }}>
             <CreateProblemStepper step={0}/>
-            <SplitPane
-                leftChildren={
-                    <ProblemMetaData
-                        availableLanguages={languages.data}
-                        availableTags={tags.data}/>
-                }
-                rightChildren={<LivePreview/>}/>
-        </div>
+            <Box sx={{ 
+                flex: 1,
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                mt: 2
+            }}>
+                <SplitPane
+                    leftChildren={
+                        <ProblemMetaData
+                            availableLanguages={languages.data}
+                            availableTags={tags.data}/>
+                    }
+                    rightChildren={
+                        <Box sx={{ height: '100%' }}>
+                            <LivePreview/>
+                        </Box>
+                    }
+                />
+            </Box>
+        </Box>
     );
 };
 

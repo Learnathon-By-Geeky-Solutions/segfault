@@ -59,6 +59,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "hiddenTestBundle",  # READ
             "createdBy",  # READ
             "status",  # READ
+            "difficulty",  # READ, WRITE
         ]
         extra_kwargs = {
             "status": {"default": Problem.Status.DRAFT, "read_only": True},

@@ -92,6 +92,7 @@ export interface CreateUpdateRequest {
     description?: string;
     executionConstraints?: ExecutionConstraint;
     sampleTests?: SampleTest[];
+    difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
 }
 
 export interface CreateUpdateResponse {
@@ -106,6 +107,7 @@ export interface CreateUpdateResponse {
         tags: number[];
         executionConstraints: ExecutionConstraint[];
         sampleTests: SampleTest[];
+        difficulty: 'EASY' | 'MEDIUM' | 'HARD';
     }
 }
 
@@ -163,4 +165,87 @@ export interface DeleteHiddenTestsResponse {
     status: number;
     message: string;
     timestamp: string;
+}
+
+export interface CreateUpdateReferenceSolutionRequest {
+    id?: number;
+    problemId: number;
+    languageId: number;
+    code: string;
+    clientId: string;
+}
+
+export interface ReferenceSolution {
+    id: number;
+    problemId: number;
+    code: string;
+    languageId: number;
+    verdict: string;
+    memory_usage: number;
+    execution_time: number;
+}
+
+export interface CreateUpdateReferenceSolutionResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+    data: ReferenceSolution;
+}
+
+export interface Problem {
+    id: number;
+    title: string;
+    languages: {
+        id: number;
+        name: string;
+        version: string;
+    }[];
+    tags: {
+        id: number;
+        name: string;
+        description: string;
+    }[];
+    description: string;
+    difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+    executionConstraints: {
+        id: number;
+        languageId: number;
+        timeLimit: number;
+        memoryLimit: number;
+    }[];
+    sampleTests: {
+        id: number;
+        input: string;
+        output: string;
+    }[];
+    hiddenTestBundle: {
+        id: number;
+        test_count: number;
+    };
+    createdBy: number;
+    status: string;
+}
+
+export interface PaginationInfo {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    current_page: number;
+    total_pages: number;
+}
+
+export interface ProblemsResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+    data: {
+        results: Problem[];
+        pagination: PaginationInfo;
+    }
+}
+
+export interface Tag {
+    id: number;
+    name: string;
+    description: string;
 }

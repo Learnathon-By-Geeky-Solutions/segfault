@@ -24,12 +24,20 @@ class Problem(BaseModel):
         DRAFT = "DRAFT"
         PUBLISHED = "PUBLISHED"
 
+    class Difficulty(models.TextChoices):
+        EASY = "EASY"
+        MEDIUM = "MEDIUM"
+        HARD = "HARD"
+
     title = models.CharField(max_length=200, unique=True)
     description = models.TextField(max_length=5000, blank=True)
     tags = models.ManyToManyField(Tag)
     languages = models.ManyToManyField(Language)
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.DRAFT
+    )
+    difficulty = models.CharField(
+        max_length=10, choices=Difficulty.choices, default=Difficulty.EASY
     )
 
     class Meta:

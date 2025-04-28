@@ -126,7 +126,7 @@ const PORT = 4000;
 
 const allowedOrigins = [
 	"http://localhost:3000",
-	"http://100.64.65.67:3000",
+	"http://100.64.65.67",
 	"https://codesirius.tech"
 ];
 
@@ -196,7 +196,7 @@ app.post("/register", async (req: Request, res: Response) => {
 });
 
 // SSE Streaming for a Specific Client
-app.get("/events/:clientId/hidden-tests", async (req: Request, res: Response) => {
+app.get("/events/:clientId/", async (req: Request, res: Response) => {
 	const authorization = req.cookies["access"];
 	if (!authorization) {
 		res.status(401).json({ error: "Access Token is required" });

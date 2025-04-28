@@ -1,14 +1,13 @@
 import logging
 
 from rest_framework import status
-from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from codesirius.codesirius_api_response import CodesiriusAPIResponse
 from internal_api.auth import APIAuthentication
+from internal_api.serializers.problem import ProblemSerializer
 from problems.models import Problem
-from problems.serializers.problem import ProblemSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,13 @@ class ProblemRetrieveUpdateAPIView(APIView):
         logger.info(f"Fetching problem with ID: {pk}")
 
         try:
-            problem = Problem.objects.get(pk=pk)
+            problem = Problem.objects.prefetch_related(
+                "sample_tests",
+                "hidden_test_bundle",
+                "execution_constraints",
+                "referencesolution_set",
+            ).get(pk=pk)
+            logger.info(problem)
         except Problem.DoesNotExist:
             return CodesiriusAPIResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
