@@ -9,6 +9,7 @@ import {AppDispatch} from "@/lib/store";
 import {setUser} from "@/lib/features/codesirius/codesiriusSlice";
 import {createCodeSiriusTheme} from "@/lib/utils/create-theme";
 import {User} from "@/lib/features/api/types";
+import { NotificationProvider } from '@/contexts/NotificationContext';
 
 interface CodesiriusThemeProviderProps {
     children: ReactNode;
@@ -26,8 +27,10 @@ const CodesiriusApp = ({children, user}: CodesiriusThemeProviderProps) => {
     return (
         <AppRouterCacheProvider>
             <ThemeProvider theme={createCodeSiriusTheme(theme)}>
-                <CodesiriusAppBar/>
-                {children}
+                <NotificationProvider>
+                    <CodesiriusAppBar/>
+                    {children}
+                </NotificationProvider>
             </ThemeProvider>
         </AppRouterCacheProvider>
     );
