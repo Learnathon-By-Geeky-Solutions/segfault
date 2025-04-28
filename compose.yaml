@@ -19,7 +19,8 @@ services:
     environment:
       - GITHUB_ACTIONS=${GITHUB_ACTIONS:-false}
     env_file:
-      - .env
+      - path: .env
+        required: false
     depends_on:
       db:
         condition: service_healthy
@@ -92,7 +93,8 @@ services:
       - "4000:4000"
       - "50051:50051"
     env_file:
-      - ./backend/sse/.env
+      - path: ./backend/sse/.env
+        required: false
     working_dir: /app
     command: >
       sh -c "npm run start"
@@ -111,7 +113,8 @@ services:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
     env_file:
-      - ./consumers/email-consumer/.env
+      - path: ./consumers/email-consumer/.env
+        required: false
     volumes:
       - ./consumers/email-consumer:/home/codesirius/app
       - /home/codesirius/app/.venv
@@ -132,7 +135,8 @@ services:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
     env_file:
-      - ./consumers/hidden-test-consumer/.env
+      - path: ./consumers/hidden-test-consumer/.env
+        required: false
     volumes:
       - ./consumers/hidden-test-consumer:/home/codesirius/app
       - /home/codesirius/app/.venv
@@ -153,7 +157,8 @@ services:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
     env_file:
-      - ./consumers/reference-solution-consumer/.env
+      - path: ./consumers/reference-solution-consumer/.env
+        required: false
     volumes:
       - ./consumers/reference-solution-consumer:/home/codesirius/app
       - /var/run/docker.sock:/var/run/docker.sock
@@ -178,7 +183,8 @@ services:
       - ./frontend/src:/app/src
     working_dir: /app
     env_file:
-      - frontend/.env
+      - path: frontend/.env
+        required: false
     command: >
       sh -c  "npm run dev"
     profiles:
@@ -197,7 +203,8 @@ services:
     volumes:
       - ./frontend/src:/app/src
     env_file:
-      - frontend/.env
+      - path: frontend/.env
+        required: false
     working_dir: /app
     command: >
       sh -c  "npm run build && npm run start"
