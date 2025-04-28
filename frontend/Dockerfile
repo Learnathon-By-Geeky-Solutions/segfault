@@ -1,4 +1,4 @@
-FROM node:22.13.1-alpine3.21
+FROM node:22.15.0-alpine3.21
 LABEL maintainer="segfault"
 
 WORKDIR /app
