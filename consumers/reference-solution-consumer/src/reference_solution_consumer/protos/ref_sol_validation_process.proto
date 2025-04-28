@@ -19,6 +19,7 @@ enum Status {
   FAILURE = 4;
   UNKNOWN = 5;
   VERDICT = 6;
+  FINAL_VERDICT = 7;
 }
 
 message ProcessResponse {}
