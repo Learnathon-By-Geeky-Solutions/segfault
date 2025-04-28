@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # poetry env vars
 ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_VIRTUALENVS_IN_PROJECT=false\
     POETRY_HOME=/opt/poetry
 
 # add poetry to PATH
