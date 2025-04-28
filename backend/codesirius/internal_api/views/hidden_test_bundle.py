@@ -1,10 +1,12 @@
 import logging
 
+from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from codesirius.codesirius_api_response import CodesiriusAPIResponse
+from internal_api.auth import APIAuthentication
 from internal_api.serializers.hidden_test_bundle import HiddenTestBundleSerializer
 from problems.models import HiddenTestBundle, Problem
 
@@ -12,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class HiddenTestBundleAPIView(APIView):
+    authentication_classes = [APIAuthentication]
+
     def get_problem(self, problem_pk: int) -> Problem:
         try:
             return Problem.objects.get(id=problem_pk)
@@ -30,7 +34,9 @@ class HiddenTestBundleAPIView(APIView):
         serializer = HiddenTestBundleSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return CodesiriusAPIResponse(data=serializer.data)
+            return CodesiriusAPIResponse(
+                data=serializer.data, status_code=status.HTTP_201_CREATED
+            )
 
 
 class HiddenTestBundleRetrieveUpdateAPIView(APIView):

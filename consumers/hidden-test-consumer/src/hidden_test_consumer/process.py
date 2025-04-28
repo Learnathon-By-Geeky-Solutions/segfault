@@ -1,39 +1,23 @@
 import logging
 import os
 import shutil
-import time
 import zipfile
+from random import randint
 from time import sleep
-from typing import Iterator, Generator
+from typing import Iterator, Generator, TypedDict
+from hidden_test_consumer.logger import setup_logger
 
 import grpc
+import requests
 
 from hidden_test_consumer.aws_client import AWSClient
 from hidden_test_consumer.hidden_test_process_pb2 import Status, ProcessRequest
 from hidden_test_consumer.hidden_test_process_pb2_grpc import HiddenTestProcessStub
 
 
-def setup_logger(name: str, log_file: str = None):
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter(
-        "[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
-        "%m-%d %H:%M:%S",
-    )
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    return logger
+class HiddenTestBundleData(TypedDict):
+    s3_path: str
+    test_count: int
 
 
 class HiddenTestProcessor:
@@ -44,7 +28,8 @@ class HiddenTestProcessor:
     def __init__(
         self, problem_id: int, client_id: str, bucket_name: str, grpc_server: str
     ):
-        self.logger = setup_logger("HiddenTestProcessor")
+        log_level = os.environ.get("LOG_LEVEL", "INFO")
+        self.logger = setup_logger("HiddenTestProcessor", log_level, "hidden_test_processor.log")
 
         self.problem_id = problem_id
         self.client_id = client_id
@@ -52,7 +37,9 @@ class HiddenTestProcessor:
         self.grpc_server = grpc_server
 
         self.download_dir = os.environ.get("DOWNLOAD_DIR", "/tmp")
-        self.persist_data = os.environ.get("PERSIST_DATA", False)
+        self.persist_data = os.environ.get("PERSIST_DATA", "false").lower() == "true"
+        self.backend_url = os.environ.get("BACKEND_URL", "http://localhost:8000")
+        self.api_key = os.environ.get("API_KEY", None)
 
         if not self.problem_id:
             raise ValueError("Problem ID is required.")
@@ -72,16 +59,23 @@ class HiddenTestProcessor:
         """
 
         aws_client = AWSClient("s3").get_client()
+        self.logger.info(f"AWS Client: {aws_client}")
 
-        # check if file exists
         try:
             yield ProcessRequest(
                 status=Status.INFO, message="📥 Collecting hidden test data..."
             )
+            path = os.path.join(self.download_dir, "hidden-tests.zip")
+            # clear from local if exists
+            if os.path.exists(path):
+                self.logger.info("Removing existing hidden-tests.zip")
+                os.remove(path)
+
+            self.logger.info(f"Downloading hidden test into {path}")
             aws_client.download_file(
                 Bucket=self.bucket_name,
                 Key=f"unprocessed/{self.problem_id}/hidden-tests.zip",
-                Filename=f"{self.download_dir}/hidden-tests.zip",
+                Filename=path,
             )
             yield ProcessRequest(
                 status=Status.INFO, message="✔️ Hidden test data collected"
@@ -118,9 +112,9 @@ class HiddenTestProcessor:
         Expected directory structure:
         extracted/
         ├── input
-        │   ├── input1.txt
-        │   ├── input2.txt
-        │   └── input3.txt
+        │   ├── input1.txt
+        │   ├── input2.txt
+        │   └── input3.txt
         └── output
             ├── output1.txt
             ├── output2.txt
@@ -175,7 +169,7 @@ class HiddenTestProcessor:
                     status=Status.INFO,
                     message=f"📝 Found valid input file: {input_file}",
                 )
-            sleep(4)
+            # sleep(4)
 
         # check if input_seqs is contiguous
         if len(self.input_seqs) != max(self.input_seqs):
@@ -237,9 +231,27 @@ class HiddenTestProcessor:
                 Filename=f"{self.download_dir}/bundled-hidden-tests.zip",
                 Key=f"processed/{self.problem_id}/hidden-tests.zip",
             )
-            yield ProcessRequest(status=Status.INFO, message="✔️ Bundling successful")
+            # yield ProcessRequest(status=Status.INFO, message="✔️ Bundling successful")
         except Exception as e:
             yield ProcessRequest(status=Status.ERROR, message="Error bundling tests")
+            raise e
+
+        try:
+            # create record in the database
+            url = f"{self.backend_url}/api/internal/v1/problems/{self.problem_id}/hidden-test-bundle/"
+            headers = {"X-API-KEY": self.api_key, "Content-Type": "application/json"}
+            data: HiddenTestBundleData = {
+                "s3_path": f"processed/{self.problem_id}/hidden-tests.zip",
+                "test_count": len(self.input_seqs),
+            }
+            response = requests.post(url, headers=headers, json=data)
+            if response.status_code != 201:
+                self.logger.error(
+                    f"Error creating hidden test bundle record: {response.text}"
+                )
+                raise Exception("Error creating hidden test bundle record")
+        except Exception as e:
+            yield ProcessRequest(status=Status.ERROR, message="Error creating record")
             raise e
 
     def cleanup(self) -> Generator[ProcessRequest, None, None]:
@@ -247,19 +259,27 @@ class HiddenTestProcessor:
         STEP x: Cleanup the downloaded hidden test data.
         """
         yield ProcessRequest(status=Status.INFO, message="🧹 Cleaning up...")
-        time.sleep(5)
 
         if self.persist_data:
             return
 
         # remove archived files
         try:
-            os.remove(f"{self.download_dir}/hidden-tests.zip")
-            os.remove(f"{self.download_dir}/bundled-hidden-tests.zip")
+            if os.path.exists(f"{self.download_dir}/hidden-tests.zip"):
+                os.remove(f"{self.download_dir}/hidden-tests.zip")
+            if os.path.exists(f"{self.download_dir}/bundled-hidden-tests.zip"):
+                os.remove(f"{self.download_dir}/bundled-hidden-tests.zip")
 
             # remove extracted directory
             if os.path.exists(f"{self.download_dir}/extracted"):
                 shutil.rmtree(f"{self.download_dir}/extracted")
+
+            # remove unprocessed hidden tests from the bucket
+            aws_client = AWSClient("s3").get_client()
+            aws_client.delete_object(
+                Bucket=self.bucket_name,
+                Key=f"unprocessed/{self.problem_id}/hidden-tests.zip",
+            )
         except Exception as e:
             self.logger.error(f"Error cleaning up: {e}")
             yield ProcessRequest(status=Status.ERROR, message="Error cleaning up")
@@ -276,10 +296,11 @@ class HiddenTestProcessor:
             status=Status.INFO, message="⚙️ Started processing hidden test data"
         )
 
-        for step in steps:
+        for idx, step in enumerate(steps, start=1):
             try:
+                self.logger.info(f"Processing step {idx}/{len(steps)}")
                 yield from step()
-                sleep(2)
+                sleep(randint(1, 3))
             except Exception as e:
                 self.logger.error(f"Error processing hidden test data: {e}")
                 yield from self.cleanup()
@@ -300,7 +321,7 @@ class HiddenTestProcessor:
 if __name__ == "__main__":
     processor = HiddenTestProcessor(
         problem_id=10,
-        client_id="add95ca6-8c29-4d5f-83ae-3fd054fb46fb",
+        client_id="1b71e0e5-41cc-49b5-a927-371e88b67d31",
         bucket_name="codesirius-tests-data",
         grpc_server="localhost:50051",
     )

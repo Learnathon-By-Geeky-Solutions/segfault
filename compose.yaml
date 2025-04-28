@@ -19,7 +19,8 @@ services:
     environment:
       - GITHUB_ACTIONS=${GITHUB_ACTIONS:-false}
     env_file:
-      - .env
+      - path: .env
+        required: false
     depends_on:
       db:
         condition: service_healthy
@@ -60,20 +61,111 @@ services:
     networks:
       - shared
 
+  sse-server-dev:
+    build:
+      context: backend/sse
+      dockerfile: Dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    ports:
+      - "4000:4000"
+      - "50051:50051"
+    volumes:
+      - ./backend/sse:/app
+      - /app/node_modules
+    working_dir: /app
+    command: >
+      sh -c "npm run dev"
+    profiles:
+      - development
+    networks:
+      - shared
+
+  sse-server-prod:
+    build:
+      context: backend/sse
+      dockerfile: Dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    ports:
+      - "4000:4000"
+      - "50051:50051"
+    env_file:
+      - path: ./backend/sse/.env
+        required: false
+    working_dir: /app
+    command: >
+      sh -c "npm run start"
+    profiles:
+      - production
+    networks:
+      - shared
+
+
   email-consumer:
     build:
       context: consumers/email-consumer
       dockerfile: Dockerfile
       args:
         - DEV=true
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     env_file:
-      - ./consumers/email-consumer/.env
+      - path: ./consumers/email-consumer/.env
+        required: false
     volumes:
       - ./consumers/email-consumer:/home/codesirius/app
       - /home/codesirius/app/.venv
     working_dir: /home/codesirius/app
     command: >
       sh -c "poetry run email-consumer"
+    profiles:
+      - production
+    networks:
+      - shared
+
+  hidden-test-consumer:
+    build:
+      context: consumers/hidden-test-consumer
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    env_file:
+      - path: ./consumers/hidden-test-consumer/.env
+        required: false
+    volumes:
+      - ./consumers/hidden-test-consumer:/home/codesirius/app
+      - /home/codesirius/app/.venv
+    working_dir: /home/codesirius/app
+    command: >
+      sh -c "poetry run python3 src/main.py"
+    profiles:
+      - production
+    networks:
+      - shared
+
+  ref-sol-consumer:
+    build:
+      context: consumers/reference-solution-consumer
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    env_file:
+      - path: ./consumers/reference-solution-consumer/.env
+        required: false
+    volumes:
+      - ./consumers/reference-solution-consumer:/home/codesirius/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - submission_data:/home/codesirius/downloads:rw
+    working_dir: /home/codesirius/app
+    command: >
+      sh -c "poetry run python3 src/main.py"
     profiles:
       - production
     networks:
@@ -90,6 +182,9 @@ services:
     volumes:
       - ./frontend/src:/app/src
     working_dir: /app
+    env_file:
+      - path: frontend/.env
+        required: false
     command: >
       sh -c  "npm run dev"
     profiles:
@@ -107,6 +202,9 @@ services:
       - "3030:3030"
     volumes:
       - ./frontend/src:/app/src
+    env_file:
+      - path: frontend/.env
+        required: false
     working_dir: /app
     command: >
       sh -c  "npm run build && npm run start"
@@ -170,7 +268,7 @@ services:
       - ./loki/data:/loki
     command: -config.file=/etc/loki/config/loki-config.yml
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3100/ready" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -233,6 +331,7 @@ volumes:
   grafana_data:
   redis_data:
     driver: local
+  submission_data:
 
 networks:
   shared:

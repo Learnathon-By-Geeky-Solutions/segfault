@@ -1,9 +1,10 @@
 import type {PayloadAction} from "@reduxjs/toolkit";
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {themeType} from "@/types";
-import {NEXTJS_BACKEND_URL} from "@/lib/constants";
 import {CodesiriusState} from "@/lib/features/codesirius/types";
 import {User} from "@/lib/features/api/types";
+const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+
 
 
 const initialState: CodesiriusState = {
@@ -48,7 +49,7 @@ const codesiriusSlice = createSlice({
 export const setThemeAsync = createAsyncThunk(
     "codesirius/setThemeAsync",
     async (theme: themeType) => {
-        const req = await fetch(`${NEXTJS_BACKEND_URL}/api/themes`, {
+        const req = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/themes`, {
             "method": "POST",
             "headers": {"Content-Type": "application/json"},
             "body": JSON.stringify({"theme": theme})

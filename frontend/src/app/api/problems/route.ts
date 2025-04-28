@@ -1,5 +1,8 @@
 import {cookies} from "next/headers";
-import {DJANGO_BACKEND_URL} from "@/lib/constants";
+import { NextRequest, NextResponse } from 'next/server';
+import {headers} from "next/headers";
+
+const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
 
 export async function POST(req: Request) {
     const cookieStore = await cookies();
@@ -27,4 +30,44 @@ export async function POST(req: Request) {
             'Set-Cookie': response.headers.get('Set-Cookie') ?? "",
         }
     });
+}
+
+export async function GET(request: NextRequest) {
+    try {
+        const searchParams = request.nextUrl.searchParams;
+        const page = searchParams.get('page') || '1';
+        const title = searchParams.get('title') || '';
+        const tags = searchParams.get('tags') || '';
+
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        queryParams.append('page', page);
+        if (title) {
+            queryParams.append('title', title);
+        }
+        if (tags) {
+            queryParams.append('tags', tags);
+        }
+
+        const headersList = await headers();
+        const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/problems/?${queryParams.toString()}`, {
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': headersList.get('Authorization') || ''
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch problems');
+        }
+
+        const data = await response.json();
+        return NextResponse.json(data);
+    } catch (error) {
+        console.error('Error fetching problems:', error);
+        return NextResponse.json(
+            {error: 'Failed to fetch problems'},
+            {status: 500}
+        );
+    }
 }

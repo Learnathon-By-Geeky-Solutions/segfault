@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from problems.models import Problem, Language, Tag
 from problems.serializers.execution_constraint_v2 import ExecutionConstraintSerializer
+from problems.serializers.hidden_test_bundle import HiddenTestBundleSerializer
 from problems.serializers.language import LanguageSerializer
 from problems.serializers.sample_test import SampleTestSerializer
 from problems.serializers.tag import TagSerializer
@@ -37,6 +38,12 @@ class ProblemSerializer(serializers.ModelSerializer):
         many=True, source="sample_tests", required=False, read_only=True
     )
 
+    hiddenTestBundle = HiddenTestBundleSerializer(
+        source="hidden_test_bundle",
+        read_only=True,
+        required=False,
+    )
+
     class Meta:
         model = Problem
         fields = [
@@ -49,8 +56,10 @@ class ProblemSerializer(serializers.ModelSerializer):
             "description",  # READ, WRITE
             "executionConstraints",  # READ
             "sampleTests",  # READ
+            "hiddenTestBundle",  # READ
             "createdBy",  # READ
             "status",  # READ
+            "difficulty",  # READ, WRITE
         ]
         extra_kwargs = {
             "status": {"default": Problem.Status.DRAFT, "read_only": True},

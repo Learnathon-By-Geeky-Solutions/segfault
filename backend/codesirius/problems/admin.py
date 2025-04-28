@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from problems.models import (
     Language,
@@ -9,6 +11,8 @@ from problems.models import (
     ReferenceSolution,
     Submission,
     ExecutionConstraint,
+    HiddenTestBundle,
+    SampleTest,
 )
 
 
@@ -64,3 +68,79 @@ admin.site.register(Problem, ProblemAdmin)
 admin.site.register(ReferenceSolution)
 admin.site.register(Submission)
 admin.site.register(ExecutionConstraint)
+
+
+class SampleTestAdmin(admin.ModelAdmin):
+    list_display = ("problem", "truncated_input", "truncated_output", "created_at")
+    list_filter = ("problem", "created_at")
+    search_fields = ("problem__title", "input", "output")
+    readonly_fields = ("created_at", "created_by", "updated_at", "updated_by")
+
+    fieldsets = (
+        (
+            "Sample Test Information",
+            {
+                "fields": ("problem", "input", "output"),
+                "classes": ("wide", "extrapretty"),
+            },
+        ),
+        (
+            "Metadata",
+            {
+                "fields": ("created_by", "created_at", "updated_by", "updated_at"),
+                "classes": ("collapse",),
+            },
+        ),
+    )
+
+    def truncated_input(self, obj):
+        return obj.input[:50] + "..." if len(obj.input) > 50 else obj.input
+
+    truncated_input.short_description = "Input"
+
+    def truncated_output(self, obj):
+        return obj.output[:50] + "..." if len(obj.output) > 50 else obj.output
+
+    truncated_output.short_description = "Output"
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # If creating a new object
+            obj.created_by = request.user
+            obj.created_at = timezone.now()
+        else:  # If updating an existing object
+            obj.updated_by = request.user
+            obj.updated_at = timezone.now()
+        super().save_model(request, obj, form, change)
+
+
+admin.site.register(SampleTest, SampleTestAdmin)
+
+
+class HiddenTestBundleAdmin(admin.ModelAdmin):
+    list_display = ("problem", "test_count", "created_at", "updated_at")
+    search_fields = ("problem__title",)
+    readonly_fields = ("created_by", "created_at", "updated_by", "updated_at")
+
+    fieldsets = (
+        (_("Basic Info"), {"fields": ("problem", "s3_path", "test_count")}),
+        (
+            _("Metadata"),
+            {
+                "fields": ("created_by", "created_at", "updated_by", "updated_at"),
+                "classes": ("collapse",),
+                "description": _("Automatically tracked metadata for this record."),
+            },
+        ),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Creating a new object
+            obj.created_by = request.user
+        else:  # Updating an existing object
+            obj.updated_by = request.user
+
+        super().save_model(request, obj, form, change)
+
+
+# Register the model with the admin site
+admin.site.register(HiddenTestBundle, HiddenTestBundleAdmin)

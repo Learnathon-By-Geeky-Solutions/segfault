@@ -21,6 +21,7 @@ class KafkaProducerSingleton:
     @classmethod
     def produce_message(cls, topic, value, callback=None):
         if os.getenv("GITHUB_ACTIONS", "false") == "true":
+            logging.info("Skipping Kafka message production in GitHub Actions")
             return
         producer = cls.get_instance()
         try:

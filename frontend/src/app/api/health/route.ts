@@ -1,4 +1,4 @@
-import {DJANGO_BACKEND_URL} from "@/lib/constants";
+const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
 
 export async function GET(req: Request) {
     const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/health/`, {

@@ -1,17 +1,17 @@
 import logging
-from typing import Dict
 
 from rest_framework import serializers
 
-from problems.models import ReferenceSolution, Language
+from problems.models import ReferenceSolution, Language, Problem
 
 logger = logging.getLogger(__name__)
 
 
-class ReferenceSolutionSerializer(serializers.Serializer):
+class ReferenceSolutionSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    problem = serializers.PrimaryKeyRelatedField(
-        read_only=True,
+    problemId = serializers.PrimaryKeyRelatedField(
+        queryset=Problem.objects.only("id"),
+        source="problem",
     )
     code = serializers.CharField(
         max_length=10000,
@@ -38,26 +38,62 @@ class ReferenceSolutionSerializer(serializers.Serializer):
         default=ReferenceSolution.Verdict.PENDING,
     )
 
-    def create(self, validated_data: Dict) -> ReferenceSolution:
-        try:
-            logger.info(
-                f"Creating a new reference solution with data: {validated_data}"
-            )
-            return ReferenceSolution.objects.create(
-                **validated_data, problem=self.context["problem"]
-            )
-        except Exception as e:
-            logger.error(f"Failed to create a new reference solution: {e}")
+    memory_usage = serializers.FloatField(
+        read_only=True,
+    )
+
+    execution_time = serializers.FloatField(
+        read_only=True,
+    )
+
+    class Meta:
+        model = ReferenceSolution
+        fields = [
+            "id",
+            "problemId",
+            "code",
+            "languageId",
+            "verdict",
+            "memory_usage",
+            "execution_time",
+        ]
+        extra_kwargs = {"id": {"read_only": True}}
+
+    def validate(self, data):
+        """
+        Check that the language is associated with the problem.
+        """
+        problem = data.get("problem")
+        language = data.get("language")
+
+        if problem and language:
+            if language not in problem.languages.all():
+                raise serializers.ValidationError(
+                    {
+                        "languageId": f"Language {language.id} is not supported \
+                                        for problem {problem.id}."
+                    }
+                )
+        # Check if a reference solution already exists for the same problem and language
+        if ReferenceSolution.objects.filter(
+            problem=problem, language=language
+        ).exists():
             raise serializers.ValidationError(
-                "Failed to create a new reference solution"
+                {
+                    "languageId": f"A reference solution for problem {problem.id} and \
+                                    language {language.id} already exists."
+                }
             )
 
-    def update(
-        self, instance: ReferenceSolution, validated_data: Dict
-    ) -> ReferenceSolution:
-        instance.problem = validated_data.get("problem", instance.problem)
-        instance.code = validated_data.get("code", instance.code)
-        instance.language = validated_data.get("language", instance.language)
-        instance.verdict = validated_data.get("verdict", instance.verdict)
+        return data
+
+    def update(self, instance, validated_data):
+        # Set verdict to PENDING when updating
+        instance.verdict = ReferenceSolution.Verdict.PENDING
+
+        # Update the other fields from validated_data
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
         instance.save()
         return instance

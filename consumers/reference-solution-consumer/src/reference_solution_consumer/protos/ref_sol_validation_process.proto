@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package ref_sol_validation_process;
+
+service RefSolValidationProcess {
+  rpc streamRefSolValidationProcess (stream ProcessRequest) returns (ProcessResponse) {}
+}
+
+message ProcessRequest {
+  Status status = 1;
+  string message = 2;
+}
+
+enum Status {
+  INFO = 0;
+  WARN = 1;
+  ERROR = 2;
+  SUCCESS = 3;
+  FAILURE = 4;
+  UNKNOWN = 5;
+  VERDICT = 6;
+  FINAL_VERDICT = 7;
+}
+
+message ProcessResponse {}
+
+

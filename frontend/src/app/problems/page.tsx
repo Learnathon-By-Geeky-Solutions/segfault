@@ -1,12 +1,12 @@
 import React from 'react';
 import {headers} from "next/headers";
-import {User} from "@/lib/features/api/types";
-import CreateProblemButton from "@/app/problems/create-problem-button";
+import {User, ProblemsResponse} from "@/lib/features/api/types";
 import Grid from "@mui/material/Grid2";
 import ProblemsList from "@/app/problems/problems-list";
 
-const Page = async () => {
+const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
 
+const Page = async () => {
     const headersList = await headers();
 
     let user: User | null = null;
@@ -17,13 +17,23 @@ const Page = async () => {
         }
     }
 
+    // Fetch problems data directly from Django backend
+    const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/problems/`, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error('Failed to fetch problems');
+    }
+    
+    const problemsData: ProblemsResponse = await response.json();
+
     return (
         <Grid container>
             <Grid size={12}>
-                {user && <CreateProblemButton />}
-            </Grid>
-            <Grid size={12}>
-                <ProblemsList />
+                <ProblemsList initialData={problemsData} />
             </Grid>
         </Grid>
     );

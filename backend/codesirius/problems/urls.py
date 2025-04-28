@@ -1,7 +1,11 @@
 from django.urls import path
 
 from problems.views.execution_constraint import ExecutionConstraintAPIView
-from problems.views.hidden_test import HiddenTestPresignedUrlAPIView, HiddenTestAPIView
+from problems.views.hidden_test import (
+    HiddenTestPresignedUrlAPIView,
+    HiddenTestInitiateProcessAPIView,
+    HiddenTestDeleteAPIView,
+)
 from problems.views.language import (
     LanguageListCreateAPIView,
     LanguageRetrieveUpdateDestroyAPIView,
@@ -71,8 +75,13 @@ urlpatterns = [
     ),
     path(
         "<int:problem_pk>/hidden-tests/process/",
-        HiddenTestAPIView.as_view(),
+        HiddenTestInitiateProcessAPIView.as_view(),
         name="hidden-test-process",
+    ),
+    path(
+        "<int:problem_pk>/hidden-tests/",
+        HiddenTestDeleteAPIView.as_view(),
+        name="hidden-test-delete",
     ),
     path(
         "<int:problem_pk>/publish/",
