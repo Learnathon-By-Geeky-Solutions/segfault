@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from problems.models import (
@@ -11,7 +12,9 @@ from problems.models import (
     Submission,
     ExecutionConstraint,
     HiddenTestBundle,
+    SampleTest,
 )
+
 
 # Register your models here.
 
@@ -65,10 +68,6 @@ admin.site.register(Problem, ProblemAdmin)
 admin.site.register(ReferenceSolution)
 admin.site.register(Submission)
 admin.site.register(ExecutionConstraint)
-
-from django.contrib import admin
-from django.utils import timezone
-from .models import SampleTest
 
 
 class SampleTestAdmin(admin.ModelAdmin):

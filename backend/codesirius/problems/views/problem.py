@@ -180,7 +180,8 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
                         language_id__in=removed_languages
                     ).delete()[0]
                     logger.info(
-                        f"Deleted {deleted_count} reference solutions for removed languages: {removed_languages}"
+                        f"Deleted {deleted_count} reference solutions for removed \
+                        languages: {removed_languages}"
                     )
 
                 return CodesiriusAPIResponse(
@@ -235,7 +236,8 @@ class ProblemRetrieveUpdateDestroyAPIView(APIView):
                         language_id__in=removed_languages
                     ).delete()[0]
                     logger.info(
-                        f"Deleted {deleted_count} reference solutions for removed languages: {removed_languages}"
+                        f"Deleted {deleted_count} reference solutions for removed \
+                        languages: {removed_languages}"
                     )
 
                 return CodesiriusAPIResponse(
@@ -309,7 +311,8 @@ class ProblemPublishAPIView(APIView):
             if accepted_languages != problem_languages:
                 missing_languages = problem_languages - accepted_languages
                 errors["reference_solutions"] = (
-                    f"Reference solutions with ACCEPTED verdict are required for all languages. "
+                    f"Reference solutions with ACCEPTED verdict are required for all \
+                    languages. "
                     f"Missing for languages with IDs: {missing_languages}"
                 )
 

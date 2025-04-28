@@ -1,5 +1,4 @@
 import logging
-from typing import Dict
 
 from rest_framework import serializers
 
@@ -71,7 +70,8 @@ class ReferenceSolutionSerializer(serializers.ModelSerializer):
             if language not in problem.languages.all():
                 raise serializers.ValidationError(
                     {
-                        "languageId": f"Language {language.id} is not supported for problem {problem.id}."
+                        "languageId": f"Language {language.id} is not supported \
+                                        for problem {problem.id}."
                     }
                 )
         # Check if a reference solution already exists for the same problem and language
@@ -80,7 +80,8 @@ class ReferenceSolutionSerializer(serializers.ModelSerializer):
         ).exists():
             raise serializers.ValidationError(
                 {
-                    "languageId": f"A reference solution for problem {problem.id} and language {language.id} already exists."
+                    "languageId": f"A reference solution for problem {problem.id} and \
+                                    language {language.id} already exists."
                 }
             )
 
