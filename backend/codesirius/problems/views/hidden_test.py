@@ -50,7 +50,7 @@ class HiddenTestPresignedUrlAPIView(APIView):
 
             bucket_name = "codesirius-tests-data"
             object_key = f"unprocessed/{problem_pk}/hidden-tests.zip"
-            max_file_size = 16 * 1024 * 1024  # 16MB
+            max_file_size = 64 * 1024 * 1024  # 16MB
 
             client = AWSClient("s3").get_client()
             presigned_post = client.generate_presigned_post(
