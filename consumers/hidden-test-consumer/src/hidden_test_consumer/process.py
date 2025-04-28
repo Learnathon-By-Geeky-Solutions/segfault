@@ -5,6 +5,7 @@ import zipfile
 from random import randint
 from time import sleep
 from typing import Iterator, Generator, TypedDict
+from hidden_test_consumer.logger import setup_logger
 
 import grpc
 import requests
@@ -19,29 +20,6 @@ class HiddenTestBundleData(TypedDict):
     test_count: int
 
 
-def setup_logger(name: str, log_file: str = None):
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter(
-        "[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
-        "%m-%d %H:%M:%S",
-    )
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    return logger
-
-
 class HiddenTestProcessor:
     """
     This class is responsible for processing the hidden test data.
@@ -50,7 +28,8 @@ class HiddenTestProcessor:
     def __init__(
         self, problem_id: int, client_id: str, bucket_name: str, grpc_server: str
     ):
-        self.logger = setup_logger("HiddenTestProcessor")
+        log_level = os.environ.get("LOG_LEVEL", "INFO")
+        self.logger = setup_logger("HiddenTestProcessor", log_level, "hidden_test_processor.log")
 
         self.problem_id = problem_id
         self.client_id = client_id
