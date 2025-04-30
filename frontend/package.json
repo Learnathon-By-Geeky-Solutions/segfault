@@ -19,6 +19,7 @@
     "@mui/x-tree-view": "^7.26.0",
     "@reduxjs/toolkit": "^2.5.1",
     "@tabler/icons-react": "^3.31.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@types/validator": "^13.12.2",
     "@uiw/react-md-editor": "^4.0.5",
     "axios": "^1.8.1",
