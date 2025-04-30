@@ -9,11 +9,17 @@ import {
     Checkbox,
     Chip,
     CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
     FormControl,
     FormControlLabel,
     ListItemText,
     MenuItem,
     Paper,
+    Slide,
     Stack,
     TextField,
     Tooltip,
@@ -22,7 +28,7 @@ import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import {Edit, NavigateNext} from "@mui/icons-material";
+import {Edit, NavigateNext, WarningAmber} from "@mui/icons-material";
 import {Language, Tag} from "@/app/problems/create/types";
 import AddIcon from '@mui/icons-material/Add';
 import Link from "@mui/material/Link";
@@ -43,6 +49,8 @@ import {DiJava} from 'react-icons/di';
 import CodeIcon from '@mui/icons-material/Code';
 import {alpha} from '@mui/material/styles';
 import {useNotification} from '@/contexts/NotificationContext';
+import SpeedIcon from '@mui/icons-material/Speed';
+import {TransitionProps} from '@mui/material/transitions';
 
 
 interface ProblemMetaDataProps {
@@ -53,6 +61,8 @@ interface ProblemMetaDataProps {
     selectedLanguages?: number[];
     selectedTags?: number[];
     difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
+    executionConstraints?: { [key: number]: any }; // languageId -> constraints
+    referenceSolutions?: { [key: number]: any }; // languageId -> solution
 }
 
 function getNewResourceLink(resource: string, onClick?: () => void): ReactNode {
@@ -135,6 +145,15 @@ const getDifficultyColor = (difficulty: 'EASY' | 'MEDIUM' | 'HARD') => {
     }
 };
 
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement;
+    },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
 const ProblemMetaData = ({
                              problemId,
                              availableLanguages,
@@ -142,10 +161,14 @@ const ProblemMetaData = ({
                              title: _title,
                              selectedLanguages: _selectedLanguages,
                              selectedTags: _selectedTags,
-                             difficulty: _difficulty
+                             difficulty: _difficulty,
+                             executionConstraints = {},
+                             referenceSolutions = {}
                          }: ProblemMetaDataProps) => {
     const dispatch = useAppDispatch();
     const { showNotification } = useNotification();
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [languageToRemove, setLanguageToRemove] = useState<Language | null>(null);
 
     // global state
     const [title, setTitle] = useState<string>(_title || "");
@@ -208,6 +231,33 @@ const ProblemMetaData = ({
         if (languageError.length > 0) {
             setLanguageError("");
         }
+
+        // Check if we're removing any languages
+        const currentLanguages = availableLanguages.filter(l => selectedLanguages?.includes(l.id));
+        const removedLanguages = currentLanguages.filter(l => !newValue.includes(l));
+
+        console.log('Current languages:', currentLanguages);
+        console.log('Removed languages:', removedLanguages);
+        console.log('Execution constraints:', executionConstraints);
+        console.log('Reference solutions:', referenceSolutions);
+
+        if (removedLanguages.length > 0) {
+            // Check if any removed language has dependencies
+            const languageWithDependencies = removedLanguages.find(lang => {
+                const hasConstraints = executionConstraints && executionConstraints[lang.id];
+                const hasSolutions = referenceSolutions && referenceSolutions[lang.id];
+                console.log(`Checking language ${lang.id}:`, { hasConstraints, hasSolutions });
+                return hasConstraints || hasSolutions;
+            });
+
+            if (languageWithDependencies) {
+                console.log('Found language with dependencies:', languageWithDependencies);
+                setLanguageToRemove(languageWithDependencies);
+                setConfirmDialogOpen(true);
+                return;
+            }
+        }
+
         setSelectedLanguages(newValue.map(l => l.id));
     }
 
@@ -373,6 +423,20 @@ const ProblemMetaData = ({
         }
     }
 
+    const handleConfirmRemove = () => {
+        if (languageToRemove) {
+            const currentLanguages = availableLanguages.filter(l => selectedLanguages?.includes(l.id));
+            const newLanguages = currentLanguages.filter(l => l.id !== languageToRemove.id);
+            setSelectedLanguages(newLanguages.map(l => l.id));
+            setLanguageToRemove(null);
+        }
+        setConfirmDialogOpen(false);
+    };
+
+    const handleCancelRemove = () => {
+        setLanguageToRemove(null);
+        setConfirmDialogOpen(false);
+    };
 
     return (
         <Card elevation={0} sx={{ 
@@ -714,6 +778,127 @@ const ProblemMetaData = ({
                     </Box>
                 </Stack>
             </CardContent>
+
+            <Dialog
+                open={confirmDialogOpen}
+                onClose={handleCancelRemove}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        backdropFilter: 'blur(10px)',
+                        transform: 'translateY(0)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }
+                }}
+                TransitionComponent={Transition}
+                TransitionProps={{ 
+                    timeout: 300,
+                    onEnter: (node) => {
+                        node.style.transform = 'translateY(20px)';
+                        node.style.opacity = '0';
+                    },
+                    onEntering: (node) => {
+                        node.style.transform = 'translateY(0)';
+                        node.style.opacity = '1';
+                    },
+                    onExit: (node) => {
+                        node.style.transform = 'translateY(0)';
+                        node.style.opacity = '1';
+                    },
+                    onExiting: (node) => {
+                        node.style.transform = 'translateY(20px)';
+                        node.style.opacity = '0';
+                    }
+                }}
+            >
+                <DialogTitle id="alert-dialog-title" sx={{ pb: 1 }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <WarningAmber color="warning" />
+                        <Typography variant="h6" fontWeight={600}>
+                            Remove Language
+                        </Typography>
+                    </Stack>
+                </DialogTitle>
+                <DialogContent>
+                    <Stack spacing={2}>
+                        <DialogContentText id="alert-dialog-description" sx={{ color: 'text.secondary' }}>
+                            Removing {languageToRemove?.name} will also remove:
+                        </DialogContentText>
+                        <Stack spacing={1}>
+                            {executionConstraints[languageToRemove?.id || 0] && (
+                                <Chip 
+                                    icon={<SpeedIcon />}
+                                    label="Execution Constraints"
+                                    color="warning"
+                                    variant="outlined"
+                                    sx={{ 
+                                        width: 'fit-content',
+                                        transition: 'all 0.2s ease-in-out',
+                                        '&:hover': {
+                                            transform: 'translateX(4px)',
+                                        }
+                                    }}
+                                />
+                            )}
+                            {referenceSolutions[languageToRemove?.id || 0] && (
+                                <Chip 
+                                    icon={<CodeIcon />}
+                                    label="Reference Solution"
+                                    color="warning"
+                                    variant="outlined"
+                                    sx={{ 
+                                        width: 'fit-content',
+                                        transition: 'all 0.2s ease-in-out',
+                                        '&:hover': {
+                                            transform: 'translateX(4px)',
+                                        }
+                                    }}
+                                />
+                            )}
+                        </Stack>
+                        <DialogContentText sx={{ color: 'text.secondary' }}>
+                            Are you sure you want to proceed?
+                        </DialogContentText>
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, pt: 0 }}>
+                    <Button 
+                        onClick={handleCancelRemove}
+                        variant="outlined"
+                        sx={{ 
+                            borderRadius: 1.5,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            transition: 'all 0.2s ease-in-out',
+                            '&:hover': {
+                                transform: 'translateY(-1px)',
+                            }
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={handleConfirmRemove}
+                        variant="contained"
+                        color="error"
+                        autoFocus
+                        sx={{ 
+                            borderRadius: 1.5,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            transition: 'all 0.2s ease-in-out',
+                            '&:hover': {
+                                transform: 'translateY(-1px)',
+                            }
+                        }}
+                    >
+                        Remove
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Card>
     );
 };
