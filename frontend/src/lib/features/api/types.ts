@@ -249,3 +249,43 @@ export interface Tag {
     name: string;
     description: string;
 }
+
+export interface Submission {
+    id: number;
+    problemId: number;
+    code: string;
+    languageId: number;
+    verdict: 'PENDING' | 'ACCEPTED' | 'WRONG_ANSWER' | 'TIME_LIMIT_EXCEEDED' | 'MEMORY_LIMIT_EXCEEDED' | 'RUNTIME_ERROR' | 'COMPILATION_ERROR';
+    memoryUsage: number | null;
+    executionTime: number | null;
+    createdAt: string;
+}
+
+export interface GetSubmissionsRequest {
+    problemId: number;
+    page?: number;
+}
+
+export interface GetSubmissionsResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+    data: {
+        results: Submission[];
+        pagination: PaginationInfo;
+    }
+}
+
+export interface CreateSubmissionRequest {
+    problemId: number;
+    code: string;
+    languageId: number;
+    clientId: string;
+}
+
+export interface CreateSubmissionResponse {
+    status: number;
+    message: string;
+    timestamp: string;
+    data: Submission;
+}

@@ -10,6 +10,7 @@ from internal_api.views.hidden_test_bundle import (
 )
 from internal_api.views.problem import ProblemRetrieveUpdateAPIView
 from internal_api.views.reference_solution import ReferenceSolutionVerdictUpdateAPIView
+from internal_api.views.submissions import SubmissionRetrieveUpdateAPIView
 
 urlpatterns = [
     path("apikey/", APIKeyListCreateAPIView.as_view(), name="apikey-list-create"),
@@ -37,5 +38,10 @@ urlpatterns = [
         "problems/<int:problem_pk>/reference-solutions/<int:pk>/",
         ReferenceSolutionVerdictUpdateAPIView.as_view(),
         name="reference-solution-update",
+    ),
+    path(
+        "submissions/<int:pk>/",
+        SubmissionRetrieveUpdateAPIView.as_view(),
+        name="submission-retrieve-update",
     ),
 ]

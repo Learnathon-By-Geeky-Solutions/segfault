@@ -20,6 +20,7 @@ from problems.views.reference_solution import (
     ReferenceSolutionRetrieveUpdateDestroyAPIView,
 )
 from problems.views.sample_test import SampleTestAPIView, SampleTestBulkAPIView
+from problems.views.submission import SubmissionListCreateAPIView
 from problems.views.tag import TagListCreateAPIView, TagRetrieveUpdateDestroyAPIView
 
 urlpatterns = [
@@ -87,5 +88,10 @@ urlpatterns = [
         "<int:problem_pk>/publish/",
         ProblemPublishAPIView.as_view(),
         name="problem-publish",
+    ),
+    path(
+        "<int:problem_pk>/submissions/",
+        SubmissionListCreateAPIView.as_view(),
+        name="submission-list-create",
     ),
 ]
