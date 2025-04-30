@@ -1,14 +1,14 @@
 import os
 
 from base_consumer import BaseKafkaConsumer
-from reference_solution_consumer.process import ReferenceSolutionValidationProcessor
+from submission_consumer.process import SubmissionProcessor
 
-class ReferenceSolutionValidationConsumer(BaseKafkaConsumer):
+class SubmissionConsumer(BaseKafkaConsumer):
     def __init__(self):
         super().__init__(
             broker_url=f"{os.environ.get('TAILSCALE_VPN_IP')}:9092",
-            topic="python_reference_solution_validation",
-            group_id="python_reference_solution_validation_group",
+            topic="python_submission",
+            group_id="python_submission_group",
             log_file="consumer.log",
         )
         log_level = os.environ.get("LOG_LEVEL", "INFO")
@@ -16,8 +16,8 @@ class ReferenceSolutionValidationConsumer(BaseKafkaConsumer):
 
     def process_message(self, message: dict):
         self.logger.info(f"Processing message: {message}")
-        processor = ReferenceSolutionValidationProcessor(
-            reference_solution_id=message["reference_solution_id"],
+        processor = SubmissionProcessor(
+            submission_id=message["submission_id"],
             problem_id=message["problem_id"],
             client_id=message["client_id"],
             bucket_name=message["bucket_name"],

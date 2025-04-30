@@ -171,6 +171,29 @@ services:
     networks:
       - shared
 
+  submission-consumer:
+    build:
+      context: consumers/submission-consumer
+      dockerfile: Dockerfile
+      args:
+        - DEV=true
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    env_file:
+      - path: ./consumers/submission-consumer/.env
+        required: false
+    volumes:
+      - ./consumers/submission-consumer:/home/codesirius/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - submission_data:/home/codesirius/downloads:rw
+    working_dir: /home/codesirius/app
+    command: >
+      sh -c "poetry run python3 src/main.py"
+    profiles:
+      - production
+    networks:
+      - shared
+
   frontend:
     build:
       context: frontend
