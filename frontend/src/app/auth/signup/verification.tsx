@@ -101,7 +101,6 @@ const Verification = ({setActiveStep, userId, setIsSignupLoading}: VerificationP
                             value={confirmationCode}
                             onChange={handleConfirmationCode}
                             onBlur={handleConfirmationCodeBlur}
-                            onPaste={(event) => event.preventDefault()}
                             id="confirmation-code"
                             label="Confirmation Code"
                             placeholder="Enter your confirmation code"
