@@ -714,24 +714,6 @@ const ProblemMetaData = ({
                                     </Typography>
                                 )}
                             </Stack>
-
-                            <FormControlLabel 
-                                control={
-                                    <Checkbox 
-                                        defaultChecked
-                                        sx={{
-                                            '& .MuiSvgIcon-root': {
-                                                fontSize: 20,
-                                            }
-                                        }}
-                                    />
-                                }
-                                label={
-                                    <Typography variant="body2" color="text.secondary">
-                                        Private Problem
-                                    </Typography>
-                                }
-                            />
                         </Stack>
                     </Paper>
 
