@@ -23,6 +23,7 @@
     "@types/validator": "^13.12.2",
     "@uiw/react-md-editor": "^4.0.5",
     "axios": "^1.8.1",
+    "date-fns": "^4.1.0",
     "diff": "^7.0.0",
     "dotenv": "^16.4.7",
     "html2pdf.js": "^0.10.3",
