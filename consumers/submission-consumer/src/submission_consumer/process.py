@@ -8,37 +8,37 @@ from time import sleep
 from code_executor.python312 import PythonCodeExecutor
 import requests
 from typing import Iterator, Generator, TypedDict
-from reference_solution_consumer.logger import setup_logger
+from submission_consumer.logger import setup_logger
 import grpc
 
 from arbiterx.exceptions import EarlyExitError
 
-from reference_solution_consumer.aws_client import AWSClient
-from reference_solution_consumer.ref_sol_validation_process_pb2 import (
+from submission_consumer.aws_client import AWSClient
+from submission_consumer.submission_process_pb2 import (
     ProcessRequest,
     Status,
 )
-from reference_solution_consumer.ref_sol_validation_process_pb2_grpc import (
-    RefSolValidationProcessStub,
+from submission_consumer.submission_process_pb2_grpc import (
+    SubmissionProcessStub,
 )
 
-class ReferenceSolutionValidationProcessor:
+class SubmissionProcessor:
     def __init__(
         self, 
         problem_id: int,
         client_id: str,
         bucket_name: str,
         grpc_server: str,
-        reference_solution_id: int
+        submission_id: int
     ):
         log_level = os.environ.get("LOG_LEVEL", "INFO")
-        self.logger = setup_logger("HiddenTestProcessor", log_level, "consumer.log")
+        self.logger = setup_logger("SubmissionProcessor", log_level, "consumer.log")
 
         self.problem_id = str(problem_id)
         self.client_id = client_id
         self.bucket_name = bucket_name
         self.grpc_server = grpc_server
-        self.reference_solution_id = reference_solution_id
+        self.submission_id = submission_id 
 
         self.download_dir = os.environ.get("DOWNLOAD_DIR", "/tmp")
         # TODO: implement data persistence by leveraging env variable
@@ -55,7 +55,7 @@ class ReferenceSolutionValidationProcessor:
             raise ValueError("gRPC server is required.")
         
         self.problem = None
-        self.reference_solution = None
+        self.submission = None
         self.constraints = None
         self.memory_usage = -1
         self.execution_time = -1
@@ -106,20 +106,63 @@ class ReferenceSolutionValidationProcessor:
             path = os.path.join(self.download_dir, self.problem_id, "hidden-tests.zip")
             with zipfile.ZipFile(
                 path
-            ) as zip_ref:
-                zip_ref.extractall(os.path.join(self.download_dir, self.problem_id))
+            ) as hidden_test_bundle:
+                hidden_test_bundle.extractall(os.path.join(self.download_dir, self.problem_id))
         except Exception as e:
             yield ProcessRequest(
                 status=Status.ERROR, message="❌ Error unzipping hidden test data"
             )
             raise e
+
+    def pull_submission(self) -> Generator[ProcessRequest, None, None]:
+        """
+        STEP 3: Pull the submission from Django API.
+        """
+        try:
+            yield ProcessRequest(
+                status=Status.INFO, message="Pulling submission..."
+            )
+            url = f"{self.backend_url}/api/internal/v1/submissions/{self.submission_id}/"
+            headers = {"X-API-KEY": self.api_key, "Content-Type": "application/json"}
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                data = response.json()['data']
+                if not data:
+                    raise ValueError("No submission found")
+                self.logger.info(f"Submission data: {data}")
+                self.submission = data
+            else:
+                raise ValueError("Error pulling submission")
+            # response.code holds the code of the submission
+            # we need to save it into a file
+            path = os.path.join(
+            self.download_dir,
+            self.problem_id, "solution.py"
+            )
+            with open(path, "w") as f:
+                f.write(data["code"])
+            
+            with open(path, "r") as f:
+                self.logger.info(f"Submission code: {f.read()}")
+
+            self.logger.info(f"Submission code saved to {path}")
+            yield ProcessRequest(
+                status=Status.SUCCESS,
+                message="✅ Submission pulled successfully",
+            )
+        except Exception as e:
+            yield ProcessRequest(
+                status=Status.ERROR,
+                message="❌ Error pulling submission",
+            )
+            raise e
         
     def pull_problem(self) -> Generator[ProcessRequest, None, None]:
         """
-        STEP 3: Pull the problem from Django API.
+        STEP 4: Pull the problem from Django API.
         """
         yield ProcessRequest(
-            status=Status.INFO, message="📥 Pulling reference solution..."
+            status=Status.INFO, message="📥 Pulling problem...."
         )
         try:
             url = f"{self.backend_url}/api/internal/v1/problems/{self.problem_id}/"
@@ -128,8 +171,8 @@ class ReferenceSolutionValidationProcessor:
             if response.status_code == 200:
                 data = response.json()['data']
                 if not data:
-                    raise ValueError("No reference solution found.")
-                self.logger.info(f"Reference solution data: {data}")
+                    raise ValueError("No problem found")
+                self.logger.info(f"Problem data: {data}")
                 self.problem = data
                 yield ProcessRequest(
                     status=Status.SUCCESS,
@@ -138,64 +181,26 @@ class ReferenceSolutionValidationProcessor:
         except Exception as e:
             yield ProcessRequest(
                 status=Status.ERROR,
-                message="❌ Error pulling reference solution",
-            )
-            raise e
-
-    def collect_reference_solution(self) -> Generator[ProcessRequest, None, None]:
-        """
-        STEP 4:
-        """
-        try:
-            yield ProcessRequest(
-                status=Status.INFO, message="Collecting reference solution..."
-            )
-            self.reference_solution = next(filter(
-                lambda x: x["id"] == self.reference_solution_id,
-                self.problem["reference_solutions"],
-            ), None)
-            if not self.reference_solution:
-                raise ValueError("Reference solution not found.")
-            self.logger.info(f"Reference solution: {self.reference_solution}")
-            # reference_solution.code holds the code of the reference solution
-            # we need to save it into a file
-            path = os.path.join(
-            self.download_dir,
-            self.problem_id, "reference_solution.py"
-            )
-            with open(path, "w") as f:
-                f.write(self.reference_solution["code"])
-            
-            with open(path, "r") as f:
-                self.logger.info(f"Reference solution code:\n{f.read()}")
-
-            self.logger.info(f"Reference solution saved to {path}")
-            self.logger.info("Reference solution collected successfully")
-            yield ProcessRequest(
-                status=Status.SUCCESS,
-                message="✅ Reference solution collected successfully",
-            )
-        except Exception as e:
-            yield ProcessRequest(
-                status=Status.ERROR,
-                message="❌ Error collecting reference solution",
+                message="❌ Error pulling problem",
             )
             raise e
     
     def collect_constraints(self) -> Generator[ProcessRequest, None, None]:
         """
-        STEP 5: Collect the constraints from the reference solution.
+        STEP 5: Collect the constraints from the submission.
         """
         try:
             yield ProcessRequest(
                 status=Status.INFO, message="Collecting constraints..."
             )
-            # first, we need to get the language ID from the reference solution
-            language_id = self.reference_solution["language_id"]
+            # first, we need to get the language ID from the submission
+            language_id = self.submission["language_id"]
             if not language_id:
                 raise ValueError("Language ID not found.")
             self.logger.info(f"Language ID: {language_id}")
-            # then, we need to get the constraints from the reference solution
+            # then, we need to get the constraints from the problem
+            # by filtering the execution_constraints list
+            # by the language_id
             self.constraints = next(filter(
                 lambda x: x["language_id"] == language_id,
                 self.problem["execution_constraints"],
@@ -216,11 +221,11 @@ class ReferenceSolutionValidationProcessor:
 
     def run(self) -> Generator[ProcessRequest, None, None]:
         """
-        STEP 6: Run the reference solution.
+        STEP 6: Run the submission.
         """
         try:
             yield ProcessRequest(
-                status=Status.INFO, message="Running reference solution..."
+                status=Status.INFO, message="Running submission..."
             )
             constraints = {
                 "time_limit": self.constraints["time_limit"],
@@ -233,9 +238,9 @@ class ReferenceSolutionValidationProcessor:
             with open(os.environ.get("LANGUAGE_IMAGE_MAP_PATH"), "r") as f:
                 language_image_map = json.load(f)
             self.logger.info(f"Language image map: {language_image_map}")
-            # Now find the language by self.reference_solution["language_id"]
+            # Now find the language by self.submission["language_id"]
             lang = next(filter(
-                lambda x: x["id"] == self.reference_solution["language_id"],
+                lambda x: x["id"] == self.submission["language_id"],
                 self.problem["languages"]
             ), None)
             self.logger.info(f"Language: {lang}")
@@ -273,13 +278,13 @@ class ReferenceSolutionValidationProcessor:
                         )
                 except EarlyExitError as e:
                     self.logger.error(
-                        f"Error running reference solution: {e}"
+                        f"Error running submission: {e}"
                     )
                     raise e
         except Exception as e:
             yield ProcessRequest(
                 status=Status.ERROR,
-                message="❌ Error running reference solution",
+                message="❌ Error running submission",
             )
             raise e
 
@@ -306,7 +311,7 @@ class ReferenceSolutionValidationProcessor:
             yield ProcessRequest(
                 status=Status.INFO, message="Updating verdict..."
             )
-            url = f"{self.backend_url}/api/internal/v1/problems/{self.problem_id}/reference-solutions/{self.reference_solution_id}/"
+            url = f"{self.backend_url}/api/internal/v1/submissions/{self.submission_id}/"
             headers = {"X-API-KEY": self.api_key, "Content-Type": "application/json"}
             data = {
                 "verdict": _convert_verdict(self.verdict),
@@ -359,8 +364,8 @@ class ReferenceSolutionValidationProcessor:
         steps = [
             self.download_hidden_test_data,
             self.unzip_hidden_test_data,
+            self.pull_submission,
             self.pull_problem,
-            self.collect_reference_solution,
             self.collect_constraints,
             self.run,
             self.update_verdict,
@@ -376,7 +381,7 @@ class ReferenceSolutionValidationProcessor:
                 yield from step()
                 sleep(randint(1, 3))
             except Exception as e:
-                self.logger.error(f"Error processing hidden test data: {e}")
+                self.logger.error(f"Error processing step {idx}: {e}")
                 yield from self.update_verdict()
                 yield from self.cleanup()
                 # yield ProcessRequest(status=Status.ERROR, message="❌ Error processing")
@@ -395,38 +400,17 @@ class ReferenceSolutionValidationProcessor:
 
     def initiate(self):
         with grpc.insecure_channel(self.grpc_server) as channel:
-            stub = RefSolValidationProcessStub(channel)
+            stub = SubmissionProcessStub(channel)
             metadata = (("client_id", self.client_id),)
-            stub.streamRefSolValidationProcess(self.process(), metadata=metadata)
+            stub.streamSubmissionProcess(self.process(), metadata=metadata)
 
 
 if __name__ == "__main__":
-    processor = ReferenceSolutionValidationProcessor(
-        problem_id=20,
+    processor = SubmissionProcessor(
+        problem_id=3,
         client_id="9c0fb4ce-094a-41dd-bddf-06778f7bc8f3",
         bucket_name="codesirius-tests-data",
         grpc_server="100.64.65.66:50051",
-        reference_solution_id=45
+        submission_id=10
     )
-    # processor.download_hidden_test_data()
     processor.initiate()
-    # constraints = {
-    #     "time_limit": 2,
-    #     "memory_limit": 10,
-    #     "memory_swap_limit": 0,  # No swap
-    #     # cpu quota and period are in microseconds
-    #     "cpu_quota": 1000000,
-    #     "cpu_period": 1000000,
-    # }
-    # DOWNLOAD_DIR = os.environ.get("DOWNLOAD_DIR")
-    # WORK_DIR = os.path.join(DOWNLOAD_DIR, "20")
-    # with PythonCodeExecutor(
-    #         user="sandbox", # Default is "nobody"
-    #         docker_image="python312:v1",
-    #         volume=os.environ.get("DOCKER_VOLUME"),
-    #         src=WORK_DIR,
-    #         constraints=constraints,
-    #         disable_compile=True,
-    # ) as executor:
-    #     for result in executor.run():
-    #         print(json.dumps(result), indent=4)
