@@ -32,7 +32,7 @@ class ReferenceSolutionValidationProcessor:
         reference_solution_id: int
     ):
         log_level = os.environ.get("LOG_LEVEL", "INFO")
-        self.logger = setup_logger("HiddenTestProcessor", log_level, "reference_solution_consumer.log")
+        self.logger = setup_logger("HiddenTestProcessor", log_level, "consumer.log")
 
         self.problem_id = str(problem_id)
         self.client_id = client_id
@@ -261,6 +261,12 @@ class ReferenceSolutionValidationProcessor:
                         # convert the execution time from microsonds to seconds
                         execution_time_s = int(result["stats"]["cpu_stat"]["usage_usec"]) / 1_000_000
                         self.execution_time = max(self.execution_time, execution_time_s)
+
+                        # Limit the input, actual_output, and expected_output to 1000 characters
+                        for key in ["input", "actual_output", "expected_output"]:
+                            if key in result and isinstance(result[key], str) and len(result[key]) > 100:
+                                result[key] = result[key][:100] + "..."
+
                         yield ProcessRequest(
                             status=Status.VERDICT,
                             message=json.dumps(result)

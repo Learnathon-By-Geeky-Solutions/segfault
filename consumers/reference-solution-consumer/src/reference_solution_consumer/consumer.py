@@ -9,7 +9,7 @@ class ReferenceSolutionValidationConsumer(BaseKafkaConsumer):
             broker_url=f"{os.environ.get('TAILSCALE_VPN_IP')}:9092",
             topic="python_reference_solution_validation",
             group_id="python_reference_solution_validation_group",
-            log_file="python_reference_solution_validation.log",
+            log_file="consumer.log",
         )
         log_level = os.environ.get("LOG_LEVEL", "INFO")
         self.set_logger_level(log_level)
