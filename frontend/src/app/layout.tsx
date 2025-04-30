@@ -30,14 +30,14 @@ export default async function RootLayout({children}: Readonly<{ children: React.
 
     return (
         <html lang="en">
-        <body className={roboto.variable} style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+        <body className={roboto.variable} style={{ margin: 0, padding: 0 }}>
         <StoreProvider initialTheme={theme}>
             <CodesiriusApp user={user}>
                 <Box component="main" sx={{
-                    height: '100vh',
+                    minHeight: '100vh',
                     display: 'flex',
                     flexDirection: 'column',
-                    overflow: 'hidden'
+                    overflow: 'auto'
                 }}>
                     <Toolbar/>
                     {children}
