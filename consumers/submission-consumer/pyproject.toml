@@ -1,0 +1,31 @@
+[project]
+name = "submission-consumer"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "parthokr",email = "partho.kr@proton.me"}
+]
+readme = "README.md"
+packages = [
+    { include = "submission_consumer", from = "src" },
+    { include = "code_executor", from = "src" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "base-consumer (>=0.1.1,<0.2.0)",
+    "requests (>=2.32.3,<3.0.0)",
+    "grpcio (>=1.70.0,<2.0.0)",
+    "grpcio-tools (>=1.70.0,<2.0.0)",
+    "boto3 (>=1.37.9,<2.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)",
+    "arbiterx (>=0.2.2,<0.3.0)",
+]
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
