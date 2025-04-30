@@ -5,57 +5,84 @@ def generate(username, userid, verification_code):
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Verification Email</title>
+        <title>Welcome to CodeSirius - Verify Your Account</title>
         <style media="all" type="text/css">
         @media all {{
           .btn-primary table td:hover {{
-            background-color: #ec0867 !important;
+            background-color: #2563eb !important;
           }}
 
           .btn-primary a:hover {{
-            background-color: #ec0867 !important;
-            border-color: #ec0867 !important;
+            background-color: #1d4ed8 !important;
+            border-color: #1d4ed8 !important;
           }}
         }}
 
         .verification-code-container {{
-          text-align: center; /* Center the code block */
-          margin-top: 10px;
+          text-align: center;
+          margin: 24px 0;
         }}
 
         .verification-code {{
           display: inline-block;
-          background-color: #f0f0f0;
-          border: 1px solid #ccc;
-          padding: 8px 16px;
+          background-color: #f8fafc;
+          border: 2px solid #e2e8f0;
+          padding: 12px 24px;
+          font-size: 18px;
+          font-family: 'Courier New', monospace;
+          border-radius: 8px;
+          color: #1e293b;
+          letter-spacing: 2px;
+          font-weight: 600;
+        }}
+
+        .logo {{
+          font-size: 24px;
+          font-weight: bold;
+          color: #2563eb;
+          text-decoration: none;
+          margin-bottom: 24px;
+          display: inline-block;
+        }}
+
+        .motto {{
+          color: #64748b;
           font-size: 16px;
-          font-family: monospace;
-          border-radius: 4px;
-          margin-top: 10px;
-          word-wrap: break-word;
+          margin-top: 4px;
         }}
         </style>
       </head>
-      <body style="font-family: Helvetica, sans-serif; background-color: #f4f5f6; margin: 0; padding: 0;">
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f4f5f6;">
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f8fafc;">
           <tr>
-            <td style="vertical-align: top; padding-top: 24px;">
-              <div class="content" style="max-width: 600px; margin: 0 auto; padding: 24px; background-color: #ffffff; border-radius: 16px; border: 1px solid #eaebed;">
-                <p>Hi {username},</p>
-                <p>Thank you for signing up! Please click the link below to verify your account:</p>
-                <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; margin: 16px 0;">
+            <td style="vertical-align: top; padding: 40px 20px;">
+              <div class="content" style="max-width: 600px; margin: 0 auto; padding: 48px 40px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
+                <div style="text-align: center; margin-bottom: 40px;">
+                  <a href="https://codesirius.tech" class="logo">CodeSirius</a>
+                  <div class="motto">Ace your interviews</div>
+                </div>
+                
+                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 24px; padding: 0 8px;">Hi {username},</p>
+                
+                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 24px; padding: 0 8px;">Welcome to CodeSirius! We're excited to have you join our community of learners and achievers. To get started, please verify your account by clicking the button below:</p>
+                
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; margin: 32px 0;">
                   <tr>
-                    <td align="center" style="padding-bottom: 16px;">
-                      <a href="http://codesirius.com/verify?id={userid}&code={verification_code}" style="background-color: #0867ec; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Verify Your Account</a>
+                    <td align="center">
+                      <a href="https://codesirius.tech/api/verify?id={userid}&code={verification_code}" style="background-color: #2563eb; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block;">Verify Your Account</a>
                     </td>
                   </tr>
                 </table>
-                Or copy and paste the following code into the verification page:<br>
+
+                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 16px; padding: 0 8px;">Or copy and paste this verification code:</p>
+                
                 <div class="verification-code-container">
                   <span class="verification-code">{verification_code}</span>
                 </div>
-                <p>If you did not request this email, please ignore it.</p>
-                <p>Best regards,<br>Team Codesirius</p>
+
+                <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin: 32px 0 0; padding: 0 8px;">If you didn't create an account with CodeSirius, you can safely ignore this email.</p>
+                
+                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 32px 0 0; padding: 0 8px;">Best regards,<br>The CodeSirius Team</p>
               </div>
             </td>
           </tr>

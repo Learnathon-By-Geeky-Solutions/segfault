@@ -1,11 +1,15 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
 const PRODUCTION = process.env.PRODUCTION === "true" || false;
 
-export async function POST(req: Request) {
-    const body = await req.json();
-    if (!body.userId) {
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('id');
+    const code = searchParams.get('code');
+
+    if (!userId || !code) {
         return new Response(JSON.stringify({
             status: 400,
             message: 'Bad Request',
@@ -13,8 +17,8 @@ export async function POST(req: Request) {
             data: {
                 errors: [
                     {
-                        field: 'userId',
-                        message: 'User ID is required'
+                        field: 'params',
+                        message: 'User ID and verification code are required'
                     }
                 ]
             }
@@ -27,14 +31,17 @@ export async function POST(req: Request) {
         });
     }
 
-    const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/auth/${body.userId}/verification/check`, {
+    const response = await fetch(`${DJANGO_BACKEND_URL}/api/v1/auth/${userId}/verification/check`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Cookie': req.headers.get('Cookie') ?? ""
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+            userId: parseInt(userId),
+            code: code
+        }),
     });
 
     const responseJson = await response.json();
@@ -57,16 +64,10 @@ export async function POST(req: Request) {
             ...(PRODUCTION ? { domain: ".codesirius.tech" } : {}),
         });
 
-        // Remove tokens from response
-        delete responseJson.data.tokens;
+        // Redirect to homepage after successful verification
+        redirect('/');
     }
 
-    return new Response(JSON.stringify(responseJson), {
-        status: response.status,
-        statusText: response.statusText,
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    });
-}
-
+    // If verification fails, redirect to signup page with error
+    redirect('/auth/signup?error=verification_failed');
+} 

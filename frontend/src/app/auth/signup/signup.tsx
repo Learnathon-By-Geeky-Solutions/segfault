@@ -18,7 +18,10 @@ import { Code, Terminal, BugReport, Security } from '@mui/icons-material';
 
 const AuthContainer = styled(Grid)(({ theme }) => ({
     minHeight: '100vh',
-    padding: theme.spacing(4),
+    padding: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+        padding: theme.spacing(4),
+    },
     background: theme.palette.mode === 'dark' 
         ? 'linear-gradient(135deg, rgba(18, 18, 18, 0.95), rgba(30, 30, 30, 0.95))' 
         : 'linear-gradient(135deg, rgba(248, 249, 250, 0.95), rgba(255, 255, 255, 0.95))',
@@ -49,11 +52,17 @@ const AuthContainer = styled(Grid)(({ theme }) => ({
 }));
 
 const AuthPaper = styled(Paper)(({ theme }) => ({
-    padding: theme.spacing(4),
+    padding: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+        padding: theme.spacing(4),
+    },
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    gap: theme.spacing(3),
+    gap: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+        gap: theme.spacing(3),
+    },
     borderRadius: '24px',
     background: theme.palette.mode === 'dark' 
         ? 'rgba(30, 30, 30, 0.8)' 
@@ -61,7 +70,7 @@ const AuthPaper = styled(Paper)(({ theme }) => ({
     backdropFilter: 'blur(20px)',
     border: `1px solid ${theme.palette.divider}`,
     boxShadow: `0 8px 32px ${theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
-    maxHeight: '90vh',
+    maxHeight: 'calc(100vh - 32px)',
     overflowY: 'auto',
     '&::-webkit-scrollbar': {
         width: '8px',
