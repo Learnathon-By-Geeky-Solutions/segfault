@@ -154,6 +154,32 @@ const Page = async ({params}: { params: Promise<{ problemId: string, step: strin
                 });
 
                 const tags = await tagsRes.json();
+
+                // Fetch reference solutions
+                const referenceSolutionsRes = await fetch(`${DJANGO_BACKEND_URL}/api/v1/problems/${problemId}/reference-solutions/`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': headersList.get('Authorization') || ""
+                    }
+                });
+                const referenceSolutions = await referenceSolutionsRes.json();
+
+                // Transform the data into the required format
+                const executionConstraintsMap = problemData.data.executionConstraints?.reduce((acc: any, constraint: any) => {
+                    acc[constraint.languageId] = constraint;
+                    return acc;
+                }, {});
+
+                const referenceSolutionsMap = referenceSolutions.data?.reduce((acc: any, solution: any) => {
+                    acc[solution.languageId] = solution;
+                    return acc;
+                }, {});
+
+                console.log('Execution constraints from problem:', problemData.data.executionConstraints);
+                console.log('Transformed execution constraints:', executionConstraintsMap);
+                console.log('Transformed reference solutions:', referenceSolutionsMap);
+
                 return <ProblemMetaData
                     problemId={problemId}
                     availableLanguages={languages.data}
@@ -162,6 +188,8 @@ const Page = async ({params}: { params: Promise<{ problemId: string, step: strin
                     selectedLanguages={problemData.data.languages.map((l: Language) => l.id)}
                     selectedTags={problemData.data.tags.map((t: Tag) => t.id)}
                     difficulty={problemData.data.difficulty}
+                    executionConstraints={executionConstraintsMap}
+                    referenceSolutions={referenceSolutionsMap}
                 />;
             case 1:
                 return <StatementAndConstraints problemId={problemId} statement={problemData.data.description}/>
