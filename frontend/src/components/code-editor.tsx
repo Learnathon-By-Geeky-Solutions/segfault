@@ -20,7 +20,7 @@ import {SiCplusplus, SiPython} from 'react-icons/si';
 import {DiJava} from 'react-icons/di';
 
 interface CodeEditorProps {
-    code: string;
+    code?: string;
     languages: Language[];
     activeLanguage: Language;
     onSourceCodeChange: OnChange;
@@ -32,6 +32,8 @@ interface CodeEditorProps {
         size?: "small" | "medium";
         sx?: (theme: Theme) => any;
     };
+    height?: string;
+    storageKey?: string;
 }
 
 // Add type declaration for window.monaco
@@ -41,8 +43,36 @@ declare global {
     }
 }
 
+const getLanguageTemplate = (language: Language): string => {
+    switch (language.name) {
+        case "Python":
+            return `def solution():
+    # Write your code here
+    pass
+
+if __name__ == "__main__":
+    solution()`;
+        case "Java":
+            return `public class Solution {
+    public static void main(String[] args) {
+        // Write your code here
+    }
+}`;
+        case "C++":
+            return `#include <iostream>
+using namespace std;
+
+int main() {
+    // Write your code here
+    return 0;
+}`;
+        default:
+            return "";
+    }
+};
+
 const CodeEditor = ({
-                        code,
+                        code = "",
                         languages,
                         activeLanguage,
                         onSourceCodeChange,
@@ -50,13 +80,15 @@ const CodeEditor = ({
                         children,
                         isSaved = true,
                         onReset,
-                        languageSelectProps
+                        languageSelectProps,
+                        height = "100%",
+                        storageKey = "default"
                     }: CodeEditorProps) => {
     const theme = useAppSelector(state => state.codesirius.theme);
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-    const fontSizes: number[] = [12, 14, 16, 18, 20, 22, 24, 26, 28, 30];
     const [fontSize, setFontSize] = useState<number>(14);
     const dispatch = useAppDispatch();
+    const isInitialMount = useRef(true);
 
     const handleEditorMount: OnMount = (editor, monaco) => {
         editorRef.current = editor;
@@ -78,10 +110,12 @@ const CodeEditor = ({
     useEffect(() => {
         if (editorRef.current) {
             const currentValue = editorRef.current.getValue();
-            if (currentValue !== code) {
-                console.log('Updating editor value:', { currentValue, newValue: code });
-                editorRef.current.setValue(code);
+            const newValue = isInitialMount.current && !code ? getLanguageTemplate(activeLanguage) : code;
+            if (currentValue !== newValue) {
+                console.log('Updating editor value:', { currentValue, newValue });
+                editorRef.current.setValue(newValue);
             }
+            isInitialMount.current = false;
         }
     }, [activeLanguage, code]);
 
@@ -170,7 +204,7 @@ const CodeEditor = ({
                 <Box 
                     display="flex" 
                     flexDirection="column" 
-                    height="75vh"
+                    height={height}
                     borderBottom={1}
                     sx={{
                         position: 'relative',
@@ -189,109 +223,169 @@ const CodeEditor = ({
                             padding: '4px 8px',
                             borderBottom: '1px solid',
                             borderColor: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                            backgroundColor: theme === 'dark' ? '#1E1E1E' : '#FFFFFF'
+                            backgroundColor: theme === 'dark' ? '#1E1E1E' : '#FFFFFF',
+                            pr: 8, // Add padding to prevent overlap with fullscreen button
                         }}
                     >
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <Select
-                                value={`${activeLanguage.id}`}
-                                onChange={onLanguageChange}
-                                displayEmpty
-                                size={languageSelectProps?.size}
-                                sx={{
-                                    backgroundColor: theme === 'dark' ? '#3c3c3c' : '#ffffff',
-                                    '& .MuiSelect-select': {
-                                        py: 0.5,
-                                        px: 1,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 0.5,
-                                        fontSize: '0.875rem',
-                                        fontWeight: 500,
-                                        color: 'text.primary',
-                                        '&:hover': {
-                                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05)
-                                        }
-                                    },
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: (theme) => alpha(theme.palette.primary.main, 0.2)
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: (theme) => alpha(theme.palette.primary.main, 0.5)
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'primary.main',
-                                        borderWidth: 1
-                                    },
-                                    ...languageSelectProps?.sx
-                                }}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            mt: 0.5,
-                                            '& .MuiMenuItem-root': {
-                                                py: 0.5,
-                                                px: 1,
-                                                fontSize: '0.875rem',
-                                                fontWeight: 500,
-                                                '&:hover': {
-                                                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05)
-                                                },
-                                                '&.Mui-selected': {
-                                                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <FormControl size="small" sx={{ minWidth: 120 }}>
+                                <Select
+                                    value={`${activeLanguage.id}`}
+                                    onChange={onLanguageChange}
+                                    displayEmpty
+                                    size={languageSelectProps?.size}
+                                    sx={{
+                                        backgroundColor: theme === 'dark' ? '#3c3c3c' : '#ffffff',
+                                        '& .MuiSelect-select': {
+                                            py: 0.5,
+                                            px: 1,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.primary',
+                                            '&:hover': {
+                                                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05)
+                                            }
+                                        },
+                                        '& .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: (theme) => alpha(theme.palette.primary.main, 0.2)
+                                        },
+                                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: (theme) => alpha(theme.palette.primary.main, 0.5)
+                                        },
+                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'primary.main',
+                                            borderWidth: 1
+                                        },
+                                        ...languageSelectProps?.sx
+                                    }}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            sx: {
+                                                mt: 0.5,
+                                                '& .MuiMenuItem-root': {
+                                                    py: 0.5,
+                                                    px: 1,
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
                                                     '&:hover': {
-                                                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.15)
+                                                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05)
+                                                    },
+                                                    '&.Mui-selected': {
+                                                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                                                        '&:hover': {
+                                                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.15)
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                }}
-                            >
-                                {languages.map((lang) => (
-                                    <MenuItem key={lang.id} value={lang.id}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            {getLanguageIcon(lang)}
-                                            <span>{lang.name} {lang.version}</span>
-                                        </Box>
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            {!isSaved && onReset && (
-                                <Tooltip title="Reset Changes">
+                                    }}
+                                >
+                                    {languages.map((lang) => (
+                                        <MenuItem key={lang.id} value={lang.id}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                {getLanguageIcon(lang)}
+                                                <span>{lang.name} {lang.version}</span>
+                                            </Box>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            <Box 
+                                sx={{ 
+                                    height: 24,
+                                    width: '1px',
+                                    bgcolor: (theme) => alpha(theme.palette.divider, 0.15),
+                                    mx: 1
+                                }} 
+                            />
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                {!isSaved && onReset && (
+                                    <Tooltip title="Reset Changes">
+                                        <IconButton 
+                                            onClick={onReset} 
+                                            size="small"
+                                            color="warning"
+                                            sx={{
+                                                '&:hover': {
+                                                    bgcolor: (theme) => alpha(theme.palette.warning.main, 0.1)
+                                                }
+                                            }}
+                                        >
+                                            <RestoreIcon fontSize="small" />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+                                
+                                <Tooltip title="Format Code">
                                     <IconButton 
-                                        onClick={onReset} 
+                                        onClick={formatCode} 
                                         size="small"
-                                        color="warning"
+                                        sx={{
+                                            '&:hover': {
+                                                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1)
+                                            }
+                                        }}
                                     >
-                                        <RestoreIcon fontSize="small" />
+                                        <FormatPaintIcon fontSize="small" />
                                     </IconButton>
                                 </Tooltip>
-                            )}
-                            
-                            <Tooltip title="Format Code">
-                                <IconButton onClick={formatCode} size="small">
-                                    <FormatPaintIcon fontSize="small" />
-                                </IconButton>
-                            </Tooltip>
-                            
+                            </Box>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <Tooltip title="Decrease Font Size">
-                                <IconButton onClick={decreaseFontSize} size="small">
+                                <IconButton 
+                                    onClick={decreaseFontSize} 
+                                    size="small"
+                                    sx={{
+                                        '&:hover': {
+                                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1)
+                                        }
+                                    }}
+                                >
                                     <ZoomOutIcon fontSize="small" />
                                 </IconButton>
                             </Tooltip>
                             
                             <Tooltip title="Increase Font Size">
-                                <IconButton onClick={increaseFontSize} size="small">
+                                <IconButton 
+                                    onClick={increaseFontSize} 
+                                    size="small"
+                                    sx={{
+                                        '&:hover': {
+                                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1)
+                                        }
+                                    }}
+                                >
                                     <ZoomInIcon fontSize="small" />
                                 </IconButton>
                             </Tooltip>
+
+                            <Box 
+                                sx={{ 
+                                    height: 24,
+                                    width: '1px',
+                                    bgcolor: (theme) => alpha(theme.palette.divider, 0.15),
+                                    mx: 1
+                                }} 
+                            />
                             
                             <Tooltip title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Theme`}>
-                                <IconButton onClick={toggleTheme} size="small">
+                                <IconButton 
+                                    onClick={toggleTheme} 
+                                    size="small"
+                                    sx={{
+                                        '&:hover': {
+                                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1)
+                                        }
+                                    }}
+                                >
                                     {theme === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
                                 </IconButton>
                             </Tooltip>
@@ -299,7 +393,7 @@ const CodeEditor = ({
                     </Box>
 
                     <Editor
-                        height="calc(72vh - 40px)"
+                        height="calc(100% - 40px)"
                         defaultLanguage={languages[0].name.toLowerCase()}
                         language={getMonacoLanguage(activeLanguage)}
                         defaultValue={code}
