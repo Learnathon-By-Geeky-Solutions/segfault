@@ -552,7 +552,24 @@ const SubmissionPane = ({problemId, languages, isAuthenticated, problemStatus}: 
                                 fontFamily: 'monospace',
                                 whiteSpace: 'pre-wrap',
                                 wordBreak: 'break-word',
-                                m: 0
+                                m: 0,
+                                maxHeight: '200px',
+                                overflowY: 'auto',
+                                '&::-webkit-scrollbar': {
+                                    width: '6px',
+                                    height: '6px',
+                                },
+                                '&::-webkit-scrollbar-track': {
+                                    background: (theme) => alpha(theme.palette.primary.main, 0.1),
+                                    borderRadius: '3px',
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    background: (theme) => alpha(theme.palette.primary.main, 0.3),
+                                    borderRadius: '3px',
+                                    '&:hover': {
+                                        background: (theme) => alpha(theme.palette.primary.main, 0.5),
+                                    }
+                                }
                             }}
                         >
                             {data.expected_output}
@@ -576,7 +593,24 @@ const SubmissionPane = ({problemId, languages, isAuthenticated, problemStatus}: 
                                 fontFamily: 'monospace',
                                 whiteSpace: 'pre-wrap',
                                 wordBreak: 'break-word',
-                                m: 0
+                                m: 0,
+                                maxHeight: '200px',
+                                overflowY: 'auto',
+                                '&::-webkit-scrollbar': {
+                                    width: '6px',
+                                    height: '6px',
+                                },
+                                '&::-webkit-scrollbar-track': {
+                                    background: (theme) => alpha(data.verdict === "AC" ? theme.palette.success.main : theme.palette.error.main, 0.1),
+                                    borderRadius: '3px',
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    background: (theme) => alpha(data.verdict === "AC" ? theme.palette.success.main : theme.palette.error.main, 0.3),
+                                    borderRadius: '3px',
+                                    '&:hover': {
+                                        background: (theme) => alpha(data.verdict === "AC" ? theme.palette.success.main : theme.palette.error.main, 0.5),
+                                    }
+                                }
                             }}
                         >
                             {differences.map((part: Change, index: number) => {
