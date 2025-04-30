@@ -1,0 +1,1 @@
+from submission_consumer.consumer import SubmissionConsumer
