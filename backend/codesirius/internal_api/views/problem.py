@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ProblemRetrieveUpdateAPIView(APIView):
     """
-    This is view is a part of internal API and
+    This view is a part of internal API and
     intended to be used by the internal services only.
 
     This view is used to retrieve and update a problem.
