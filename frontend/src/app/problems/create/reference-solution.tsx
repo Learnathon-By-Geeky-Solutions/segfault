@@ -97,7 +97,20 @@ const ReferenceSolution = ({problemId, languages, referenceSolutions}: Reference
     );
 
     // Initialize active language with persistence
-    const [activeLanguage, setActiveLanguage] = useState<Language>(languages[0]);
+    const [activeLanguage, setActiveLanguage] = useState<Language>(() => {
+        // Try to get active language from localStorage
+        const storageKey = `problem_${problemId}_active_language`;
+        const savedLanguageId = localStorage.getItem(storageKey);
+        if (savedLanguageId) {
+            const languageId = parseInt(savedLanguageId);
+            const savedLanguage = languages.find(lang => lang.id === languageId);
+            if (savedLanguage) {
+                return savedLanguage;
+            }
+        }
+        // Fallback to first language if no saved language found
+        return languages[0];
+    });
 
     // Set loading to false when component mounts
     const dispatch = useAppDispatch();
@@ -786,13 +799,15 @@ const ReferenceSolution = ({problemId, languages, referenceSolutions}: Reference
                 />
             )}
             <CodeEditor
-                code={currentSolution?.code || ""}
+                code={currentSolution?.code}
                 languages={languages}
                 activeLanguage={activeLanguage}
                 onSourceCodeChange={handleSourceCodeChange}
                 onLanguageChange={handleLanguageChange}
                 isSaved={!hasUnsavedChanges}
                 onReset={handleReset}
+                height="72vh"
+                storageKey={`reference_${problemId}`}
                 languageSelectProps={{
                     size: "small",
                     sx: (theme: Theme) => ({

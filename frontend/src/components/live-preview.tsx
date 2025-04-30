@@ -159,18 +159,18 @@ const LivePreview = ({ title: propTitle, description: propDescription, hideHeade
                     remarkPlugins={[remarkGfm, remarkMath]}
                     rehypePlugins={[rehypeKatex, rehypeRaw]}
                     components={{
-                        // More compact heading styles
-                        h1: ({node, ...props}) => <Typography variant="h5" component="h1" sx={{ mt: 0.75, mb: 0.5 }} {...props} />,
-                        h2: ({node, ...props}) => <Typography variant="h6" component="h2" sx={{ mt: 0.75, mb: 0.5 }} {...props} />,
-                        h3: ({node, ...props}) => <Typography variant="subtitle1" component="h3" sx={{ mt: 0.75, mb: 0.5 }} {...props} />,
-                        h4: ({node, ...props}) => <Typography variant="subtitle2" component="h4" sx={{ mt: 0.5, mb: 0.25 }} {...props} />,
-                        h5: ({node, ...props}) => <Typography variant="body1" fontWeight="bold" component="h5" sx={{ mt: 0.5, mb: 0.25 }} {...props} />,
-                        h6: ({node, ...props}) => <Typography variant="body2" fontWeight="bold" component="h6" sx={{ mt: 0.5, mb: 0.25 }} {...props} />,
+                        // Enhanced heading styles with better spacing and visual hierarchy
+                        h1: ({node, ...props}) => <Typography variant="h4" component="h1" sx={{ mt: 1.25, mb: 0.15, fontWeight: 600, color: 'primary.main' }} {...props} />,
+                        h2: ({node, ...props}) => <Typography variant="h5" component="h2" sx={{ mt: 1, mb: 0.15, fontWeight: 600 }} {...props} />,
+                        h3: ({node, ...props}) => <Typography variant="h6" component="h3" sx={{ mt: 0.75, mb: 0.15, fontWeight: 600 }} {...props} />,
+                        h4: ({node, ...props}) => <Typography variant="subtitle1" component="h4" sx={{ mt: 0.75, mb: 0.15, fontWeight: 600 }} {...props} />,
+                        h5: ({node, ...props}) => <Typography variant="subtitle2" component="h5" sx={{ mt: 0.5, mb: 0.15, fontWeight: 600 }} {...props} />,
+                        h6: ({node, ...props}) => <Typography variant="body1" component="h6" sx={{ mt: 0.5, mb: 0.15, fontWeight: 600 }} {...props} />,
 
-                        // Compact paragraph styles
-                        p: ({node, ...props}) => <Typography variant="body2" sx={{ mb: 0.5, mt: 0 }} {...props} />,
+                        // Enhanced paragraph styles with better line height and spacing
+                        p: ({node, ...props}) => <Typography variant="body1" sx={{ mb: 0.75, mt: 0, lineHeight: 1.5 }} {...props} />,
 
-                        // Compact code styles
+                        // Enhanced code styles with better contrast and spacing
                         code: ({node, className, children, ...props}) => {
                             const match = /language-(\w+)/.exec(className || '');
                             const isInline = !match;
@@ -178,16 +178,18 @@ const LivePreview = ({ title: propTitle, description: propDescription, hideHeade
                                 <Typography
                                     component="code"
                                     sx={{
-                                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                                        padding: isInline ? '0.15em 0.3em' : '0.4em',
+                                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                        padding: isInline ? '0.2em 0.4em' : '0.8em',
                                         borderRadius: 1,
-                                        fontSize: '0.85em',
+                                        fontSize: '0.9em',
                                         fontFamily: 'monospace',
                                         display: isInline ? 'inline-block' : 'block',
+                                        lineHeight: 1.5,
                                         ...(isInline ? {} : {
                                             overflow: 'auto',
                                             whiteSpace: 'pre',
-                                            my: 0.25,
+                                            my: 1,
+                                            border: `1px solid ${theme.palette.divider}`,
                                         }),
                                     }}
                                     {...props}
@@ -197,27 +199,28 @@ const LivePreview = ({ title: propTitle, description: propDescription, hideHeade
                             );
                         },
 
-                        // Compact blockquote styles
+                        // Enhanced blockquote styles with better visual appeal
                         blockquote: ({node, children, ...props}) => (
                             <Box
                                 component="blockquote"
                                 sx={{
-                                    borderLeft: '3px solid',
+                                    borderLeft: '4px solid',
                                     borderColor: 'primary.main',
-                                    padding: 0.75,
-                                    margin: '0.2em 0',
+                                    padding: 1.5,
+                                    margin: '1em 0',
                                     backgroundColor: (theme) =>
                                         theme.palette.mode === 'dark'
                                             ? 'rgba(255, 255, 255, 0.05)'
                                             : 'rgba(0, 0, 0, 0.03)',
-                                    borderRadius: '0 4px 4px 0',
+                                    borderRadius: '0 8px 8px 0',
                                     '& p': {
                                         margin: 0,
                                         color: 'text.secondary',
                                         fontStyle: 'italic',
+                                        lineHeight: 1.7,
                                     },
                                     '& p:not(:last-child)': {
-                                        marginBottom: 0.25,
+                                        marginBottom: 0.75,
                                     },
                                 }}
                                 {...props}
@@ -226,14 +229,16 @@ const LivePreview = ({ title: propTitle, description: propDescription, hideHeade
                             </Box>
                         ),
 
-                        // Improved table styles with horizontal scrolling
+                        // Enhanced table styles with better spacing and borders
                         table: ({node, children, ...props}) => (
                             <Box
                                 sx={{
                                     overflowX: 'auto',
-                                    my: 1,
+                                    my: 2,
                                     maxWidth: '100%',
                                     display: 'block',
+                                    borderRadius: 1,
+                                    border: `1px solid ${theme.palette.divider}`,
                                 }}
                             >
                                 <Box
@@ -243,19 +248,22 @@ const LivePreview = ({ title: propTitle, description: propDescription, hideHeade
                                         width: 'auto',
                                         minWidth: '50%',
                                         maxWidth: '100%',
-                                        fontSize: '0.85rem',
+                                        fontSize: '0.9rem',
                                         '& th, & td': {
-                                            border: '1px solid',
-                                            borderColor: 'divider',
-                                            padding: 0.75,
+                                            border: `1px solid ${theme.palette.divider}`,
+                                            padding: 1,
                                             fontSize: 'inherit',
+                                            lineHeight: 1.5,
                                         },
                                         '& th': {
-                                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                                            fontWeight: 'bold',
+                                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                            fontWeight: 600,
                                         },
-                                        '& tr:not(:last-child)': {
-                                            marginBottom: 0,
+                                        '& tr:nth-of-type(even)': {
+                                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                                        },
+                                        '& tr:hover': {
+                                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
                                         },
                                     }}
                                     {...props}
@@ -265,28 +273,61 @@ const LivePreview = ({ title: propTitle, description: propDescription, hideHeade
                             </Box>
                         ),
 
-                        // Compact list styles
+                        // Enhanced list styles with better spacing and bullets
                         ul: ({node, children, ...props}) => (
-                            <Box component="ul" sx={{ pl: 2, my: 0.25, '& li': { fontSize: '0.875rem' } }} {...props}>
+                            <Box 
+                                component="ul" 
+                                sx={{ 
+                                    pl: 1.5, 
+                                    my: 0.15, 
+                                    '& li': { 
+                                        fontSize: '0.95rem',
+                                        lineHeight: 1.5,
+                                        mb: 0.15,
+                                        '&::marker': {
+                                            color: 'primary.main'
+                                        }
+                                    } 
+                                }} 
+                                {...props}
+                            >
                                 {children}
                             </Box>
                         ),
                         ol: ({node, children, ...props}) => (
-                            <Box component="ol" sx={{ pl: 2, my: 0.25, '& li': { fontSize: '0.875rem' } }} {...props}>
+                            <Box 
+                                component="ol" 
+                                sx={{ 
+                                    pl: 1.5, 
+                                    my: 0.15, 
+                                    '& li': { 
+                                        fontSize: '0.95rem',
+                                        lineHeight: 1.5,
+                                        mb: 0.15,
+                                        '&::marker': {
+                                            color: 'primary.main'
+                                        }
+                                    } 
+                                }} 
+                                {...props}
+                            >
                                 {children}
                             </Box>
                         ),
 
-                        // Compact link styles
+                        // Enhanced link styles with better hover effects
                         a: ({node, children, ...props}) => (
                             <Typography
                                 component="a"
-                                variant="body2"
+                                variant="body1"
                                 sx={{
                                     color: 'primary.main',
                                     textDecoration: 'none',
+                                    borderBottom: '1px solid transparent',
+                                    transition: 'all 0.2s ease',
                                     '&:hover': {
-                                        textDecoration: 'underline',
+                                        borderBottom: '1px solid',
+                                        borderColor: 'primary.main',
                                     },
                                 }}
                                 {...props}
@@ -295,15 +336,20 @@ const LivePreview = ({ title: propTitle, description: propDescription, hideHeade
                             </Typography>
                         ),
 
-                        // Compact image styles
+                        // Enhanced image styles with better borders and hover effects
                         img: ({node, ...props}) => (
                             <Box
                                 component="img"
                                 sx={{
                                     maxWidth: '100%',
                                     height: 'auto',
-                                    borderRadius: 1,
-                                    my: 0.25,
+                                    borderRadius: 2,
+                                    my: 2,
+                                    boxShadow: 1,
+                                    transition: 'transform 0.2s ease',
+                                    '&:hover': {
+                                        transform: 'scale(1.01)',
+                                    },
                                 }}
                                 {...props}
                             />

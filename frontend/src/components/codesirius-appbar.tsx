@@ -104,11 +104,6 @@ const navItems = [
         'icon': <EmojiEvents/>,
         'link': '/contests'
     },
-    {
-        'name': 'Leaderboard',
-        'icon': <Leaderboard/>,
-        'link': '/leaderboard'
-    },
 ]
 
 
@@ -159,19 +154,29 @@ export default function CodesiriusAppBar() {
     const settings = [
         {
             name: 'Profile',
-            icon: <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg"/>,
+            icon: <Avatar 
+                    sx={{ 
+                        width: 24, 
+                        height: 24, 
+                        fontSize: '0.875rem',
+                        bgcolor: theme.palette.primary.main,
+                        color: 'white'
+                    }}
+                  >
+                    {user?.firstName[0]}{user?.lastName[0]}
+                  </Avatar>,
             onClick: () => {
             }
         },
         {
             name: 'Settings',
-            icon: <Settings/>,
+            icon: <Settings sx={{ fontSize: 20 }} />,
             onClick: () => {
             }
         },
         {
             name: 'Sign out',
-            icon: <Logout/>,
+            icon: <Logout sx={{ fontSize: 20 }} />,
             onClick: () => {
                 window.location.href = '/api/auth/signout';
             }
@@ -288,11 +293,38 @@ export default function CodesiriusAppBar() {
                         </Tooltip>
                         <Tooltip title="Open settings">
                           <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
-                            <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg"/>
+                            <Avatar 
+                              alt={`${user.firstName} ${user.lastName}`}
+                              sx={{ 
+                                bgcolor: theme.palette.primary.main,
+                                color: 'white'
+                              }}
+                            >
+                              {user.firstName[0]}{user.lastName[0]}
+                            </Avatar>
                           </IconButton>
                         </Tooltip>
                         <Menu
-                          sx={{mt: '45px'}}
+                          sx={{ 
+                            mt: '45px',
+                            '& .MuiPaper-root': {
+                                minWidth: 200,
+                                borderRadius: 2,
+                                boxShadow: theme.palette.mode === 'dark' 
+                                    ? '0 4px 20px rgba(0, 0, 0, 0.5)'
+                                    : '0 4px 20px rgba(0, 0, 0, 0.1)',
+                                '& .MuiMenuItem-root': {
+                                    py: 1.5,
+                                    px: 2,
+                                    gap: 1.5,
+                                    '&:hover': {
+                                        backgroundColor: theme.palette.mode === 'dark'
+                                            ? 'rgba(255, 255, 255, 0.08)'
+                                            : 'rgba(0, 0, 0, 0.04)',
+                                    }
+                                }
+                            }
+                          }}
                           id="menu-appbar"
                           anchorEl={anchorElUser}
                           anchorOrigin={{
@@ -308,9 +340,23 @@ export default function CodesiriusAppBar() {
                           onClose={handleCloseUserMenu}
                         >
                             {settings.map(({name, icon, onClick}) => (
-                                <MenuItem key={name} onClick={onClick}>
+                                <MenuItem 
+                                    key={name} 
+                                    onClick={() => {
+                                        onClick();
+                                        handleCloseUserMenu();
+                                    }}
+                                >
                                     {icon}
-                                    <Typography sx={{ml: 1}}>{name}</Typography>
+                                    <Typography 
+                                        variant="body2" 
+                                        sx={{ 
+                                            fontWeight: 500,
+                                            color: theme.palette.text.primary
+                                        }}
+                                    >
+                                        {name}
+                                    </Typography>
                                 </MenuItem>
                             ))}
                         </Menu>
