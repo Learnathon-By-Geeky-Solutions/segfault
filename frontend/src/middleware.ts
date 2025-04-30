@@ -65,7 +65,7 @@ export async function middleware(req: NextRequest) {
     // check if user tries to access /signin or /signup while signed in
     const url = req.nextUrl.clone();
     if (url.pathname === "/auth/signin" || url.pathname === "/auth/signup") {
-        return NextResponse.redirect("http://localhost:3000/");
+        return NextResponse.redirect(process.env.NEXT_PUBLIC_BACKEND_URL + "/");
     }
 
     return NextResponse.next({
