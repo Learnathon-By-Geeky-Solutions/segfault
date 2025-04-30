@@ -55,16 +55,16 @@ def generate(username, userid, verification_code):
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0;">
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f8fafc;">
           <tr>
-            <td style="vertical-align: top; padding: 40px 0;">
-              <div class="content" style="max-width: 600px; margin: 0 auto; padding: 40px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
-                <div style="text-align: center; margin-bottom: 32px;">
+            <td style="vertical-align: top; padding: 40px 20px;">
+              <div class="content" style="max-width: 600px; margin: 0 auto; padding: 48px 40px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
+                <div style="text-align: center; margin-bottom: 40px;">
                   <a href="https://codesirius.tech" class="logo">CodeSirius</a>
                   <div class="motto">Ace your interviews</div>
                 </div>
                 
-                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 24px;">Hi {username},</p>
+                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 24px; padding: 0 8px;">Hi {username},</p>
                 
-                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 24px;">Welcome to CodeSirius! We're excited to have you join our community of learners and achievers. To get started, please verify your account by clicking the button below:</p>
+                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 24px; padding: 0 8px;">Welcome to CodeSirius! We're excited to have you join our community of learners and achievers. To get started, please verify your account by clicking the button below:</p>
                 
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; margin: 32px 0;">
                   <tr>
@@ -74,15 +74,15 @@ def generate(username, userid, verification_code):
                   </tr>
                 </table>
 
-                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 16px;">Or copy and paste this verification code:</p>
+                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 0 0 16px; padding: 0 8px;">Or copy and paste this verification code:</p>
                 
                 <div class="verification-code-container">
                   <span class="verification-code">{verification_code}</span>
                 </div>
 
-                <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin: 32px 0 0;">If you didn't create an account with CodeSirius, you can safely ignore this email.</p>
+                <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin: 32px 0 0; padding: 0 8px;">If you didn't create an account with CodeSirius, you can safely ignore this email.</p>
                 
-                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 32px 0 0;">Best regards,<br>The CodeSirius Team</p>
+                <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin: 32px 0 0; padding: 0 8px;">Best regards,<br>The CodeSirius Team</p>
               </div>
             </td>
           </tr>
