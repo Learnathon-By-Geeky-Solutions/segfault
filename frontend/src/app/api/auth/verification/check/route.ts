@@ -1,4 +1,8 @@
+import { cookies } from "next/headers";
+
 const DJANGO_BACKEND_URL = process.env.DJANGO_BACKEND_URL || "http://localhost:8000";
+const PRODUCTION = process.env.PRODUCTION === "true" || false;
+
 export async function POST(req: Request) {
     const body = await req.json();
     if (!body.userId) {
@@ -33,30 +37,30 @@ export async function POST(req: Request) {
         body: JSON.stringify(body),
     });
 
-
     const responseJson = await response.json();
-    // check if status is 200
-    // save tokens into a variable
-    // delete tokens from response
-    // set tokens in cookies
-    // send response
+    
     if (response.status === 200) {
-        const accessToken = responseJson.data.tokens.access;
-        const refreshToken = responseJson.data.tokens.refresh;
-        // delete tokens from response
+        const { access, refresh } = responseJson.data.tokens;
+        const cookieStore = await cookies();
+        
+        cookieStore.set("access", access, {
+            path: "/",
+            sameSite: PRODUCTION ? "none" : "lax",
+            secure: PRODUCTION ? true : false,
+            ...(PRODUCTION ? { domain: ".codesirius.tech" } : {}),
+        });
+
+        cookieStore.set("refresh", refresh, {
+            path: "/",
+            sameSite: PRODUCTION ? "none" : "lax",
+            secure: PRODUCTION ? true : false,
+            ...(PRODUCTION ? { domain: ".codesirius.tech" } : {}),
+        });
+
+        // Remove tokens from response
         delete responseJson.data.tokens;
-        // set tokens in cookies
-        return new Response(JSON.stringify(responseJson), {
-            status: response.status,
-            statusText: response.statusText,
-            headers: {
-                'Content-Type': 'application/json',
-                'Set-Cookie': `access=${accessToken}; SameSite=Strict; Path=/; HttpOnly; Secure, refresh=${refreshToken}; SameSite=Strict; Path=/; HttpOnly; Secure`,
-            }
-        })
     }
 
-    // send response as it is
     return new Response(JSON.stringify(responseJson), {
         status: response.status,
         statusText: response.statusText,
