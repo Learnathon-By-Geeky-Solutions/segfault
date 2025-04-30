@@ -203,23 +203,23 @@ class ReferenceSolutionRetrieveUpdateDestroyAPIView(APIView):
         logger.warning("Reference solution update failed due to validation errors")
         raise ValidationError(serializer.errors)
 
-    def delete(
-        self, request: Request, problem_pk: int, pk: int
-    ) -> CodesiriusAPIResponse:
-        """
-        Delete a reference solution by its primary key
-        """
-        logger.info(f"Deleting reference solution with ID: {pk}")
-        try:
-            problem = Problem.objects.get(pk=problem_pk)
-            self.check_object_permissions(request, problem)
-            reference_solution = problem.referencesolution_set.get(pk=pk)
-            reference_solution.delete()
-            logger.info(f"Reference solution with ID: {pk} deleted successfully")
-            return CodesiriusAPIResponse(message="Reference solution deleted")
-        except Problem.DoesNotExist:
-            logger.error(f"Problem with ID: {problem_pk} does not exist")
-            raise NotFound("Problem not found")
-        except ReferenceSolution.DoesNotExist:
-            logger.warning(f"Reference solution with ID: {pk} not found")
-            raise NotFound("Reference solution not found")
+    # def delete(
+    #     self, request: Request, problem_pk: int, pk: int
+    # ) -> CodesiriusAPIResponse:
+    #     """
+    #     Delete a reference solution by its primary key
+    #     """
+    #     logger.info(f"Deleting reference solution with ID: {pk}")
+    #     try:
+    #         problem = Problem.objects.get(pk=problem_pk)
+    #         self.check_object_permissions(request, problem)
+    #         reference_solution = problem.referencesolution_set.get(pk=pk)
+    #         reference_solution.delete()
+    #         logger.info(f"Reference solution with ID: {pk} deleted successfully")
+    #         return CodesiriusAPIResponse(message="Reference solution deleted")
+    #     except Problem.DoesNotExist:
+    #         logger.error(f"Problem with ID: {problem_pk} does not exist")
+    #         raise NotFound("Problem not found")
+    #     except ReferenceSolution.DoesNotExist:
+    #         logger.warning(f"Reference solution with ID: {pk} not found")
+    #         raise NotFound("Reference solution not found")
