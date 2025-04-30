@@ -1,4 +1,4 @@
-FROM node:22.13.1-bullseye
+FROM node:lts-bullseye
 LABEL maintainer="segfault"
 
 WORKDIR /app
