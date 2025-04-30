@@ -13,11 +13,6 @@ class Submission(BaseSubmission):
     Attributes:
     """
 
-    user = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.CASCADE,
-    )
-
     class Meta:
         verbose_name = "Submission"
         verbose_name_plural = "Submissions"
